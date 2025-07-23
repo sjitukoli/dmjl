@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>तालुका योजना रँकिंग डॅशबोर्ड</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #ddeaff 0%, #a1c4fd 100%);
+      min-height: 100vh; padding: 2rem 1rem;
+      font-family: 'Inter', sans-serif; color: #1e293b;
+    }
+    .glass {
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: saturate(180%) blur(10px);
+      border-radius: 1.2rem;
+      box-shadow: 0 12px 32px 0 #38bdf825;
+      padding: 1.7rem 1rem 1.5rem 1rem;
+      margin: 0 auto;
+    }
+    .kpi-card {
+      border-radius: 1.05em;
+      padding: 1.3em .5em;
+      text-align: center;
+      background: white;
+      box-shadow: 0 3px 14px #94a3b866;
+      font-weight: 700;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.20s, box-shadow 0.18s;
+      border: 2px solid #93c5fd33;
+    }
+    .kpi-card:hover {
+      transform: scale(1.072);
+      box-shadow: 0 12px 34px #2563eb33;
+      border: 2.25px solid #1e40af77;
+      color: #1e40af;
+      z-index:2;
+    }
+    .kpi-label { font-size: 1.16em; margin-top: 0.19em; color: #475569; font-weight: 800;}
+    .kpi-value { font-size: 2.3em; color:#2563eb; font-weight:900; margin-bottom:0.1em;}
+    .pill-top { background:#bbf7d0cc; color:#065f46;}
+    .pill-mid { background:#feefb3bb; color:#78350f;}
+    .pill-bottom { background:#fecacabb; color:#991b1b;}
+    .kpi-info { font-size:1em; font-weight:600; line-height:1.5; }
+    .tooltip2:hover::after {
+      content: attr(data-tooltip2);
+      position: absolute;
+      left:50%;top:-2.1em;transform:translateX(-50%);
+      background: #0ea5e9; color: #fff;
+      font-size:0.97em; padding:0.23em 0.95em;
+      border-radius: .4em; pointer-events:none;opacity:0.97;
+      box-shadow:0 2px 9px #2563eb1a;white-space:nowrap;
+    }
+    table {border-radius:0.8em; font-size:0.97em;}
+    thead tr th { background: #2563eb; color: white; padding:10px 13px; font-weight:700;}
+    tbody tr { background: white; border-bottom: 1px solid #e7e5de;}
+    tbody tr:hover { background:#e0e7ff95;}
+    tbody tr.selected {background:#fef3c7;font-weight:900;color:#78350f;}
+    td {padding:10px 13px;text-align:center;}
+    .btn {background: #1e40af; color:white; font-weight:700; padding:0.5em 1.3em; border-radius:0.4em;transition:background .22s;}
+    .btn:hover { background:#2563eb;box-shadow:0 6px 22px #38bdf84a;}
+  </style>
+</head>
+<body>
+<div class="glass max-w-7xl">
+  <h1 class="text-3xl md:text-4xl font-extrabold mb-1 text-center text-sky-800 drop-shadow">तालुका योजना रँकिंग डॅशबोर्ड</h1>
+  <p class="mb-6 mt-1 text-center text-sky-900 opacity-90">(कमी रँक = उत्तम कामगिरी)</p>
+  <div class="flex flex-col md:flex-row gap-4 items-center justify-center mb-6">
+    <select id="talukaSelect" class="rounded border-gray-400 border p-2 w-[260px]" disabled>
+      <option>लोड होत आहे...</option>
+    </select>
+    <button id="resetBtn" class="btn" style="display:none;">संपूर्ण तालुके पाहा</button>
+  </div>
+  <!-- Main KPI summary blocks -->
+  <div id="kpiSummary" class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-7"></div>
+  <!-- Top/Middle/Bottom 3 Taluka KPI cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-9">
+    <div class="kpi-card pill-top tooltip2" data-tooltip2="श्रेष्ठ ३ तालुके">
+      <div class="kpi-value" style="color:#16a34a;">🥇</div>
+      <div class="kpi-label">Top 3</div>
+      <ul id="top3List" class="mt-1 text-green-900 font-semibold"></ul>
+    </div>
+    <div class="kpi-card pill-mid tooltip2" data-tooltip2="मध्यम ३ तालुके">
+      <div class="kpi-value" style="color:#b45309;">⚖️</div>
+      <div class="kpi-label">मध्यम ३</div>
+      <ul id="mid3List" class="mt-1 text-amber-800 font-semibold"></ul>
+    </div>
+    <div class="kpi-card pill-bottom tooltip2" data-tooltip2="तळटीप ३ तालुके">
+      <div class="kpi-value" style="color:#dc2626;">🥉</div>
+      <div class="kpi-label">तळटीप ३</div>
+      <ul id="bottom3List" class="mt-1 text-red-800 font-semibold"></ul>
+    </div>
+  </div>
+  <!-- Charts section -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-7 mb-10">
+    <div class="bg-white rounded-lg p-5 shadow-lg">
+      <h3 class="font-semibold mb-3 text-center text-sky-800">सर्व योजना - सरासरी स्थान (Vertical Bar)</h3>
+      <canvas id="barChart" height="245"></canvas>
+      <!-- Vertical bar chart (parameter-wise avg rank) -->
+    </div>
+    <div class="bg-white rounded-lg p-5 shadow-lg">
+      <h3 class="font-semibold mb-3 text-center text-sky-800">तालुक्यांचे वर्गीकरण (Donut)</h3>
+      <canvas id="donutChart" height="245"></canvas>
+    </div>
+  </div>
+  <!-- EXTRA: Taluka wise Horizontal Bar Chart -->
+  <div class="mb-12 bg-white p-5 rounded-lg shadow-lg">
+    <h3 class="font-semibold mb-4 text-sky-900">तालुका एकूण स्कोअर (Horizontal Bar)</h3>
+    <canvas id="horizontalBarChart" height="320"></canvas>
+  </div>
+  <!-- Table: Parameter-wise Top (Tie) Talukas -->
+  <div class="mb-6 bg-white p-4 rounded-lg shadow">
+    <h3 class="font-semibold text-sky-900 mb-3">योजनानुसार टॉप रँक व टाय तालुके</h3>
+    <table id="paramTopTable"></table>
+  </div>
+  <!-- Full Taluka Rankings Table -->
+  <div class="overflow-x-auto mb-10 bg-white rounded-lg p-4 shadow">
+    <h3 class="font-semibold text-sky-900 mb-2">संपूर्ण तालुक्यांची रँकिंग यादी</h3>
+    <table id="fullTable" class="min-w-full"></table>
+  </div>
+  <!-- Comparison section -->
+  <div class="bg-white rounded-lg p-5 shadow-md">
+    <h3 class="font-semibold text-center mb-4">तालुका तुलना करा</h3>
+    <div class="flex flex-col md:flex-row items-center gap-3 mb-3">
+      <select id="cmpA" class="border rounded p-2 w-[180px]"></select>
+      <span>-VS-</span>
+      <select id="cmpB" class="border rounded p-2 w-[180px]"></select>
+      <button id="cmpBtn" class="btn">तुलना</button>
+    </div>
+    <div id="cmpResult"></div>
+  </div>
+</div>
+<script>
+const SHEET_ID = "1aINSij-6mXtt4Gbocn0A1PHbuh7XMImHL0zFmdVKhVs";
+const RANGE = "Rank!B5:AI20";
+const API_KEY = "AIzaSyCD236Hc9OAwXldM_IBzwFT-4ZCiIIPP2M";
+let headers=[], data=[], talukas=[];
+
+function safeNum(x){ let n=+x; return isNaN(n)?Infinity:n;}
+
+async function init() {
+  let url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+  let r = await fetch(url), j = await r.json();
+  headers=j.values[0];
+  data = j.values.slice(1).map(row=>Object.fromEntries(headers.map((h,i)=>[h,row[i]||""])))
+    .filter(r=>r['तालुका']);
+  talukas = data.map(r=>r['तालुका']);
+  document.getElementById('talukaSelect').disabled = false;
+  document.getElementById('talukaSelect').innerHTML =
+    `<option selected disabled>तालुका निवडा</option>`+talukas.map(t=>`<option>${t}</option>`).join('');
+  renderSummaryKPI();
+  renderTopMidBot();
+  renderCharts();
+  renderHorizontalChart();
+  renderParamTops();
+  renderFullTable();
+  populateCmpDropdowns();
+}
+
+function renderSummaryKPI(sel) {
+  const params = headers.filter(h=> h!='तालुका' && h!='अ.क्र.');
+  let totalT = talukas.length, totalP = params.length;
+  if(!sel){
+    document.getElementById('kpiSummary').innerHTML = `
+      <div class="kpi-card tooltip2" data-tooltip2="तालुके (${totalT})"><div class="kpi-value">${totalT}</div><div class="kpi-label">तालुक्यांची एकूण संख्या</div></div>
+      <div class="kpi-card tooltip2" data-tooltip2="योजना/पॅरामीटर्स (${totalP})"><div class="kpi-value">${totalP}</div><div class="kpi-label">योजना/पॅरामीटर्स</div></div>
+      <div class="kpi-card tooltip2" data-tooltip2="Dashboard वापरा!"><div class="kpi-value">📊</div><div class="kpi-label">समग्र चित्र</div></div>
+      <div class="kpi-card tooltip2" data-tooltip2="32 पैकी बेस्ट पॅराम"><div class="kpi-value">${Math.max(1,Math.floor(totalP*0.7))}</div><div class="kpi-label">Bests: योजना</div></div>
+    `;
+    document.getElementById('resetBtn').style.display='none';
+  } else {
+    let talD = data.find(r=>r['तालुका']==sel);
+    let bestP = params[0], worstP=params[0], bestCnt=0;
+    params.forEach(p=>{
+      if(safeNum(talD[p]) < safeNum(talD[bestP])) bestP=p;
+      if(safeNum(talD[p]) > safeNum(talD[worstP])) worstP=p;
+      if(safeNum(talD[p])<=5) bestCnt++;
+    });
+    let rankSum = params.reduce((a,p)=>a+safeNum(talD[p]),0);
+    let allTalRankSum = data.map(r=>params.reduce((a,p)=>a+safeNum(r[p]),0));
+    let overallRank = allTalRankSum.slice().sort((a,b)=>a-b).findIndex(x=>x==rankSum)+1;
+    document.getElementById('kpiSummary').innerHTML = `
+      <div class="kpi-card pill-top tooltip2" data-tooltip2="तुमचा एकूण रँक">
+        <div class="kpi-value">${overallRank} / ${talukas.length}</div>
+        <div class="kpi-label">🥇 एकूण रँक</div>
+      </div>
+      <div class="kpi-card pill-mid tooltip2" data-tooltip2="Best PERFORMING Parameter">
+        <div class="kpi-value">${bestP}</div>
+        <div class="kpi-label">📈 सर्वोत्तम योजना</div>
+      </div>
+      <div class="kpi-card pill-bottom tooltip2" data-tooltip2="Improvement Area">
+        <div class="kpi-value">${worstP}</div>
+        <div class="kpi-label">⚠️ सुधारणा आवश्यक</div>
+      </div>
+      <div class="kpi-card tooltip2" data-tooltip2="Top 5 मधील योजना/पॅरामीटर्स">
+        <div class="kpi-value">${bestCnt} / ${params.length}</div>
+        <div class="kpi-label">🏅 टॉप योजना</div>
+      </div>
+    `;
+    document.getElementById('resetBtn').style.display='inline-block';
+  }
+}
+
+function renderTopMidBot(){
+  const params = headers.filter(h=> h!='तालुका' && h!='अ.क्र.');
+  // sum of ranks (lower = better)
+  let sumR = data.map(r=>({t:r['तालुका'], s:params.reduce((a,p)=>a+safeNum(r[p]),0)}));
+  let sorted = sumR.slice().sort((a,b)=>a.s-b.s);
+  let mid = Math.floor(sorted.length/2);
+  let mid3 = sorted.slice(Math.max(0,mid-1),mid+2);
+  let top3=sorted.slice(0,3), bot3=sorted.slice(-3);
+  let ul = (lst,cls) => lst.map(a=>`<li class="${cls}">${a.t} (${a.s.toFixed(1)})</li>`).join('');
+  document.getElementById('top3List').innerHTML = ul(top3,"");
+  document.getElementById('mid3List').innerHTML = ul(mid3,"");
+  document.getElementById('bottom3List').innerHTML = ul(bot3,"");
+}
+
+function renderCharts(){
+  const params = headers.filter(h=> h!='तालुका' && h!='अ.क्र.');
+  // Vertical Bar: param vs avg rank
+  let avgs = params.map(p=>{
+    let vals = data.map(r=>safeNum(r[p])).filter(x=>x!=Infinity);
+    return vals.reduce((a,b)=>a+b,0)/vals.length;
+  });
+  let ctx=document.getElementById('barChart').getContext('2d');
+  if(window.barChart) window.barChart.destroy();
+  window.barChart = new Chart(ctx,{
+    type:'bar',
+    data:{labels:params,datasets:[{label:'Avg Rank',data:avgs,backgroundColor:avgs.map(r=>r < 5 ? '#22c55e': r<10 ? '#fbbf24':'#ef4444')}]},
+    options:{scales:{y:{beginAtZero:true,reverse:true}},plugins:{legend:{display:false}}}
+  });
+  
+  // Donut (Top/Mid/Down)
+  let sumR = data.map(r=>({t:r['तालुका'], s:params.reduce((a,p)=>a+safeNum(r[p]),0)})).sort((a,b)=>a.s-b.s);
+  let N=sumR.length,Q=Math.floor(N*0.25);
+  let topQ=Q, botQ=Q, midQ=N-topQ-botQ;
+  let dtx=document.getElementById('donutChart').getContext('2d');
+  if(window.donutChart) window.donutChart.destroy();
+  window.donutChart = new Chart(dtx,{ 
+    type:'doughnut',
+    data:{labels:['Top','Mid','Bottom'],datasets:[{data:[topQ,midQ,botQ],backgroundColor:['#22c55e','#fde047','#ef4444']}]},
+    options:{cutout:'72%',plugins:{legend:{position:'bottom'}}}
+  });
+}
+
+// Horizontal bar: taluka-wise (sum rank; lower = better)
+function renderHorizontalChart(){
+  const params = headers.filter(h=> h!='तालुका' && h!='अ.क्र.');
+  let talNames = data.map(r=>r['तालुका']);
+  let totals = data.map(r=>params.reduce((a,p)=>a+safeNum(r[p]),0));
+  let ctx = document.getElementById('horizontalBarChart').getContext('2d');
+  if(window.horizontalBarChart) window.horizontalBarChart.destroy();
+  window.horizontalBarChart = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:talNames,
+      datasets:[{
+        label:'एकूण स्कोअर (कमी = चांगले)',
+        data:totals,
+        backgroundColor: totals.map(s=> s<=Math.min(...totals)+3 ? '#22c55e' : (s<Math.max(...totals)-3 ? '#fde047':'#ef4444'))
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      scales:{
+        x:{beginAtZero:true, title:{display:true,text:'Rank Score'}},
+        y:{title:{display:true,text:'Taluka'}}
+      },
+      plugins:{
+        legend:{display:false},
+        title:{display:false}
+      }
+    }
+  });
+}
+
+function renderParamTops() {
+  const params = headers.filter(h=> h!='तालुका' && h!='अ.क्र.');
+  let rows = params.map(p=>{
+    let min = Math.min(...data.map(r=>safeNum(r[p])));
+    let tops = data.filter(r=>safeNum(r[p])==min).map(r=>r['तालुका']);
+    let midVal = arrSortMid(data.map(r=>safeNum(r[p])));
+    let mids = data.filter(r=>safeNum(r[p])==midVal).map(r=>r['तालुका']);
+    let max = Math.max(...data.map(r=>safeNum(r[p])));
+    let downs = data.filter(r=>safeNum(r[p])==max).map(r=>r['तालुका']);
+    return `<tr>
+      <td>${p}</td>
+      <td style="color:#16a34a;font-weight:700">${tops.join(", ")}</td>
+      <td style="color:#ca8a04;font-weight:700">${mids.join(", ")||'-'}</td>
+      <td style="color:#dc2626;font-weight:700">${downs.join(", ")}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('paramTopTable').innerHTML =
+    `<thead><tr><th>योजना</th><th>👑 Top</th><th>⚖️ Middle</th><th>🥉 Down</th></tr></thead>
+     <tbody>${rows}</tbody>`;
+}
+function arrSortMid(arr) {
+  let a = arr.slice().filter(x=>Number.isFinite(x)).sort((x,y)=>x-y);
+  if(!a.length) return '';
+  return a[Math.floor(a.length/2)];
+}
+
+function renderFullTable() {
+  let tbl = document.getElementById('fullTable');
+  let th = headers.map(h=>`<th>${h}</th>`).join('');
+  let tr = data.map(r=>`<tr><td>${headers.map(h=>r[h]||'-').join('</td><td>')}</td></tr>`).join('');
+  tbl.innerHTML = `<thead><tr>${th}</tr></thead><tbody>${tr}</tbody>`;
+}
+
+function populateCmpDropdowns(){
+  ['cmpA','cmpB'].forEach(id=>{
+    document.getElementById(id).innerHTML =
+      `<option selected disabled>तालुका निवडा</option>` + talukas.map(t=>`<option>${t}</option>`).join('');
+  });
+}
+document.getElementById('talukaSelect').onchange = function() {
+  if(this.value && talukas.includes(this.value)){
+    renderSummaryKPI(this.value);
+    renderTopMidBot();
+    renderCharts();
+    renderHorizontalChart();
+    renderFullTable();
+    highlightTableRow(this.value);
+    document.getElementById('resetBtn').style.display='inline-block';
+  }
+};
+document.getElementById('resetBtn').onclick = function() {
+  document.getElementById('talukaSelect').selectedIndex=0;
+  renderSummaryKPI();
+  renderTopMidBot();
+  renderCharts();
+  renderHorizontalChart();
+  renderFullTable();
+  document.getElementById('resetBtn').style.display='none';
+};
+
+function highlightTableRow(taluka){
+  document.querySelectorAll('#fullTable tbody tr').forEach(row=>{
+    if(row.firstChild&&row.firstChild.textContent===taluka)
+      row.classList.add('selected');
+    else row.classList.remove('selected');
+  });
+}
+
+document.getElementById('cmpBtn').onclick = function(){
+  let a = document.getElementById('cmpA').value,
+      b = document.getElementById('cmpB').value;
+  if(!talukas.includes(a) || !talukas.includes(b) || a==b) {
+    document.getElementById('cmpResult').innerHTML = "<div class='text-red-700 font-semibold'>२ वेगळ्या तालुका निवडा.</div>";return;
+  }
+  let pa = data.find(r=>r['तालुका']==a),
+      pb = data.find(r=>r['तालुका']==b);
+  const params = headers.filter(h=> h!='तालुका' && h!='अ.क्र.');
+  let rows = params.map(p=>{
+    let av = safeNum(pa[p]), bv = safeNum(pb[p]);
+    let diff = av-bv;
+    let sig = diff==0?'-':diff<0?'⬆️':'⬇️';
+    return `<tr>
+      <td>${p}</td><td style="color:${av<bv?'#22c55e':'#ef4444'}">${av!==Infinity?av:'-'}</td>
+       <td style="color:${bv<av?'#22c55e':'#ef4444'}">${bv!==Infinity?bv:'-'}</td>
+      <td>${sig} ${Math.abs(diff)}</td></tr>`;
+  }).join('');
+  document.getElementById('cmpResult').innerHTML =
+    `<table class="min-w-full border"><thead><tr><th>योजना</th><th>${a}</th><th>${b}</th><th>फरक</th></tr></thead><tbody>${rows}</tbody></table>`;
+};
+
+window.onload = init;
+</script>
+</body>
+</html>
