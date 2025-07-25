@@ -7,39 +7,42 @@
   <!-- Bootstrap & Fonts -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@700;400&display=swap" rel="stylesheet"/>
-  <!-- Chart.js -->
+  <!-- Chart.js & DataLabels -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <style>
-    body {font-family:'Noto Sans Devanagari',sans-serif;background:#f4f6fb;color:#23263a;margin:0;padding:1.5rem;}
-    .glass {background:#fff;border-radius:16px;box-shadow:0 4px 18px rgba(0,0,0,0.1);margin-bottom:1.5rem;padding:1.5rem;}
-    .tab-btn {font-weight:700;padding:.5em 1.5em;border-radius:2em;margin-right:10px;background:#ede9fe;border:none;cursor:pointer;transition:.2s;}
-    .tab-btn.active, .tab-btn:hover {background:#7c3aed;color:#fff;transform:scale(1.05);}
-    .chip {display:inline-block;padding:.4em 1em;margin:3px;border-radius:20px;background:#e0e7ff;cursor:pointer;transition:.15s;}
-    .chip.selected, .chip:hover {background:#fbbf24;color:#78350f;transform:scale(1.05);}
-    .kpi-row {display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;}
-    .kpi-card {flex:1 1 260px;background:#fff;border-radius:24px;box-shadow:0 3px 18px rgba(0,0,0,0.1);text-align:center;padding:1.2em;transition:.2s;cursor:pointer;border:2px solid transparent;}
-    .kpi-card:hover {box-shadow:0 8px 28px rgba(0,0,0,0.15);border-color:#6366f1;}
-    .kpi-card.top {background:linear-gradient(90deg,#a7f5d0,#22d36e);}
-    .kpi-card.mid {background:linear-gradient(90deg,#fde68a,#fbbf24);}
-    .kpi-card.bot {background:linear-gradient(90deg,#fecaca,#ef4444);}
-    .kpi-card .icon {font-size:2em;margin-bottom:.5em;animation:pop 1.3s infinite alternate;}
-    @keyframes pop {0%{transform:scale(1)}100%{transform:scale(1.1)}}
-    .kpi-label {font-size:1.1em;font-weight:700;margin-bottom:.3em;}
-    .kpi-list {list-style:none;padding:0;margin:0;}
-    .kpi-list li {font-size:1em;padding:.2em 0;}
-    .chart-header {text-align:center;font-size:1.2em;font-weight:700;color:#6366f1;margin-bottom:.8em;}
-    .chart-panel {background:#f9fafb;border-radius:16px;padding:1em;box-shadow:0 2px 8px rgba(0,0,0,0.05);margin-bottom:1em;}
-    .chart-container {height:240px!important;}
-    .table thead th {background:#6366f1;color:#fff;text-align:center;}
-    .table tbody tr.top td {background:#d1fae5!important;}
-    .table tbody tr.mid td {background:#fef9c7!important;}
-    .table tbody tr.bot td {background:#fee2e2!important;}
-    .table tbody td {text-align:center;}
+    body { font-family:'Noto Sans Devanagari',sans-serif; background:#f4f6fb; color:#23263a; margin:0; padding:1.5rem; }
+    .glass { background:#fff; border-radius:16px; box-shadow:0 4px 18px rgba(0,0,0,0.1); margin-bottom:1.5rem; padding:1.5rem; }
+    .tab-btn { font-weight:700; padding:.5em 1.5em; border-radius:2em; margin-right:10px; background:#ede9fe; border:none; cursor:pointer; transition:.2s; }
+    .tab-btn.active, .tab-btn:hover { background:#7c3aed; color:#fff; transform:scale(1.05); }
+    .chip { display:inline-block; padding:.4em 1em; margin:3px; border-radius:20px; background:#e0e7ff; cursor:pointer; transition:.15s; }
+    .chip.selected, .chip:hover { background:#fbbf24; color:#78350f; transform:scale(1.05); }
+    .kpi-row { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .kpi-card { flex:1 1 260px; background:#fff; border-radius:24px; box-shadow:0 3px 18px rgba(0,0,0,0.1); text-align:center; padding:1.2em; transition:.2s; cursor:pointer; border:2px solid transparent; }
+    .kpi-card:hover { box-shadow:0 8px 28px rgba(0,0,0,0.15); border-color:#6366f1; }
+    .kpi-card.top { background:linear-gradient(90deg,#a7f5d0,#22d36e); }
+    .kpi-card.mid { background:linear-gradient(90deg,#fde68a,#fbbf24); }
+    .kpi-card.bot { background:linear-gradient(90deg,#fecaca,#ef4444); }
+    .kpi-card .icon { font-size:2em; margin-bottom:.5em; animation:pop 1.3s infinite alternate; }
+    @keyframes pop { 0%{transform:scale(1)}100%{transform:scale(1.1)} }
+    .kpi-label { font-size:1.1em; font-weight:700; margin-bottom:.3em; }
+    .kpi-list { list-style:none; padding:0; margin:0; }
+    .kpi-list li { font-size:1em; padding:.2em 0; }
+    .chart-header { text-align:center; font-size:1.2em; font-weight:700; color:#6366f1; margin-bottom:.8em; }
+    .chart-panel { background:#f9fafb; border-radius:16px; padding:1em; box-shadow:0 2px 8px rgba(0,0,0,0.05); margin-bottom:1em; }
+    .chart-container { height:240px!important; }
+    .table thead th { background:#6366f1; color:#fff; text-align:center; position:sticky; top:0; }
+    .table tbody tr.top td { background:#d1fae5!important; }
+    .table tbody tr.mid td { background:#fef9c7!important; }
+    .table tbody tr.bot td { background:#fee2e2!important; }
+    .table tbody td { text-align:center; }
+    .suggestion-box { background:#e0f2fe; border-radius:12px; padding:1em; font-size:1.05em; margin-top:1em; }
+    @media(max-width:900px){ .chart-panel{min-width:100%!important;} }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- Tabs -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
       <h2>📊 तालुका योजना डॅशबोर्ड</h2>
       <div>
@@ -50,8 +53,8 @@
 
     <!-- Page 1 -->
     <div id="page1">
-      <div class="glass">
-        <div class="row g-3">
+      <div class="glass mb-4">
+        <div class="row g-2 align-items-end">
           <div class="col-md-6"><select id="scheme1" class="form-select form-select-sm"></select></div>
           <div class="col-md-6"><div id="chips1"></div></div>
         </div>
@@ -60,7 +63,9 @@
           <button id="go1" class="btn btn-compact">🔍 Submit</button>
         </div>
       </div>
+
       <div class="kpi-row" id="kpiRow1"></div>
+
       <div class="glass mb-4">
         <div class="chart-panel">
           <div class="chart-header">📊 कार्यप्रदर्शन तुलना</div>
@@ -70,13 +75,15 @@
           <div class="chart-header">🥧 प्रतिशत वाटप</div>
           <canvas id="donut1" class="chart-container"></canvas>
         </div>
+        <div class="suggestion-box" id="ai1"></div>
       </div>
+
       <div class="glass">
         <h5>तालुक्यांची रँकिंग</h5>
         <div class="table-responsive" style="max-height:300px;overflow:auto;">
-          <table class="table mb-0">
+          <table class="table table-sm mb-0" id="tbl1">
             <thead><tr><th>तालुका</th><th>रँक</th></tr></thead>
-            <tbody id="tbl1"></tbody>
+            <tbody id="body1"></tbody>
           </table>
         </div>
       </div>
@@ -90,8 +97,12 @@
           <button id="back" class="btn btn-compact">← मुख्य</button>
         </div>
       </div>
-      <div class="glass">
+
+      <div class="glass mb-4">
         <div class="kpi-row" id="kpiRow2"></div>
+      </div>
+
+      <div class="glass mb-4">
         <div class="chart-panel">
           <div class="chart-header">🏅 योजना अंतर्गत तालुका रँकिंग</div>
           <canvas id="bar2" class="chart-container"></canvas>
@@ -100,14 +111,15 @@
           <div class="chart-header">🥧 वितरण</div>
           <canvas id="donut2" class="chart-container"></canvas>
         </div>
-        <div class="glass mt-4">
-          <h5>तालुक्यांची सूची</h5>
-          <div class="table-responsive" style="max-height:300px;overflow:auto;">
-            <table class="table mb-0">
-              <thead><tr><th>तालुका</th><th>रँक</th></tr></thead>
-              <tbody id="tbl2"></tbody>
-            </table>
-          </div>
+      </div>
+
+      <div class="glass">
+        <h5>तालुक्यांची सूची</h5>
+        <div class="table-responsive" style="max-height:300px;overflow:auto;">
+          <table class="table table-sm mb-0" id="tbl2">
+            <thead><tr><th>तालुका</th><th>रँक</th></tr></thead>
+            <tbody id="body2"></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -120,85 +132,108 @@ const API="AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU",
 let hdr,raw,sch,bar1,donut1,bar2,donut2;
 
 async function init(){
-  const v=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SID}/values/${encodeURIComponent(RG)}?key=${API}`)
+  const data = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SID}/values/${encodeURIComponent(RG)}?key=${API}`)
     .then(r=>r.json()).then(d=>d.values);
-  hdr=v[0]; raw=v.slice(1).map(r=>{let o={};hdr.forEach((h,i)=>o[h]=r[i]);o._block=r[0];return o;});
+  hdr=data[0];
+  raw=data.slice(1).map(r=>{let o={};hdr.forEach((h,i)=>o[h]=r[i]);o._block=r[0];return o;});
   sch=hdr;
-  [ "scheme1","scheme2" ].forEach(id=>{
-    document.getElementById(id).innerHTML=sch.map(s=>`<option>${s}</option>`).join("");
+
+  // populate dropdowns
+  ["scheme1","scheme2"].forEach(id=>{
+    document.getElementById(id).innerHTML = sch.map(s=>`<option>${s}</option>`).join("");
   });
-  ["chips1"].forEach(id=>{
-    document.getElementById(id).innerHTML=raw.map(r=>`<span class="chip">${r._block}</span>`).join("");
-    document.querySelectorAll(".chip").forEach(e=>e.onclick=()=>e.classList.toggle("selected"));
-  });
+  // chips
+  document.getElementById("chips1").innerHTML = raw.map(r=>`<span class="chip">${r._block}</span>`).join("");
+  document.querySelectorAll(".chip").forEach(e=>e.onclick=()=>e.classList.toggle("selected"));
+
   bind();
   render1();
 }
 
 function getList(s){
-  return raw.map(r=>({b:r._block,r:parseInt(r[s])||999}))
-            .sort((a,b)=>a.r-b.r);
+  return raw.map(r=>({b:r._block,rank:parseInt(r[s])||999}))
+            .sort((a,b)=>a.rank-b.rank);
 }
 
 function render1(){
   const s=document.getElementById("scheme1").value||sch[0],
         L=getList(s);
-  ["Top","Mid","Bot"].forEach((t,i)=>{
-    const el=document.getElementById(`kpi${t}List`);
-    const arr=L.slice(i*5, i*5+5);
-    if(el) el.innerHTML = arr.map(x=>`<li>${x.b} #${x.r}</li>`).join("");
+  // KPIs
+  ["Top","Mid","Bot"].forEach((seg,i)=>{
+    const arr=L.slice(i*5,i*5+5),
+          cont=document.getElementById("kpiRow1");
+    if(i===0) cont.innerHTML="";
+    cont.innerHTML += `<div class="kpi-card ${seg.toLowerCase()}">
+      <div class="icon">${["🥇","🥈","🥉"][i]}</div>
+      <div class="kpi-label">${["टॉप ५","मध्यम ५","तळ ५"][i]}</div>
+      <ul class="kpi-list">${arr.map(x=>`<li>${x.b} #${x.rank}</li>`).join("")}</ul>
+    </div>`;
   });
-  renderKPIRow("kpiRow1",L);
-  plotChart("bar1",L.map(x=>x.b),L.map(x=>x.r),window.bar1);
-  plotChart("donut1",L.map(x=>x.b),L.map(x=>x.r),window.donut1,"doughnut");
-  document.getElementById("tbl1").innerHTML=L.slice(0,15).map((x,i)=>
-    `<tr class="${i<5?'top':i<10?'mid':'bot'}"><td>${x.b}</td><td>${x.r<=15?x.r:'-'}</td></tr>`
+  // charts
+  const pal=["#6366f1","#10b981","#f59e0b","#ef4444","#3b82f6","#818cf8"];
+  bar1?.destroy(); donut1?.destroy();
+  bar1=new Chart(document.getElementById("bar1").getContext("2d"),{
+    type:"bar",data:{labels:L.map(x=>x.b),datasets:[{data:L.map(x=>x.rank>15?0:x.rank),backgroundColor:pal,borderRadius:8}]},
+    options:{indexAxis:"y",plugins:{legend:{display:false},datalabels:{anchor:"end",align:"right",formatter:v=>`#${v}`}},responsive:true,maintainAspectRatio:false},
+    plugins:[ChartDataLabels]
+  });
+  donut1=new Chart(document.getElementById("donut1").getContext("2d"),{
+    type:"doughnut",data:{labels:L.map(x=>x.b),datasets:[{data:L.map(x=>x.rank>15?0:x.rank),backgroundColor:pal}]},
+    options:{plugins:{legend:{position:"bottom"},datalabels:{formatter:v=>`#${v}`}},responsive:true,maintainAspectRatio:false},
+    plugins:[ChartDataLabels]
+  });
+  // table
+  document.getElementById("body1").innerHTML = L.slice(0,15).map((x,i)=>
+    `<tr class="${i<5?'top':i<10?'mid':'bot'}"><td>${x.b}</td><td>${x.rank<=15?x.rank:'-'}</td></tr>`
   ).join("");
+  // suggestion
+  const top=L[0];
+  document.getElementById("ai1").innerText =
+    top.rank>3
+      ? `${top.b} ब्लॉकचा रँक #${top.rank}. सुधारण्यासाठी ${findWeak(top.b)} योजनेवर लक्ष द्या.`
+      : `👏 ${top.b} उत्कृष्ट! पुढे प्रगती साठी इतर योजना बळकट करा.`;
 }
 
 function render2(){
   const s=document.getElementById("scheme2").value||sch[0],
         L=getList(s);
-  renderKPIRow("kpiRow2",L);
-  plotChart("bar2",L.map(x=>x.b),L.map(x=>x.r),window.bar2);
-  plotChart("donut2",L.map(x=>x.b),L.map(x=>x.r),window.donut2,"doughnut");
-  document.getElementById("tbl2").innerHTML=L.slice(0,15).map((x,i)=>
-    `<tr class="${i<5?'top':i<10?'mid':'bot'}"><td>${x.b}</td><td>${x.r<=15?x.r:'-'}</td></tr>`
+  // KPIs
+  document.getElementById("kpiRow2").innerHTML="";
+  ["top","mid","bot"].forEach((c,i)=>{
+    const arr=L.slice(i*5,i*5+5);
+    document.getElementById("kpiRow2").innerHTML += `
+      <div class="kpi-card ${c}">
+        <div class="icon">${["🥇","🥈","🥉"][i]}</div>
+        <div class="kpi-label">${["टॉप ५","मध्यम ५","तळ ५"][i]}</div>
+        <ul class="kpi-list">${arr.map(x=>`<li>${x.b} #${x.rank}</li>`).join("")}</ul>
+      </div>`;
+  });
+  // charts
+  const pal=["#6366f1","#10b981","#f59e0b","#ef4444","#3b82f6","#818cf8"];
+  bar2?.destroy(); donut2?.destroy();
+  bar2=new Chart(document.getElementById("bar2").getContext("2d"),{
+    type:"bar",data:{labels:L.map(x=>x.b),datasets:[{data:L.map(x=>x.rank),backgroundColor:pal,borderRadius:8}]},
+    options:{indexAxis:"y",plugins:{legend:{display:false},datalabels:{anchor:"end",align:"right",formatter:v=>`#${v}`}},responsive:true,maintainAspectRatio:false},
+    plugins:[ChartDataLabels]
+  });
+  donut2=new Chart(document.getElementById("donut2").getContext("2d"),{
+    type:"doughnut",data:{labels:L.map(x=>x.b),datasets:[{data:L.map(x=>x.rank),backgroundColor:pal}]},
+    options:{plugins:{legend:{position:"bottom"},datalabels:{formatter:v=>`#${v}`}},responsive:true,maintainAspectRatio:false},
+    plugins:[ChartDataLabels]
+  });
+  // table
+  document.getElementById("body2").innerHTML = L.slice(0,15).map((x,i)=>
+    `<tr class="${i<5?'top':i<10?'mid':'bot'}"><td>${x.b}</td><td>${x.rank}</td></tr>`
   ).join("");
 }
 
-function renderKPIRow(id,L){
-  const row=document.getElementById(id);
-  row.innerHTML = ["top","mid","bot"].map((cls,i)=>{
-    const arr=L.slice(i*5,i*5+5);
-    return `<div class="kpi-card ${cls}">
-      <div class="kpi-medal">${["🥇","🥈","🥉"][i]}</div>
-      <div class="kpi-label">${["टॉप ५","मध्यम ५","तळ ५"][i]}</div>
-      <ul class="kpi-list">${arr.map(x=>`<li>${x.b} #${x.r}</li>`).join("")}</ul>
-    </div>`;
-  }).join("");
-}
-
-function plotChart(id,labels,data,instance,type="bar"){
-  const ctx=document.getElementById(id).getContext("2d");
-  instance?.destroy();
-  instance=new Chart(ctx,{
-    type,
-    data:{labels,datasets:[{data,backgroundColor:["#6366f1","#10b981","#f59e0b","#ef4444","#3b82f6"]}]},
-    options:{indexAxis:type==="bar"?"y":undefined,plugins:{legend:{display:false},datalabels:{formatter:v=>`#${v}`}},responsive:true,maintainAspectRatio:false},
-    plugins:[ChartDataLabels]
-  });
-  if(id==="bar1") window.bar1=instance; else if(id==="donut1") window.donut1=instance;
-  if(id==="bar2") window.bar2=instance; else if(id==="donut2") window.donut2=instance;
-}
-
 function bind(){
-  document.getElementById("p1btn").onclick=()=>show(1);
-  document.getElementById("p2btn").onclick=()=>show(2);
+  document.getElementById("btn1").onclick=()=>show(1);
+  document.getElementById("btn2").onclick=()=>show(2);
   document.getElementById("scheme1").onchange=()=>render1();
   document.getElementById("scheme2").onchange=()=>render2();
-  document.getElementById("updateBtn").onclick=()=>render1();
-  document.getElementById("resetBtn").onclick=()=>{
+  document.getElementById("go1").onclick=()=>render1();
+  document.getElementById("reset1").onclick=()=>{
     document.querySelectorAll(".chip").forEach(e=>e.classList.remove("selected"));
     render1();
   };
@@ -206,11 +241,15 @@ function bind(){
 }
 
 function show(pg){
-  document.getElementById("page1").style.display = pg===1?"":"none";
-  document.getElementById("page2").style.display = pg===2?"":"none";
+  document.getElementById("page1").style.display=pg===1?"":"none";
+  document.getElementById("page2").style.display=pg===2?"":"none";
   if(pg===1) render1(); else render2();
+}
+
+function findWeak(b){
+  const arr=schemes.map(s=>({s,rank:parseInt(raw.find(r=>r._block===b)[s])||999}));
+  return arr.sort((a,b)=>b.rank-a.rank).slice(0,3).map(x=>x.s).join(", ");
 }
 
 window.onload=init;
 </script>
-</html>
