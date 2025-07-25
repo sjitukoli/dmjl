@@ -1,293 +1,347 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mr">
 <head>
   <meta charset="UTF-8">
+  <title>तालुका योजना तुलनात्मक डॅशबोर्ड - जळगाव जिल्हा</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Block Ranking Dashboard</title>
-  <!-- Tailwind CSS -->
+
+  <!-- Tailwind for quick styling -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js -->
+  <!-- Chart.js & ChartDataLabels -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <!-- Chart.js DataLabels plugin -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.umd.min.js"></script>
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <!-- FontAwesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
-    body { background: linear-gradient(135deg,#667eea,#f093fb 72%); font-family: 'Inter', sans-serif; color: #fff; min-height: 100vh;}
-    .glass-card { background: rgba(255,255,255,0.13); backdrop-filter: blur(14px); border-radius: 12px; box-shadow: 0 4px 32px 0 rgba(30,30,50,0.13);}
-    .status-top    {background: #10b981 !important; color: #fff;}
-    .status-middle {background: #f59e0b !important; color: #fff;}
-    .status-bottom {background: #ef4444 !important; color: #fff;}
-    .score-bar{height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;margin-top:5px}
-    .score-fill{height:100%;background:linear-gradient(90deg,#43e97b,#38f9d7);transition:width .5s}
-    .ranking-table td, .ranking-table th { padding: 0.7em .7em;text-align:left; border-bottom:1px solid rgba(255,255,255,0.08); }
-    .ranking-table th {background:rgba(255,255,255,0.11);}
-    .selected-row {background:rgba(255,255,255,0.17) !important;}
-    .tag { display:inline-block; border-radius:99px; font-size:0.85em; padding: .13em .8em;}
+    body { background: linear-gradient(135deg,#667eea,#f093fb 72%); color: #222; }
+    .kpi-card { border-radius:12px;padding:16px;box-shadow:0 2px 12px 0 rgba(30,30,50,.13);margin-bottom:12px;}
+    .kpi-top {background:linear-gradient(90deg,#10b98188 70%,#b6f7d688 120%);}
+    .kpi-middle {background:linear-gradient(90deg,#fde68a88 70%,#f5ccb188 120%);}
+    .kpi-bottom {background:linear-gradient(90deg,#fca5a588 70%,#feb2b288 120%);}
+    .selected {box-shadow:0 0 0 3px #6366f1; font-weight:bold;}
+    .kpi-card h3 {font-size:1.1em;margin-bottom:.2em;font-weight:700;}
+    .kpi-card .rank {font-weight:700}
+    .tag {display:inline-block;background:#f3f4f6;border-radius:99px;font-size:13px;padding:2px 12px;}
+    .tag.top{background:#10b981;color:#fff;}
+    .tag.mid{background:#f59e0b;color:#fff;}
+    .tag.bot{background:#ef4444;color:#fff;}
+    .btn {transition:.1s;background:#6366f1;color:#fff; border:0; outline:0; border-radius:6px; padding:.38em 1.1em;font-size:1em; font-weight:600; margin:2px;}
+    .btn:hover {background:#4f46e5;}
+    .btn2 {background:#2dd4bf;}
+    .btn3 {background:#eab308;}
+    .btn4 {background:#f43f5e;}
+    .checkbox-block {display:inline-block;min-width:100px; margin-right:8px; margin-bottom:6px;}
+    .table-auto th, .table-auto td {font-size: 1em;}
+    @media (max-width:600px) {
+      .kpi-row{flex-direction:column;}
+      .checkboxes {flex-direction:column;}
+    }
   </style>
 </head>
 <body class="p-0 m-0">
-  <main class="max-w-6xl mx-auto p-4 pt-11">
-    <header class="mb-8">
-      <h1 class="text-3xl font-black mb-0">Block Ranking Dashboard 🏆</h1>
-      <p class="opacity-80">Live Google Sheets integration (Range: <b>Rank!B5:AJ20</b>)</p>
-    </header>
+<main class="max-w-6xl mx-auto px-3 pt-5 pb-12">
 
-    <!-- Highlight: Top, Middle, Bottom blocks -->
-    <div class="glass-card p-4 mb-8 flex flex-wrap justify-between items-center gap-4">
-      <div>
-        <span class="tag status-top"><i class="fas fa-arrow-up"></i> TOP BLOCK</span>
-        <span id="topBlockName" class="ml-2 font-bold text-lg"></span>
-      </div>
-      <div>
-        <span class="tag status-middle"><i class="fas fa-arrows-alt-h"></i> MIDDLE BLOCK</span>
-        <span id="midBlockName" class="ml-2 font-bold text-lg"></span>
-      </div>
-      <div>
-        <span class="tag status-bottom"><i class="fas fa-arrow-down"></i> BOTTOM BLOCK</span>
-        <span id="bottomBlockName" class="ml-2 font-bold text-lg"></span>
-      </div>
-      <div class="flex flex-row gap-3 ml-auto">
-        <label class="mr-2 font-bold">Sort by:</label>
-        <select id="sortMetric" class="rounded px-2 py-1 text-slate-700" onchange="refreshBlockRanking()"></select>
-        <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-700" onclick="refreshData()">Refresh</button>
+  <header class="mb-3">
+    <h1 class="text-3xl font-bold text-center mb-0 text-indigo-800">तालुका योजना तुलनात्मक डॅशबोर्ड - जळगाव जिल्हा</h1>
+    <p class="text-center text-slate-600 text-md mb-4">सर्व योजना टर्मिनेटिव डेटा (Live Google Sheets API वरून) • मल्टी-तालुका तुलना • CSV/चार्ट डाउनलोड</p>
+  </header>
+
+  <!-- Taluka Checkbox Selection -->
+  <section class="glass-card mb-5 px-4 py-3 border">
+    <h2 class="font-bold text-xl mb-1 text-indigo-800 text-center">तालुका निवडा / Comparison (मल्टी-सेलेक्ट)</h2>
+    <form id="talukaSelector" class="checkboxes flex flex-wrap justify-center mb-2 gap-y-1"></form>
+    <button type="button" class="btn btn3 my-1" id="cmpBtn">🧮 तुलना करा</button>
+    <span id="selectedTalukas" class="ml-3 text-indigo-700 font-bold"></span>
+    <button class="btn btn2 ml-3" id="refreshBtn"><i class="fa fa-rotate-right"></i> Refresh</button>
+  </section>
+  
+  <!-- Main Cards -->
+  <div class="flex flex-wrap justify-between items-stretch gap-2 mb-6 kpi-row">
+    <div class="flex-1 min-w-[180px]">
+      <div class="kpi-card kpi-top">
+        <h3>Top 5 तालुके</h3>
+        <ul id="top5" class="ml-1 text-lg"></ul>
       </div>
     </div>
-
-    <!-- Chart -->
-    <section class="glass-card mb-6 p-4">
-      <h2 class="text-lg font-bold mb-2">Block Scores Leaderboard</h2>
-      <div style="height: 350px;">
-        <canvas id="blockChart"></canvas>
+    <div class="flex-1 min-w-[180px]">
+      <div class="kpi-card kpi-middle">
+        <h3>मध्यम 5 तालुके</h3>
+        <ul id="mid5" class="ml-1 text-lg"></ul>
       </div>
-    </section>
-
-    <!-- Full table -->
-    <section class="glass-card p-4">
-      <h2 class="text-lg font-bold mb-3">Complete Block Ranking Table</h2>
-      <div style="overflow-x:auto">
-        <table class="ranking-table w-full text-base text-white" id="rankingTable">
-          <thead>
-            <tr id="tableHead"></tr>
-          </thead>
-          <tbody id="rankingTableBody"></tbody>
-        </table>
+    </div>
+    <div class="flex-1 min-w-[180px]">
+      <div class="kpi-card kpi-bottom">
+        <h3>तळ 5 तालुके</h3>
+        <ul id="bot5" class="ml-1 text-lg"></ul>
       </div>
-    </section>
-  </main>
-  <script>
-    // 1. Google Sheets config
-    const GOOGLE_SHEETS_CONFIG = {
-      apiKey: 'AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU',
-      spreadsheetId: '1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE',
-      range: 'Rank!B5:AJ20', // B5:AJ20 -- your real data range
-      baseUrl: 'https://sheets.googleapis.com/v4/spreadsheets'
-    };
+    </div>
+  </div>
 
-    let blockData = [];
-    let chart = null;
-    let availableMetrics = [];
-    let selectedMetric = "Total Score"; // default metric: can be changed below
+  <!-- Chart & Downloads -->
+  <section class="glass-card p-4 mb-4">
+    <h2 class="font-bold text-lg mb-2 text-indigo-800">🎯 तालुका स्कोअरचे Donut Chart</h2>
+    <div class="text-right mb-1">
+      <button class="btn btn2" id="downloadDonut"><i class="fa fa-download"></i> Chart (PNG)</button>
+      <button class="btn btn3" id="downloadCSV"><i class="fa fa-file-csv"></i> CSV</button>
+    </div>
+    <canvas id="donutChart" style="max-width:100%;min-height:260px;height:340px"></canvas>
+  </section>
 
-    document.addEventListener('DOMContentLoaded', () => {
-      refreshData();
+  <!-- Data Table -->
+  <section class="glass-card py-3 px-2">
+    <h2 class="font-bold text-lg text-indigo-800 mb-1">📋 १५ तालुक्यांचा पूर्ण डेटा टेबल</h2>
+    <div class="overflow-x-auto">
+    <table class="table-auto w-full text-base text-indigo-900 border" id="dataTable">
+      <thead><tr id="tblHead"></tr></thead>
+      <tbody id="tblBody"></tbody>
+    </table>
+    </div>
+  </section>
+</main>
+<script>
+const GOOGLE_SHEETS_CONFIG = {
+  apiKey: 'AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU',
+  spreadsheetId: '1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE',
+  range: 'Rank!B5:AJ20',
+  baseUrl: 'https://sheets.googleapis.com/v4/spreadsheets'
+};
+
+let allData = [], headers = [];
+let selectedTalukaSet = new Set();
+let donutChart;
+
+// --- 1. Load Data ---
+async function loadData() {
+  try {
+    const { baseUrl, spreadsheetId, range, apiKey } = GOOGLE_SHEETS_CONFIG;
+    const endpoint = `${baseUrl}/${spreadsheetId}/values/${encodeURIComponent(range)}?majorDimension=ROWS&valueRenderOption=UNFORMATTED_VALUE&key=${apiKey}`;
+    const res = await fetch(endpoint);
+    if (!res.ok) throw new Error("Google Sheet fetch failed (status "+res.status+")");
+    const json = await res.json();
+    return parseSheetData(json.values);
+  } catch (e) {
+    alert("Google Sheet Data Load Error: "+e.message+"\n\nShowing sample data.");
+    return getSampleData();
+  }
+}
+function parseSheetData(values) {
+  headers = values[0].map(h => h.toString());
+  // Find columns of interest (usually "Block Name" or "तालुका" and "Total Score" or similar)
+  const blockCol = headers.findIndex(h => /block.?name|तालुका/i.test(h));
+  const scoreCol = headers.findIndex(h => /total.?score|score|एकूण/i.test(h));
+  // Parse all rows as objects
+  return values.slice(1).filter(r => r.length && r[blockCol])
+    .map(row => {
+      const obj = {};
+      headers.forEach((h,i) => obj[h]=row[i]);
+      obj['__taluka'] = row[blockCol];
+      obj['__score'] = parseFloat(row[scoreCol]) || 0;
+      return obj;
     });
+}
+function getSampleData() {
+  headers = ["तालुका", "Total Score", "Sanitation", "Agriculture"];
+  return [
+    {"तालुका":"पाचोरा","Total Score":99,"Sanitation":87,"Agriculture":77,"__taluka":"पाचोरा","__score":99},
+    {"तालुका":"भडगाव","Total Score":82,"Sanitation":60,"Agriculture":78,"__taluka":"भडगाव","__score":82},
+    {"तालुका":"चाळीसगाव","Total Score":76,"Sanitation":71,"Agriculture":77,"__taluka":"चाळीसगाव","__score":76},
+    {"तालुका":"जामनेर","Total Score":65,"Sanitation":67,"Agriculture":68,"__taluka":"जामनेर","__score":65},
+    {"तालुका":"धरणगाव","Total Score":61,"Sanitation":81,"Agriculture":79,"__taluka":"धरणगाव","__score":61},
+    {"तालुका":"एरंडोल","Total Score":58,"Sanitation":77,"Agriculture":76,"__taluka":"एरंडोल","__score":58},
+    {"तालुका":"जळगाव","Total Score":56,"Sanitation":80,"Agriculture":73,"__taluka":"जळगाव","__score":56},
+    {"तालुका":"पारोळा","Total Score":54,"Sanitation":52,"Agriculture":53,"__taluka":"पारोळा","__score":54},
+    {"तालुका":"अमळनेर","Total Score":52,"Sanitation":87,"Agriculture":71,"__taluka":"अमळनेर","__score":52},
+    {"तालुका":"दिग्रस","Total Score":48,"Sanitation":70,"Agriculture":68,"__taluka":"दिग्रस","__score":48},
+    {"तालुका":"सार्वजनिक","Total Score":44,"Sanitation":42,"Agriculture":67,"__taluka":"सार्वजनिक","__score":44},
+    {"तालुका":"यावल","Total Score":41,"Sanitation":42,"Agriculture":67,"__taluka":"यावल","__score":41},
+    {"तालुका":"रावेर","Total Score":37,"Sanitation":44,"Agriculture":60,"__taluka":"रावेर","__score":37},
+    {"तालुका":"बोदवड","Total Score":32,"Sanitation":77,"Agriculture":63,"__taluka":"बोदवड","__score":32},
+    {"तालुका":"चोपडा","Total Score":28,"Sanitation":64,"Agriculture":59,"__taluka":"चोपडा","__score":28}
+  ];
+}
 
-    async function refreshData() {
-      try {
-        const res = await loadBlockDataFromGoogleSheets();
-        blockData = parseBlockSheetData(res.values);
-        setUpMetricDropdown(res.values[0]);
-        refreshBlockRanking();
-      } catch (e) {
-        alert("Failed to load sheet! " + e.message + ". Showing sample data.");
-        blockData = getSampleBlockData();
-        setUpMetricDropdown(Object.keys(blockData[0]));
-        refreshBlockRanking();
-      }
-    }
+// --- 2. Render Taluka Selection (Checkbox) ---
+function renderTalukaCheckboxes() {
+  const div = document.getElementById('talukaSelector');
+  div.innerHTML = '';
+  allData.forEach(row => {
+    const taluka = row['__taluka'];
+    // Checkbox for each taluka
+    div.innerHTML += `
+      <label class='checkbox-block'>
+        <input type="checkbox" value="${taluka}" onchange="onTalukaSelect(this)">
+        <span class='ml-1'>${taluka}</span>
+      </label>
+    `;
+  });
+}
+window.onTalukaSelect = function(input) {
+  if(input.checked) selectedTalukaSet.add(input.value);
+  else selectedTalukaSet.delete(input.value);
+  document.getElementById("selectedTalukas").innerText = selectedTalukaSet.size
+    ? `निवडलेले: ${[...selectedTalukaSet].join(', ')}`
+    : '';
+}
 
-    async function loadBlockDataFromGoogleSheets() {
-      const { baseUrl, spreadsheetId, range, apiKey } = GOOGLE_SHEETS_CONFIG;
-      const url = `${baseUrl}/${spreadsheetId}/values/${encodeURIComponent(range)}?majorDimension=ROWS&valueRenderOption=UNFORMATTED_VALUE&key=${apiKey}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('API status ' + res.status);
-      return await res.json();
-    }
+// --- 3. KPIs: Top/Mid/Bottom 5 cards ---
+function renderKPI() {
+  // Sort desc. on __score
+  const sorted = allData.slice().sort((a,b)=>b.__score - a.__score);
+  // Top5, Middle5, Bottom5
+  const n = sorted.length;
+  // handle for <15!
+  let top5 = sorted.slice(0,5);
+  let bot5 = sorted.slice(-5).reverse();
+  let mid5Start = Math.max(0, Math.floor((n-5)/2));
+  let mid5 = sorted.slice(mid5Start, mid5Start+5);
 
-    // 2. Sheet parsing logic - Map your columns below!
-    // Column headers expected:
-    // Block Name | ... | Total Score | ... |
-    function parseBlockSheetData(values) {
-      const headers = values[0].map(h => h.toString().trim());
-      // Find block name + numeric metrics positions
-      const blockNameCol = headers.findIndex(h => /block.?name/i.test(h));
-      // Find all numeric columns (for metrics drop-down)
-      availableMetrics = headers
-        .map((h,i) => ({h,i}))
-        .filter(o => o.h !== headers[blockNameCol] && !/rank|name|block/i.test(o.h))
-        .map(o => o.h)
-        .concat(headers.filter(h=>/total.?score/i.test(h))); // ensure "Total Score" is included
+  // Utility
+  function itemHTML(entry, colorClass, tag) {
+    return `<li>
+      <span class="tag ${colorClass}">${entry._rank||''} ${tag||''}</span>
+      <b class="ml-1">${entry['__taluka']}</b>
+      <span class="ml-2 text-md">(${entry['__score']})</span>
+    </li>`;
+  }
+  // Render
+  document.getElementById("top5").innerHTML = top5.map((row,i) => itemHTML({...row,_rank:i+1},"top",'TOP')).join('');
+  document.getElementById("mid5").innerHTML = mid5.map((row,i) => itemHTML({...row,_rank:mid5Start+i+1},"mid",'MID')).join('');
+  document.getElementById("bot5").innerHTML = bot5.map((row,i) => itemHTML({...row,_rank:n-i},"bot",'BOT')).join('');
+}
 
-      // Defensive: fallback for block name
-      const fallbackBlockCol = 0;
-
-      // Map each row to an object
-      const rows = values.slice(1).filter(r => r.length && (r[blockNameCol]||r[fallbackBlockCol]));
-      const entries = rows.map(row => {
-        let entry = {};
-        headers.forEach((h,idx) => {
-          entry[h] = row[idx];
-        });
-        return entry;
-      });
-      return entries;
-    }
-
-    // 3. Sorting & UI render
-    function refreshBlockRanking() {
-      // Pick current metric to rank by
-      selectedMetric = document.getElementById("sortMetric").value || selectedMetric;
-
-      // Prepare block ranking
-      // Use parseFloat safest possible
-      let entries = blockData.map(row => ({
-        ...row,
-        _score: parseFloat(row[selectedMetric]) || 0
-      })).sort((a, b) => b._score - a._score)
-        .map((entry, idx) => ({ ...entry, _rank: idx + 1 }));
-
-      // What's the "mid" block? (index: floor(length/2))
-      const n = entries.length;
-      const topBlock = entries[0];
-      const midBlock = entries[Math.floor((n-1) / 2)]; // choose middle when odd
-      const bottomBlock = entries[n-1];
-
-      // Set highlight boxes
-      document.getElementById("topBlockName").textContent = `${topBlock["Block Name"]||topBlock["Block"]||topBlock["Name"]||"?"} (${topBlock[selectedMetric]})`;
-      document.getElementById("midBlockName").textContent = `${midBlock["Block Name"]||midBlock["Block"]||midBlock["Name"]||"?"} (${midBlock[selectedMetric]})`;
-      document.getElementById("bottomBlockName").textContent = `${bottomBlock["Block Name"]||bottomBlock["Block"]||bottomBlock["Name"]||"?"} (${bottomBlock[selectedMetric]})`;
-
-      // Table build
-      buildRankingTable(entries);
-
-      // Chart
-      buildBlockChart(entries);
-    }
-
-    function setUpMetricDropdown(headerRow) {
-      const sel = document.getElementById("sortMetric");
-      // Refresh availableMetrics if not already present
-      if (!availableMetrics.length || typeof headerRow[0]==="string") {
-        availableMetrics = headerRow.filter(h => h && !/name|block|rank/i.test(h));
-        if (headerRow.some(h=>/total.?score/i.test(h))) {
-          availableMetrics.unshift(headerRow.find(h=>/total.?score/i.test(h)));
-        }
-        availableMetrics = [...new Set(availableMetrics.filter(Boolean))];
-      }
-      sel.innerHTML = "";
-      availableMetrics.forEach(metric => {
-        sel.innerHTML += `<option value="${metric}" ${/total.?score/i.test(metric)?"selected":""}>${metric}</option>`;
-      });
-      if (!sel.value) sel.value = availableMetrics[0];
-      selectedMetric = sel.value;
-    }
-
-    function buildRankingTable(entries) {
-      const headers = Object.keys(entries[0]);
-      document.getElementById("tableHead").innerHTML =
-        `<th>Rank</th>` +
-        headers.map(
-          h => `<th>${h.replace(/_/g, " ")}</th>`
-        ).join('') +
-        `<th>Tag</th>`;
-      let rows = "";
-      const n = entries.length;
-      entries.forEach((row, idx) => {
-        let tag;
-        if (idx === 0) tag = `<span class="tag status-top">TOP</span>`;
-        else if (idx === Math.floor((n-1)/2)) tag = `<span class="tag status-middle">MIDDLE</span>`;
-        else if (idx === n-1) tag = `<span class="tag status-bottom">BOTTOM</span>`;
-        else tag = "";
-        rows += "<tr" +
-                (idx===0?" class='status-top' ": idx===n-1?" class='status-bottom' ": idx===Math.floor((n-1)/2)?" class='status-middle'" : "") +
-                ">";
-        rows += `<td><b>${row._rank}</b></td>`;
-        headers.forEach(h=>{
-          let v = row[h];
-          if(h===selectedMetric) v = `<b>${v}</b>`;
-          rows += `<td>${v||""}</td>`;
-        });
-        rows += `<td>${tag}</td>`;
-        rows += "</tr>";
-      });
-      document.getElementById("rankingTableBody").innerHTML = rows;
-    }
-
-    function buildBlockChart(entries) {
-      const blockNames = entries.map(row => row["Block Name"]||row["Block"]||row["Name"]||"?");
-      const blockScores = entries.map(row => row[selectedMetric]);
-      // Set color, with top/mid/bottom tagged
-      const baseColor = "rgba(102,126,234,0.8)";
-      const colors = entries.map((row, idx) => {
-        if (idx === 0) return "#10b981"; // Top
-        if (idx === entries.length-1) return "#ef4444"; // Bottom
-        if (idx === Math.floor((entries.length-1)/2)) return "#f59e0b"; // Middle
-        return baseColor;
-      });
-
-      // Destroy old chart if exists
-      if (chart) chart.destroy();
-
-      const ctx = document.getElementById('blockChart').getContext('2d');
-      chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: blockNames,
-          datasets: [{
-            label: selectedMetric + ' (for Block)',
-            data: blockScores,
-            backgroundColor: colors,
-            borderRadius: 9,
-            borderSkipped: false
-          }]
+// --- 4. Donut Chart ---
+function renderDonutChart() {
+  const ctx = document.getElementById('donutChart').getContext('2d');
+  // Data (taluka, score)
+  const chartData = allData.map(row => ({
+    label: row['__taluka'],
+    value: row['__score']
+  }));
+  // Custom colors for top/mid/bot
+  const sorted = allData.slice().sort((a,b)=>b.__score-a.__score);
+  let colors = [];
+  sorted.forEach((entry,idx)=>{
+    if(idx<5) colors.push('#22c55e');
+    else if(idx>=sorted.length-5) colors.push('#ef4444');
+    else colors.push('#eab308');
+  });
+  // Arrange color as per label order
+  const labelOrder = allData.map(r=>r['__taluka']);
+  const colorMap = {};
+  sorted.forEach((e,idx)=>{colorMap[e['__taluka']]=colors[idx]});
+  const chartColors = labelOrder.map(t=>colorMap[t]||'#8b5cf6');
+  // Destroy previous
+  if(donutChart) donutChart.destroy();
+  donutChart = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: chartData.map(d=>d.label),
+      datasets: [{
+        data: chartData.map(d=>d.value),
+        backgroundColor: chartColors,
+        borderColor: "#fff",
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive:true,
+      plugins: {
+        legend: {display: true, position:"bottom",labels:{boxWidth:22}},
+        datalabels: {
+          formatter: (v,ctx) => v,
+          color:'#1e293b',
+          font:{weight:'bold',size:15}
         },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {display: false},
-            datalabels: {
-              display: true,
-              anchor: "end", align: "end",
-              color: "#fff",
-              font: {weight:"bold"},
-              formatter: v => v
-            }
-          },
-          scales: {
-            y: {beginAtZero: true}
-          }
-        },
-        plugins: [ChartDataLabels]
-      });
-    }
+        tooltip: {callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
 
-    // Sample fallback data if Sheet API fails; adjust names/metrics as needed for demo/testing
-    function getSampleBlockData() {
-      return [
-        {"Block Name":"Amalner","Total Score":92,"Sanitation":75,"Agriculture":89},
-        {"Block Name":"Bhadgaon","Total Score":82,"Sanitation":60,"Agriculture":77},
-        {"Block Name":"Chopda","Total Score":67,"Sanitation":71,"Agriculture":79},
-        {"Block Name":"Jamner","Total Score":46,"Sanitation":77,"Agriculture":86},
-        {"Block Name":"Dharangaon","Total Score":37,"Sanitation":71,"Agriculture":63},
-        {"Block Name":"Erandol","Total Score":55,"Sanitation":55,"Agriculture":72},
-        {"Block Name":"Jalgaon","Total Score":74,"Sanitation":93,"Agriculture":85},
-        {"Block Name":"Pachora","Total Score":65,"Sanitation":65,"Agriculture":60},
-        {"Block Name":"Parola","Total Score":88,"Sanitation":85,"Agriculture":95},
-        {"Block Name":"Yawal","Total Score":49,"Sanitation":73,"Agriculture":71},
-      ];
-    }
-  </script>
+// --- 5. Data Table ---
+function renderTable() {
+  // Table Head
+  document.getElementById("tblHead").innerHTML =
+    `<th>रँक</th>` + headers.map(h=>`<th>${h}</th>`).join('');
+  // Body, sorted and with Top/Mid/Bot 5 highlighting
+  const sorted = allData.slice().sort((a,b)=>b.__score-a.__score)
+    .map((row,idx)=>({...row,_rank:idx+1}));
+  let midStart = Math.max(0,Math.floor((sorted.length-5)/2));
+  let rows = "";
+  sorted.forEach((row,idx) => {
+    let tag = "";
+    if(idx<5) tag = ' style="background:#bbf7d0;"';
+    else if(idx>=sorted.length-5) tag = ' style="background:#fecaca;"';
+    else if(idx>=midStart && idx<midStart+5) tag =
+      ' style="background:#fef08a;"';
+    rows += `<tr${tag}><td>${row._rank}</td>`
+      + headers.map(h=>`<td>${row[h]||""}</td>`).join('')
+      +`</tr>`;
+  });
+  document.getElementById("tblBody").innerHTML = rows;
+}
+
+// --- 6. CSV Export ---
+function downloadCSV() {
+  let csv = ["रँक,"+headers.join(",")];
+  // Sorted for consistency
+  allData.slice().sort((a,b)=>b.__score-a.__score)
+    .forEach((row,idx)=> 
+      csv.push([idx+1].concat(headers.map(h=>'"'+(row[h]||'')+'"')).join(',')));
+  let uri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv.join("\n"));
+  let link = document.createElement('a');
+  link.href = uri;
+  link.download = 'taluka-ranking.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// --- 7. Chart PNG Download ---
+function downloadDonut() {
+  let url = donutChart.toBase64Image('image/png',1);
+  let link = document.createElement('a');
+  link.href = url;
+  link.download = 'taluka-score-donut.png';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// --- 8. Multi-Taluka Compare (Alert) ---
+document.getElementById("cmpBtn").onclick = function() {
+  if(selectedTalukaSet.size===0) {
+    alert("कृपया कमीत कमी एक तालुका निवडा.");
+    return;
+  }
+  let message = "निवडलेले तालुके: " + [...selectedTalukaSet].join(", ");
+  // If you want detailed comparison, use this below.
+  const compareRows = allData.filter(row=>selectedTalukaSet.has(row['__taluka']));
+  message += "\n\n(स्कोअर comparison):\n";
+  compareRows.forEach(r=>{
+    message += `${r['__taluka']} - स्कोअर: ${r['__score']}\n`;
+  });
+  alert(message);
+};
+
+document.getElementById("refreshBtn").onclick = function(e){
+  e.preventDefault(); selectedTalukaSet = new Set();
+  document.getElementById("selectedTalukas").textContent = "";
+  mainRender();
+};
+document.getElementById("downloadCSV").onclick = downloadCSV;
+document.getElementById("downloadDonut").onclick = downloadDonut;
+
+// -- Main render driver --
+async function mainRender() {
+  allData = await loadData();
+  renderTalukaCheckboxes();
+  renderKPI();
+  renderDonutChart();
+  renderTable();
+}
+mainRender();
+</script>
 </body>
 </html>
