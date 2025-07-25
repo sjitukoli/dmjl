@@ -17,6 +17,7 @@
     .mid5 { background: #fef3c7; color: #92400e; }
     .low5 { background: #fee2e2; color: #991b1b; }
     .highlight { font-size: 2rem; }
+    .donut-container { max-width: 600px; margin: 0 auto; }
   </style>
 </head>
 <body>
@@ -70,6 +71,13 @@
         <canvas id="horizontalBarChart"></canvas>
       </div>
     </div>
+
+    <div class="card p-4">
+      <h5 class="mb-3">🍩 तालुक्यांचे वर्गीकरण (Donut Chart)</h5>
+      <div class="donut-container">
+        <canvas id="donutChart"></canvas>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -94,6 +102,7 @@
       });
 
       renderHorizontalBarChart();
+      renderDonutChart();
       renderKPICards();
     });
 
@@ -163,6 +172,33 @@
           maintainAspectRatio: false
         },
         plugins: [ChartDataLabels]
+      });
+    }
+
+    function renderDonutChart() {
+      const ctx = document.getElementById('donutChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: dataValues.map(d => d.taluka),
+          datasets: [{
+            data: dataValues.map(d => d.score),
+            backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#3b82f6']
+          }]
+        },
+        options: {
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            title: {
+              display: true,
+              text: 'तालुक्यांचे एकूण स्कोअर वाटप'
+            }
+          },
+          responsive: true,
+          maintainAspectRatio: false
+        }
       });
     }
 
