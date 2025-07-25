@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>तालुका योजना तुलनात्मक डॅशबोर्ड - जळगाव जिल्हा</title>
+  <meta charset="UTF-8" />
+  <title>तालुका योजना तुलनात्मक डॅशबो - जळगाव जिल्हा</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Chart.js & DataLabels -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <style>
     body { background: #f0f4ff; font-family: 'Noto Sans Devanagari', sans-serif; padding: 2rem; }
-    .glass { background: rgba(255,255,255,0.75); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
+    .glass { background: rgba(255,255,255,0.85); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
     .kpi { text-align: center; padding: 1rem; border-radius: 8px; font-weight: 600; }
-    .kpi.top { background: #d1fae5; color: #065f46; }
-    .kpi.mid { background: #fef3c7; color: #92400e; }
-    .kpi.bot { background: #fee2e2; color: #991b1b; }
-    .chart-container { height: 360px; }
+    .kpi.top   { background: #d1fae5; color: #065f46; }
+    .kpi.mid   { background: #fef3c7; color: #92400e; }
+    .kpi.bot   { background: #fee2e2; color: #991b1b; }
+    .kpi h4    { margin: .3rem 0; }
+    .chart-container { height: 350px; }
     .btn-export { margin-left: .5rem; }
+    .emoji { font-size: 1.4em; vertical-align: middle; }
   </style>
 </head>
 <body>
@@ -48,8 +50,9 @@
       </div>
     </div>
 
-    <!-- KPIs -->
-    <div id="kpiRow" class="row gy-3 mb-4"></div>
+    <!-- KPI Rows -->
+    <div id="kpiRow1" class="row gy-3 mb-2"></div>
+    <div id="kpiRow2" class="row gy-3 mb-4"></div>
 
     <!-- Bar Chart -->
     <div class="glass p-4 mb-4">
@@ -58,179 +61,198 @@
     </div>
 
     <!-- Donut Chart -->
-    <div class="glass p-4">
+    <div class="glass p-4 mb-4">
       <h5 class="mb-3 text-indigo-900"><i class="fa fa-chart-pie me-2"></i>तालुक्यांचे वर्गीकरण (Donut Chart)</h5>
       <div class="chart-container"><canvas id="donutChart"></canvas></div>
+    </div>
+
+    <!-- All-parameter Radar Chart -->
+    <div class="glass p-4 mb-4">
+      <h5 class="mb-3 text-indigo-900"><i class="fa fa-chart-radar me-2"></i>प्रत्येक तालुक्याचे सर्व योजनांनिहाय रँकिंग</h5>
+      <div class="chart-container"><canvas id="radarChart"></canvas></div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="glass p-4">
+      <h5 class="mb-3 text-indigo-900"><i class="fa fa-table me-2"></i>तालुक्यांची पूर्ण माहिती व रँकिंग</h5>
+      <div style="overflow-x:auto;">
+        <table class="table table-sm" id="dataTable">
+          <thead><tr id="tableHeader"></tr></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
     </div>
 
   </div>
 
   <script>
-    // CONFIG: Google Sheets API
     const CONFIG = {
       apiKey: 'AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU',
       spreadsheetId: '1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE',
       range: 'Rank!B5:AJ20'
     };
     let rawData=[], headers=[], blocks=[], schemes=[];
-    let barChart, donutChart;
+    let barChart, donutChart, radarChart;
     const selectedBlocks = new Set();
 
-    // UTIL: fetch sheet
     async function fetchSheet() {
       const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${encodeURIComponent(CONFIG.range)}?majorDimension=ROWS&valueRenderOption=UNFORMATTED_VALUE&key=${CONFIG.apiKey}`;
       const res = await fetch(url);
-      if (!res.ok) throw Error(res.statusText);
+      if(!res.ok) throw Error(res.statusText);
       return (await res.json()).values;
     }
 
-    // PARSE
     function parse(values) {
       headers = values[0];
       const idxBlock = headers.findIndex(h=>/तालुका/i.test(h));
       blocks = values.slice(1).map(r=>{
-        const obj = {};
+        const obj={};
         headers.forEach((h,i)=>obj[h]=r[i]);
-        obj._block = r[idxBlock];
+        obj._block=r[idxBlock];
         return obj;
       });
       schemes = headers.filter((_,i)=>i!==idxBlock);
       rawData = blocks;
     }
 
-    // RENDER CONTROLS
     function renderControls() {
-      // scheme dropdown
       const sel = document.getElementById('schemeSelect');
       sel.innerHTML = schemes.map(s=>`<option>${s}</option>`).join('');
       sel.onchange = updateAll;
-      // taluka checkboxes
       const cbx = document.getElementById('talukaCheckboxes');
       cbx.innerHTML = blocks.map(b=>`
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="checkbox" id="cb_${b._block}" value="${b._block}">
           <label class="form-check-label">${b._block}</label>
-        </div>`).join('');
+        </div>
+      `).join('');
       cbx.querySelectorAll('input').forEach(i=>{
         i.onchange = e=>{
           e.target.checked ? selectedBlocks.add(e.target.value) : selectedBlocks.delete(e.target.value);
           updateAll();
         };
       });
-      // buttons
       document.getElementById('resetBtn').onclick = ()=>{
         selectedBlocks.clear();
         cbx.querySelectorAll('input').forEach(i=>i.checked=false);
         updateAll();
       };
       document.getElementById('compareBtn').onclick = ()=>{
-        if(!selectedBlocks.size) return alert('कृपया कमीत कमी एक तालुका निवडा.');
-        alert('निवडलेले तालुके:\n'+[...selectedBlocks].join('\n'));
+        if(!selectedBlocks.size) return alert('कृपया एक तालुका निवडा.');
+        alert('निवडलेले तालुके:\n'+[...selectedBlocks].join(', '));
       };
       document.getElementById('downloadCsvBtn').onclick = downloadCSV;
       document.getElementById('downloadChartBtn').onclick = ()=>{
-        const link=document.createElement('a');
-        link.href = barChart.toBase64Image();
-        link.download='taluka-chart.png'; link.click();
+        const a=document.createElement('a');
+        a.href=barChart.toBase64Image(); a.download='taluka-bar-chart.png'; a.click();
       };
     }
 
-    // COMPUTE filtered & ranked
     function compute() {
       const scheme = document.getElementById('schemeSelect').value;
-      let data = rawData.map(r=>{
-        return {_block:r._block, val:parseFloat(r[scheme])||0};
-      });
+      let data = rawData.map(r=>({ _block:r._block, val:parseFloat(r[scheme])||0 }));
       if(selectedBlocks.size) data = data.filter(d=>selectedBlocks.has(d._block));
       data.sort((a,b)=>b.val-a.val);
       data.forEach((d,i)=>d.rank=i+1);
       return data;
     }
 
-    // RENDER KPIs
     function renderKPIs(data) {
-      const row = document.getElementById('kpiRow');
-      row.innerHTML = '';
-      const top5 = data.slice(0,5),
-            mid5 = data.slice( Math.floor((data.length-5)/2), Math.floor((data.length-5)/2)+5 ),
-            bot5 = data.slice(-5);
-      function card(list,cls,title){
-        return list.map(d=>`
-          <div class="col-md-4">
-            <div class="kpi ${cls}">
-              <div class="fw-bold mb-1 highlight">${d.rank}. ${d._block}</div>
-              स्कोअर: ${d.val} <br><small>${title}</small>
-            </div>
-          </div>`).join('');
-      }
-      row.innerHTML = card(top5,'top','Top 5')
-                    + card(mid5,'mid','मध्यम 5')
-                    + card(bot5,'bot','तळ 5');
+      const top5 = data.slice(0,5), mid5 = data.slice(Math.floor((data.length-5)/2),Math.floor((data.length-5)/2)+5), bot5 = data.slice(-5);
+      const row1 = document.getElementById('kpiRow1'), row2 = document.getElementById('kpiRow2');
+      row1.innerHTML = top5.map(d=>`
+        <div class="col-md-4"><div class="kpi top">
+          <h4>🏆 ${d.rank}. ${d._block}</h4>
+          स्कोअर: ${d.val}
+        </div></div>`).join('');
+      row2.innerHTML = mid5.map(d=>`
+        <div class="col-md-4"><div class="kpi mid">
+          <h4>⚖️ ${d.rank}. ${d._block}</h4>
+          स्कोअर: ${d.val}
+        </div></div>`).join('')
+        + bot5.map(d=>`
+        <div class="col-md-4"><div class="kpi bot">
+          <h4>🚨 ${d.rank}. ${d._block}</h4>
+          स्कोअर: ${d.val}
+        </div></div>`).join('');
     }
 
-    // RENDER BAR
     function renderBar(data) {
-      const ctx = document.getElementById('barChart').getContext('2d');
+      const ctx=document.getElementById('barChart').getContext('2d');
       barChart?.destroy();
-      barChart = new Chart(ctx,{
+      barChart=new Chart(ctx,{
         type:'bar',
-        data:{
-          labels: data.map(d=>d._block),
-          datasets:[{label:'स्कोअर',data:data.map(d=>d.val),backgroundColor:'#6366f1',borderRadius:4}]
-        },
-        options:{
-          indexAxis:'y',plugins:{
-            legend:{display:false},
-            datalabels:{anchor:'end',align:'right',color:'#111',formatter:v=>v}
-          },
-          responsive:true,maintainAspectRatio:false
-        },plugins:[ChartDataLabels]
+        data:{ labels:data.map(d=>d._block), datasets:[{ label:'स्कोअर', data:data.map(d=>d.val), backgroundColor:'#6366f1', borderRadius:4 }]},
+        options:{ indexAxis:'y', plugins:{ legend:{display:false}, datalabels:{anchor:'end',align:'right',formatter:v=>v}} },
+        plugins:[ChartDataLabels]
       });
     }
 
-    // RENDER DONUT
     function renderDonut(data) {
-      const ctx = document.getElementById('donutChart').getContext('2d');
+      const ctx=document.getElementById('donutChart').getContext('2d');
       donutChart?.destroy();
-      donutChart = new Chart(ctx,{
+      donutChart=new Chart(ctx,{
         type:'doughnut',
-        data:{
-          labels: data.map(d=>d._block),
-          datasets:[{
-            data:data.map(d=>d.val),
-            backgroundColor:['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6']
-          }]
-        },
-        options:{plugins:{legend:{position:'bottom'}}},responsive:true
+        data:{ labels:data.map(d=>d._block), datasets:[{ data:data.map(d=>d.val), backgroundColor:['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6'] }]},
+        options:{ plugins:{ legend:{position:'bottom'} } }
       });
     }
 
-    // CSV Export
+    function renderRadar() {
+      const schemeNames = schemes;
+      const datasets = rawData.map(r=>{
+        return {
+          label: r._block,
+          data: schemeNames.map(s=>parseFloat(r[s])||0),
+          fill: true,
+          backgroundColor: 'rgba(99,102,241,0.2)',
+          borderColor: '#6366f1'
+        };
+      });
+      const ctx=document.getElementById('radarChart').getContext('2d');
+      radarChart?.destroy();
+      radarChart=new Chart(ctx,{
+        type:'radar',
+        data:{ labels:schemeNames, datasets:datasets },
+        options:{ plugins:{ legend:{position:'right'} }, elements:{ line:{borderWidth:2}} }
+      });
+    }
+
+    function renderTable(data) {
+      const th=`<th>रँक</th>`+headers.map(h=>`<th>${h}</th>`).join('');
+      document.getElementById('tableHeader').innerHTML=th;
+      let n=data.length, midStart=Math.floor((n-5)/2);
+      const rows=data.map((r,i)=>`
+        <tr class="${i<5?'top5':i>=n-5?'bot5':(i>=midStart&&i<midStart+5?'mid5':'')}">
+          <td>${r.rank}</td>${headers.map(h=>`<td>${rawData.find(x=>x._block===r._block)[h]||''}</td>`).join('')}
+        </tr>`).join('');
+      document.getElementById('tableBody').innerHTML=rows;
+    }
+
     function downloadCSV(){
-      const data = compute();
-      let csv = 'रँक,तालुका,स्कोअर\n'
-      + data.map(d=>`${d.rank},${d._block},${d.val}`).join('\n');
+      const data=compute();
+      let csv='रँक,'+headers.join(',')+'\n'+data.map(r=>`${r.rank},`+headers.map(h=>`"${rawData.find(x=>x._block===r._block)[h]||''}"`).join(',')).join('\n');
       const blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob);
       const a=document.createElement('a');a.href=url;a.download='taluka-data.csv';a.click();
     }
 
-    // UPDATE ALL
     function updateAll(){
-      const data = compute();
+      const data=compute();
       renderKPIs(data);
       renderBar(data);
       renderDonut(data);
+      renderRadar();
+      renderTable(data);
     }
 
-    // INIT
-    (async()=>{ 
-      try {
-        const values = await fetchSheet();
-        parse(values);
+    (async()=>{
+      try{
+        const vals=await fetchSheet();
+        parse(vals);
         renderControls();
         updateAll();
-      } catch(e) {
-        alert('डेटा लोड करण्यात अयशस्वी: '+e.message);
+      }catch(e){
+        alert('डेटा लोड त्रुटी: '+e.message);
       }
     })();
   </script>
