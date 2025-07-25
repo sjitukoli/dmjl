@@ -6,8 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <style>
@@ -20,7 +19,7 @@
     }
     .glass {
       background: #fff;
-      border-radius: 10px;
+      border-radius: 12px;
       box-shadow: 0 2px 8px rgba(99,102,241,0.1);
       margin-bottom: 1rem;
       padding: 0.8rem;
@@ -31,50 +30,122 @@
       height: 460px;
     }
     .kpi-col { flex: 0 0 22%; background: #f8fafc; border-radius: 8px; padding: 0.5rem; overflow-y: auto; }
-    .chart-col { flex: 0 0 26%; background: #f8fafc; border-radius: 8px; padding: 0.4rem; display: flex; flex-direction: column; }
-    .donut-col { flex: 0 0 26%; background: #f8fafc; border-radius: 8px; padding: 0.4rem; display: flex; flex-direction: column; }
-    .scheme-col { flex: 0 0 26%; background: #f8fafc; border-radius: 8px; padding: 0.4rem; display: flex; flex-direction: column; }
-    .kpi-card {
-      border-radius: 6px; text-align:center; font-size:0.85em; font-weight:600; margin:0.2rem 0; padding:0.3rem 0.2rem;
-      cursor:pointer; transition: all 0.2s; border:1px solid transparent;
+    .chart-col, .donut-col, .scheme-col {
+      flex: 0 0 26%;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 0.4rem;
+      display: flex;
+      flex-direction: column;
     }
-    .kpi-card:hover { border-color:#6366f1; box-shadow:0 2px 8px rgba(99,102,241,0.2); }
+    /* KPI Cards */
+    .kpi-card {
+      border-radius: 50px;
+      text-align: center;
+      font-size: 1.05em;
+      font-weight: 700;
+      margin: 0.2rem 0;
+      padding: 0.4rem 0.2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.4) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .kpi-card:hover::before {
+      opacity: 1;
+    }
+    .kpi-card:hover {
+      border-color: #6366f1;
+      box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+    }
     .kpi-card.top { background: linear-gradient(90deg,#10b981,#6ee7b7); color:#fff; }
     .kpi-card.mid { background: linear-gradient(90deg,#f59e0b,#fbbf24); color:#fff; }
     .kpi-card.bot { background: linear-gradient(90deg,#ef4444,#f87171); color:#fff; }
-    .kpi-card.blink {
+    .kpi-card.blink .kpi-emoji {
+      display: inline-block;
       animation: blink 1.2s infinite;
-      background: #22c55e !important;
-      color: #fff !important;
+      font-size: 1.5em;
     }
     @keyframes blink {
       0%,50%,100% { opacity: 1; }
       25%,75% { opacity: 0.4; }
     }
-    .kpi-rank { font-size:0.9em; font-weight:700; }
-    .kpi-name { font-size:0.9em; margin:1px 0; }
-    .kpi-score { font-size:1em; font-weight:800; }
+    .kpi-emoji { font-size: 1.3em; display: block; }
+    .kpi-name { font-size: 1em; margin: 2px 0; }
+    .kpi-score { font-size: 1.2em; font-weight: 800; }
+    /* Chips */
     .dept-chip {
-      display:inline-block; padding:4px 8px; border-radius:15px; font-size:0.8em; background:#e0e7ff;
-      margin:2px 3px; color:#3730a3; font-weight:600; cursor:pointer; transition:all 0.15s; border:1px solid transparent;
-      user-select:none;
+      display: inline-block; padding: 4px 8px; border-radius: 15px; font-size: 0.85em;
+      background: #e0e7ff; margin: 2px 4px; color: #3730a3; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
+      user-select: none;
     }
-    .dept-chip:hover, .dept-chip.selected {
-      background:#fbbf24; color:#92400e; border-color:#f59e0b; transform:scale(1.05);
+    .dept-chip.selected, .dept-chip:hover {
+      background: #fbbf24; color: #92400e; border-color: #f59e0b;
+      transform: scale(1.05);
     }
-    .chart-container { width:100%; flex:1; height:250px; margin-bottom:0.8rem; }
-    .chart-header { font-size:0.85em; font-weight:700; color:#6366f1; margin-bottom:0.3rem; text-align:center; }
-    .btn-compact { padding:0.25rem 0.5rem; font-size:0.75em; margin-top:0.2rem; }
-    .table { font-size:0.85em; }
-    .table thead th { background:#6366f1; color:#fff; padding:0.35rem; text-align:center; }
-    .table tbody td { padding:0.3rem 0.2rem; text-align:center; border:1px solid #e5e7eb; }
-    .table tbody tr.selected-block td { background:#dbeafe!important; font-weight:700; }
-    .table tbody tr.top5 td { background:#d1fae5!important; }
-    .table tbody tr.mid5 td { background:#fef3c7!important; }
-    .table tbody tr.bot5 td { background:#fee2e2!important; }
+    /* Chart containers */
+    .chart-container {
+      width: 100%;
+      flex: 1;
+      margin-bottom: 0.8rem;
+    }
+    .chart-header {
+      font-size: 0.95em;
+      font-weight: 700;
+      color: #6366f1;
+      margin-bottom: 0.3rem;
+      text-align: center;
+      user-select: none;
+    }
+    .btn-export {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8em;
+      margin-top: 0.2rem;
+    }
+    /* Table */
+    .table {
+      font-size: 0.85em;
+    }
+    .table thead th {
+      background: #6366f1;
+      color: white;
+      padding: 0.4rem;
+      text-align: center;
+    }
+    .table tbody td {
+      padding: 0.3rem 0.2rem;
+      text-align: center;
+      border: 1px solid #e5e7eb;
+    }
+    .table tbody tr.selected-block td {
+      background: #dbeafe!important;
+      font-weight: 700;
+    }
+    .table tbody tr.top5 td { background: #d1fae5!important; }
+    .table tbody tr.mid5 td { background: #fef3c7!important; }
+    .table tbody tr.bot5 td { background: #fee2e2!important; }
     @media (max-width: 1200px) {
-      .dashboard-4col { flex-direction: column; height:auto; }
-      .kpi-col, .chart-col, .donut-col, .scheme-col { flex:none; height:300px; }
+      .dashboard-4col {
+        flex-direction: column;
+        height: auto;
+      }
+      .kpi-col, .chart-col, .donut-col, .scheme-col {
+        flex: none;
+        height: 300px;
+      }
     }
   </style>
 </head>
@@ -84,7 +155,6 @@
       📊 तालुका योजना तुलनात्मक डॅशबोर्ड<br>
       <small class="text-muted">(जळगाव जिल्हा)</small>
     </h2>
-
     <div class="glass mb-3">
       <div class="row g-2 align-items-center">
         <div class="col-md-6 col-lg-5">
@@ -107,21 +177,21 @@
         <!-- KPI Column -->
         <div class="kpi-col" id="kpiCol" aria-live="polite"></div>
 
-        <!-- Bar Chart -->
+        <!-- Bar Chart Column -->
         <div class="chart-col">
           <div class="chart-header">📈 कार्यप्रदर्शन तुलना</div>
           <div class="chart-container"><canvas id="barChart"></canvas></div>
           <button id="downloadBarBtn" class="btn btn-success btn-compact">⬇️ डाउनलोड</button>
         </div>
 
-        <!-- Donut Chart -->
+        <!-- Donut Chart Column -->
         <div class="donut-col">
           <div class="chart-header">📊 प्रतिशत वाटप</div>
           <div class="chart-container"><canvas id="donutChart"></canvas></div>
           <button id="downloadDonutBtn" class="btn btn-warning btn-compact">⬇️ डाउनलोड</button>
         </div>
 
-        <!-- Scheme Rank Chart -->
+        <!-- Scheme Rank Chart Column -->
         <div class="scheme-col">
           <div class="chart-header">🗂 योजना रँक विश्लेषण</div>
           <div class="chart-container"><canvas id="schemeRankChart"></canvas></div>
@@ -131,14 +201,17 @@
     </div>
 
     <div class="glass mb-3">
-      <h6 class="mb-2 text-primary">📋 तालुक्यांची संपूर्ण माहिती व रँकिंग
-        <button id="downloadCsvBtn" class="btn btn-secondary btn-compact float-end">📊 CSV</button>
-      </h6>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0 text-primary">📋 तालुक्यांची संपूर्ण माहिती व रँकिंग</h6>
+      </div>
       <div class="table-responsive" style="max-height: 340px; overflow-y: auto;">
         <table class="table table-bordered" id="dataTable">
           <thead><tr id="tableHeader"></tr></thead>
           <tbody id="tableBody"></tbody>
         </table>
+      </div>
+      <div class="text-end mt-1">
+        <button id="downloadCsvBtn" class="btn btn-secondary btn-compact">📊 CSV डाउनलोड</button>
       </div>
     </div>
   </div>
@@ -169,25 +242,22 @@
     function renderControls(){
       const sel=document.getElementById('schemeSelect');
       sel.innerHTML=`<option value="__all__" style="font-weight:bold;">सर्व योजना</option>`+schemes.map(s=>`<option>${s}</option>`).join('');
-      sel.addEventListener('change',()=>{
-        const v=Array.from(sel.selectedOptions).map(o=>o.value),all=v.includes('__all__');
-        if(all) for(let opt of sel.options) if(opt.value!=='__all__') opt.selected=true;
-        const actual=Array.from(sel.options).filter(o=>o.value!=='__all__'&&o.selected);
-        sel.querySelector('option[value="__all__"]').selected=(actual.length===schemes.length);
+      sel.addEventListener('change',()=>{const v=Array.from(sel.selectedOptions).map(o=>o.value),all=v.includes('__all__');
+        if(all) for(let o of sel.options) if(o.value!=='__all__') o.selected=true;
+        const act=Array.from(sel.options).filter(o=>o.value!=='__all__'&&o.selected);
+        sel.querySelector('option[value="__all__"]').selected=(act.length===schemes.length);
       });
       const chips=document.getElementById('talukaChips');
       chips.innerHTML=blocks.map(b=>`<span class="dept-chip" data-block="${b._block}">${b._block}</span>`).join('');
       chips.querySelectorAll('.dept-chip').forEach(span=>{
-        span.onclick=()=>{
-          const n=span.dataset.block;
+        span.onclick=()=>{const n=span.dataset.block;
           if(selectedBlocks.has(n)){selectedBlocks.delete(n);span.classList.remove('selected');}
           else{selectedBlocks.add(n);span.classList.add('selected');}
           if(selectedBlocks.size===1) renderSchemeRankChart(Array.from(selectedBlocks)[0]);
         };
       });
       document.getElementById('resetBtn').onclick=()=>{selectedBlocks.clear();selectedSchemes.clear();
-        chips.querySelectorAll('.dept-chip').forEach(s=>s.classList.remove('selected'));
-        sel.selectedIndex=-1;clearDashboard();showAllDefault();};
+        chips.querySelectorAll('.dept-chip').forEach(s=>s.classList.remove('selected'));sel.selectedIndex=-1;clearDashboard();showAllDefault();};
       document.getElementById('submitBtn').onclick=updateAll;
       document.getElementById('downloadBarBtn').onclick=()=>barChart&&downloadChart(barChart,'bar-chart.png');
       document.getElementById('downloadDonutBtn').onclick=()=>donutChart&&downloadChart(donutChart,'donut-chart.png');
@@ -203,76 +273,72 @@
         else selectedSchemes.add(o.value);
       });
     }
-    function getRankOnes(){
-      const c={};
-      schemes.forEach(s=>{
-        let best=Infinity,tops=[];
-        rawData.forEach(r=>{
-          const rk=parseInt(r[s])||999;
-          if(rk<best){best=rk;tops=[r._block];}
-          else if(rk===best)tops.push(r._block);
-        });
-        if(best===1)tops.forEach(t=>c[t]=(c[t]||0)+1);
-      });
-      return Object.entries(c).map(([t,cnt])=>({t,cnt})).sort((a,b)=>b.cnt-a.cnt);
-    }
     function compute(){
       collectSelections();
       const schemesArr=selectedSchemes.size?Array.from(selectedSchemes):schemes.slice();
       const blocksArr=selectedBlocks.size?Array.from(selectedBlocks).map(b=>rawData.find(r=>r._block===b)).filter(Boolean):rawData.slice();
-      const rankOnes=getRankOnes();
-      const mainScheme=schemesArr[0];
-      const kpiData=blocksArr.map(r=>{
-        const ro=rankOnes.find(x=>x.t===r._block);
-        return{_block:r._block,val:mainScheme?(parseInt(r[mainScheme])||999):(ro?ro.cnt:0),ones:ro?ro.cnt:0};
-      }).sort((a,b)=>(b.ones-a.ones)||(a.val-b.val));
+      const rankOnes={}; schemes.forEach(s=>{
+        let best=Infinity,tops=[];
+        rawData.forEach(r=>{const rk=parseInt(r[s])||999; if(rk<best){best=rk;tops=[r._block];}else if(rk===best)tops.push(r._block);});
+        if(best===1)tops.forEach(t=>rankOnes[t]=(rankOnes[t]||0)+1);
+      });
+      const kpiData=blocksArr.map(r=>{const ro=rankOnes[r._block]||0; return{_block:r._block,val:parseInt(r[schemesArr[0]])||999,ones:ro};})
+        .sort((a,b)=>(b.ones-a.ones)||(a.val-b.val));
       kpiData.forEach((d,i)=>d.rank=i+1);
-      return{blocksArr,kpiData,schemesArr,mainScheme};
+      return{blocksArr,kpiData,schemesArr,mainScheme:schemesArr[0]};
     }
     function renderKPI(d){
-      const col=document.getElementById('kpiCol');col.innerHTML='';
+      const col=document.getElementById('kpiCol'); col.innerHTML='';
       if(!d||!d.kpiData.length)return;
-      [['top','🏆'],['mid','⚖️'],['bot','🚨']].forEach((cls,idx)=>{
-        const item=d.kpiData[idx==0?0:idx==1?Math.floor(d.kpiData.length/2):d.kpiData.length-1];
-        if(item)col.innerHTML+=`<div class="kpi-card ${cls[0]}${idx==0?' blink':''}" onclick="showTalukaAnalysis('${item._block}')">
-          <div class="kpi-rank">${cls[1]} #${item.rank}</div><div class="kpi-name">${item._block}</div>
-          <div class="kpi-score">${idx==0?item.ones+' #1s':item.val}</div></div>`;
+      [['top','🏆'],['mid','⚖️'],['bot','🚨']].forEach((c,i)=>{
+        const item=d.kpiData[i===0?0:i===1?Math.floor(d.kpiData.length/2):d.kpiData.length-1];
+        if(item)col.innerHTML+=`<div class="kpi-card ${c[0]}${i===0?' blink':''}" onclick="showTalukaAnalysis('${item._block}')">
+          <div class="kpi-emoji">${c[1]}</div><div class="kpi-name">${item._block}</div><div class="kpi-score">${item.ones} #1s</div>
+        </div>`;
       });
     }
     window.showTalukaAnalysis=function(name){
       const asc=schemes.map(s=>({scheme:s,rank:parseInt(rawData.find(r=>r._block===name)[s])||999})).sort((a,b)=>a.rank-b.rank);
       const tot=rawData.length;
-      const exc=asc.filter((a,i)=>i<3),need=asc.filter((a,i)=>i>=3&&i<Math.ceil(asc.length*0.7)),att=asc.filter((a,i)=>i>=Math.ceil(asc.length*0.7));
+      const exc=asc.filter((_,i)=>i<3),need=asc.filter((_,i)=>i>=3&&i<Math.ceil(asc.length*0.7)),att=asc.filter((_,i)=>i>=Math.ceil(asc.length*0.7));
       let rep=`तालुका: ${name}\n\n🏆 Top 3:\n`+exc.map(a=>`${a.scheme}: #${a.rank}/${tot}`).join('\n')+
               `\n\n⚖️ मध्यम:\n`+need.map(a=>`${a.scheme}: #${a.rank}/${tot}`).join('\n')+
               `\n\n🚨 तळ:\n`+att.map(a=>`${a.scheme}: #${a.rank}/${tot}`).join('\n');
       alert(rep);
+      renderProgressCategories(exc,need,att);
     };
+    function renderProgressCategories(e,n,a){
+      document.getElementById('progressExcellent')?.remove();
+      const sec=document.createElement('div');sec.className='glass';sec.innerHTML=
+        `<div class="progress-section progress-excellent"><strong>🏆 Top 3:</strong><br>${e.map(x=>x.scheme).join(', ')}</div>
+         <div class="progress-section progress-needs"><strong>⚖️ मध्यम:</strong><br>${n.map(x=>x.scheme).join(', ')}</div>
+         <div class="progress-section progress-attention"><strong>🚨 तळ:</strong><br>${a.map(x=>x.scheme).join(', ')}</div>`;
+      document.querySelector('.container-fluid').append(sec);
+    }
     function renderBar(d){const ctx=document.getElementById('barChart').getContext('2d');barChart&&barChart.destroy();
-      barChart=new Chart(ctx,{type:'bar',data:{labels:d.kpiData.map(x=>x._block),datasets:[{data:d.kpiData.map(x=>x.ones),backgroundColor:'#6366f1'}]},options:{indexAxis:'y',plugins:{legend:{display:false},datalabels:{anchor:'end',align:'right',formatter:v=>v+' #1s'}},responsive:true,maintainAspectRatio:false},plugins:[ChartDataLabels]});}
+      barChart=new Chart(ctx,{type:'bar',data:{labels:d.kpiData.map(x=>x._block),datasets:[{data:d.kpiData.map(x=>x.ones),backgroundColor:'#6366f1'}]},options:{indexAxis:'y',plugins:{legend:{display:false},datalabels:{anchor:'end',align:'right',formatter:v=>v+' #1s',font:{size:10}}},responsive:true,maintainAspectRatio:false},plugins:[ChartDataLabels]});}
     function renderDonut(d){const ctx=document.getElementById('donutChart').getContext('2d');donutChart&&donutChart.destroy();
-      donutChart=new Chart(ctx,{type:'doughnut',data:{labels:d.kpiData.map(x=>x._block),datasets:[{data:d.kpiData.map(x=>x.ones),backgroundColor:['#4f46e5','#10b981','#f59e0b','#ef4444','#3b82f6']}]} ,options:{plugins:{legend:{position:'bottom'},datalabels:{formatter:v=>v}},responsive:true,maintainAspectRatio:false},plugins:[ChartDataLabels]});}
+      donutChart=new Chart(ctx,{type:'doughnut',data:{labels:d.kpiData.map(x=>x._block),datasets:[{data:d.kpiData.map(x=>x.ones),backgroundColor:['#4f46e5','#10b981','#f59e0b','#ef4444','#3b82f6']}]},options:{plugins:{legend:{position:'bottom'},datalabels:{formatter:v=>v,font:{size:9}}},responsive:true,maintainAspectRatio:false},plugins:[ChartDataLabels]});}
     function renderSchemeRankChart(name){
-      const tal=rawData.find(r=>r._block===name);if(!tal)return;
+      if(!name)return;const tal=rawData.find(r=>r._block===name);if(!tal)return;
       const arr=schemes.map(s=>({scheme:s,rank:parseInt(tal[s])||999})).sort((a,b)=>a.rank-b.rank);
       const ctx=document.getElementById('schemeRankChart').getContext('2d');schemeRankChart&&schemeRankChart.destroy();
-      schemeRankChart=new Chart(ctx,{type:'bar',data:{labels:arr.map(a=>a.scheme),datasets:[{data:arr.map(a=>a.rank),backgroundColor:arr.map(a=>a.rank===1?'#10b981':a.rank<=3?'#f59e0b':'#ef4444')}]},options:{plugins:{legend:{display:false},datalabels:{anchor:'end',align:'top',formatter:v=>'#'+v,font:{size:8}}},responsive:true,maintainAspectRatio:false,scales:{y:{reverse:true}}},plugins:[ChartDataLabels]});}
+      schemeRankChart=new Chart(ctx,{type:'bar',data:{labels:arr.map(a=>a.scheme),datasets:[{data:arr.map(a=>a.rank),backgroundColor:arr.map(a=>a.rank===1?'#10b981':a.rank<=3?'#f59e0b':'#ef4444')}]},options:{plugins:{legend:{display:false},datalabels:{anchor:'end',align:'top',formatter:v=>`#${v}`,font:{size:8}}},responsive:true,maintainAspectRatio:false,scales:{y:{reverse:true}}},plugins:[ChartDataLabels]});}
     function renderTable(d){
-      const th=`<th>रँक</th><th>#1s</th>`+headers.map(h=>`<th>${h}</th>`).join('');
+      const th='<th>रँक</th><th>#1s</th>'+headers.map(h=>`<th>${h}</th>`).join('');
       document.getElementById('tableHeader').innerHTML=th;
-      const rows=d.kpiData.map((r,i)=>{const cls=[i<3?'top5':'',i>=d.kpiData.length-3?'bot5':'',selectedBlocks.has(r._block)?'selected-block':''].filter(Boolean).join(' ');
+      const n=d.kpiData.length,midStart=Math.floor((n-3)/2);
+      const rows=d.kpiData.map((r,i)=>{const cls=[i<3?'top5':'',i>=n-3?'bot5':'',(i>=midStart&&i<midStart+3)?'mid5':'',selectedBlocks.has(r._block)?'selected-block':''].filter(Boolean).join(' ');
         const tal=rawData.find(x=>x._block===r._block);
-        return `<tr class="${cls}"><td>${r.rank}</td><td><b>${r.ones}</b></td>`+headers.map(h=>`<td>${tal[h]||''}</td>`).join('')+`</tr>`;
-      }).join('');
+        return`<tr class="${cls}"><td>${r.rank}</td><td><b>${r.ones}</b></td>`+
+          headers.map(h=>`<td>${tal[h]||''}</td>`).join('')+'</tr>';}).join('');
       document.getElementById('tableBody').innerHTML=rows;
     }
     function clearDashboard(){
       document.getElementById('kpiCol').innerHTML='';
       document.getElementById('tableBody').innerHTML='';
       document.getElementById('tableHeader').innerHTML='';
-      barChart&&barChart.destroy();
-      donutChart&&donutChart.destroy();
-      schemeRankChart&&schemeRankChart.destroy();
+      barChart&&barChart.destroy();donutChart&&donutChart.destroy();schemeRankChart&&schemeRankChart.destroy();
     }
     function showAllDefault(){
       selectedSchemes.clear();schemes.forEach(s=>selectedSchemes.add(s));
@@ -283,26 +349,19 @@
     }
     function updateAll(){
       const d=compute();
-      if(!d||!d.kpiData.length){alert('कृपया योजना आणि तालुका निवडा.');return;}
+      if(!d||!d.kpiData.length){alert('कृपया योजना व तालुका निवडा.');return;}
       renderKPI(d);renderBar(d);renderDonut(d);renderTable(d);
-      if(selectedBlocks.size===1)renderSchemeRankChart(Array.from(selectedBlocks)[0]);
+      if(selectedBlocks.size===1) renderSchemeRankChart(Array.from(selectedBlocks)[0]);
     }
     function downloadCSV(){
       const d=compute();if(!d)return;
-      const hd=['रँक','#1 Ranks'].concat(headers);
+      const hd=['रँक','#1s'].concat(headers);
       let csv=hd.join(',')+'\n'+d.kpiData.map(r=>`${r.rank},${r.ones},`+headers.map(h=>`"${rawData.find(x=>x._block===r._block)[h]||''}"`).join(',')).join('\n');
       const blob=new Blob([csv],{type:'text/csv'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='taluka-data.csv';a.click();URL.revokeObjectURL(u);
     }
-
     (async()=>{
-      try{
-        const vals=await fetchSheet();
-        parse(vals);
-        renderControls();
-        showAllDefault();
-      }catch(e){
-        alert('डेटा लोड\xa0त्रुटी: '+e.message);
-      }
+      try{const vals=await fetchSheet();parse(vals);renderControls();showAllDefault();}
+      catch(e){alert('डेटा लोड त्रुटी: '+e.message);}
     })();
   </script>
 </body>
