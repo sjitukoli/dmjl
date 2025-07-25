@@ -1,75 +1,557 @@
-<!-- ...Previous HEAD/Imports/CSS from your code... -->
-
-<div id="page1">
-  <div class="glass mb-4">
-    <div class="row align-items-end mb-0 pb-0">
-      <div class="col-md-6">
-        <select id="schemeDropdown" class="form-select form-select-sm"></select>
-      </div>
-      <div class="col-md-6">
-        <div id="talukaChips"></div>
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8" />
+  <title>योजना डॅशबोर्ड · जळगाव जिल्हा</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Bootstrap & Fonts -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@700;400&display=swap"
+    rel="stylesheet"
+  />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <style>
+    body {
+      font-family: "Noto Sans Devanagari", sans-serif;
+      background: #f5f8ff;
+      color: #23263a;
+      margin: 0;
+      padding: 1.5rem;
+    }
+    .glass {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 18px #0001;
+      margin-bottom: 1.5rem;
+      padding: 1.5rem;
+    }
+    .tab-btn {
+      font-weight: 700;
+      padding: 0.5em 1.5em;
+      border-radius: 2em;
+      margin-right: 10px;
+      color: #222;
+      background: #ede9fe;
+      border: none;
+      cursor: pointer;
+      transition: 0.16s;
+    }
+    .tab-btn.active,
+    .tab-btn:focus,
+    .tab-btn:hover {
+      background: #7c3aed;
+      color: #fff;
+      transform: scale(1.07);
+    }
+    .kpi-badge {
+      background: linear-gradient(97deg, #b7f5b0 0%, #22d36e 100%);
+      color: #065f34;
+      border-radius: 37px;
+      box-shadow: 0 2px 15px #15c96922;
+      font-weight: 800;
+      padding: 0.58em 2em;
+      font-size: 1.23em;
+      display: flex;
+      align-items: center;
+      gap: 0.8em;
+      cursor: pointer;
+      transition: 0.17s;
+      border: 3px solid transparent;
+      min-width: 170px;
+      margin-bottom: 0.5rem;
+    }
+    .kpi-badge.mid {
+      background: linear-gradient(97deg, #fde69d 0%, #fbbf24 100%);
+      color: #7a4b11;
+      border-color: #facc15;
+    }
+    .kpi-badge.bot {
+      background: linear-gradient(97deg, #ffcfd2 0%, #ef4444 90%);
+      color: #a42323;
+      border-color: #ef4444;
+    }
+    .kpi-badge.selected,
+    .kpi-badge:hover {
+      background: linear-gradient(91deg, #fbbf24 10%, #6366f1 100%) !important;
+      color: #fff !important;
+      border-color: #6366f1;
+    }
+    .badge-emo,
+    .olympic svg {
+      font-size: 2.1em;
+      vertical-align: middle;
+    }
+    .chart-header {
+      text-align: center;
+      font-size: 1.18em;
+      font-weight: 700;
+      color: #6366f1;
+      margin-bottom: 0.76rem;
+    }
+    .chart-panel {
+      min-width: 290px;
+      flex: 1 1 320px;
+      background: #f9fafb;
+      border-radius: 16px;
+      padding: 1.2em;
+      box-shadow: 0 2px 8px #6366f113;
+      margin-bottom: 1em;
+    }
+    .chart-container {
+      height: 240px !important;
+    }
+    .suggestion-box,
+    .ai-box {
+      background: #e0f2fe;
+      border-radius: 14px;
+      padding: 1.15em 1.6em;
+      font-size: 1.13em;
+      color: #093047;
+      margin: 1.3em 0 0.9em 0;
+      box-shadow: 0 1px 10px #0c8ea617;
+    }
+    .btn-ai,
+    .btn,
+    .btn-compact {
+      background: linear-gradient(90deg, #818cf8, #fbbf24) !important;
+      color: #fff !important;
+      font-weight: 700;
+      border-radius: 36px;
+      padding: 0.7em 2.1em;
+      margin: 0 9px;
+      box-shadow: 0 2px 8px #6366f1aa;
+      transition: 0.13s;
+      border: none;
+      letter-spacing: 0.03em;
+    }
+    .btn-ai:hover,
+    .btn-compact:hover {
+      background: linear-gradient(91deg, #6366f1, #fbbf24) !important;
+    }
+    .scheme-result {
+      background: #f6f6f6;
+      border-radius: 11px;
+      padding: 1.1em;
+      margin: 1.05em 0;
+      font-size: 1.08em;
+    }
+    .scheme-result .title {
+      font-weight: 700;
+      color: #1e40af;
+    }
+    .chip {
+      display: inline-block;
+      padding: 0.28em 1.14em;
+      background: #e0e7ff;
+      font-size: 1.10em;
+      font-weight: 700;
+      border-radius: 23px;
+      margin: 4px 8px;
+      transition: 0.15s;
+      cursor: pointer;
+    }
+    .chip.selected,
+    .chip:hover {
+      background: #fbbf24;
+      color: #78350f;
+      transform: scale(1.07);
+    }
+    .sticky-top {
+      position: sticky;
+      top: 0;
+      background: #fff;
+      z-index: 2;
+    }
+    .olympic svg {
+      vertical-align: middle;
+      margin-right: 0.6em;
+    }
+    .row-badges {
+      display: flex;
+      gap: 1.2em;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.15em;
+      margin-bottom: 0.8em;
+    }
+    select.form-select-sm {
+      font-size: 1.22em;
+      padding: 0.51em 0.85em;
+    }
+    @media (max-width: 1200px) {
+      .chart-panel {
+        min-width: 92vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div
+      class="d-flex mb-3 justify-content-between align-items-center"
+      style="flex-wrap: wrap; gap: 1rem;"
+    >
+      <h2 class="mb-0">📊 तालुका योजना डॅशबोर्ड</h2>
+      <div style="display:flex; align-items:center;">
+        <button id="p1btn" class="tab-btn active">मुख्य</button>
+        <button id="p2btn" class="tab-btn">योजना तपशील</button>
       </div>
     </div>
-    <div class="text-end mt-3">
-      <button id="resetBtn" class="btn btn-compact mb-2">🔄 Reset</button>
-      <button id="updateBtn" class="btn btn-compact mb-2">🔍 Submit</button>
+
+    <!-- PAGE 1 -->
+    <div id="page1">
+      <div class="glass mb-4">
+        <div class="row align-items-end mb-0 pb-0 g-2">
+          <div class="col-md-6">
+            <select id="schemeDropdown" class="form-select form-select-sm"></select>
+          </div>
+          <div class="col-md-6" id="talukaChipsContainer">
+            <div id="talukaChips"></div>
+          </div>
+        </div>
+        <div class="text-end mt-3">
+          <button id="resetBtn" class="btn btn-compact mb-2">🔄 Reset</button>
+          <button id="updateBtn" class="btn btn-compact mb-2">🔍 Submit</button>
+        </div>
+      </div>
+      <div class="glass">
+        <div class="row-badges">
+          <span
+            ><svg
+              width="28"
+              height="28"
+              ><circle
+                cx="14"
+                cy="14"
+                r="13"
+                fill="#ffd700"
+                stroke="#fc0"
+                stroke-width="1.5"
+              ></circle>
+              <text
+                x="14"
+                y="20"
+                font-size="16"
+                fill="#b68c00"
+                font-weight="bold"
+                text-anchor="middle"
+                >1</text
+              ></svg>
+            TOP 5</span
+          >
+          <span
+            ><svg
+              width="28"
+              height="28"
+              ><circle
+                cx="14"
+                cy="14"
+                r="13"
+                fill="#e5e5e5"
+                stroke="#aaa"
+                stroke-width="1.5"
+              ></circle>
+              <text
+                x="14"
+                y="20"
+                font-size="16"
+                fill="#353535"
+                font-weight="bold"
+                text-anchor="middle"
+                >2</text
+              ></svg>
+            मध्यम 5</span
+          >
+          <span
+            ><svg
+              width="28"
+              height="28"
+              ><circle
+                cx="14"
+                cy="14"
+                r="13"
+                fill="#de9c68"
+                stroke="#9c5c07"
+                stroke-width="1.5"
+              ></circle>
+              <text
+                x="14"
+                y="20"
+                font-size="16"
+                fill="#fff"
+                font-weight="bold"
+                text-anchor="middle"
+                >3</text
+              ></svg>
+            तळ 5</span
+          >
+        </div>
+        <div class="kpi-list" id="kpiList"></div>
+        <div class="row row-cols-1 row-cols-md-2 g-3">
+          <div class="col">
+            <div class="chart-panel">
+              <div class="chart-header">📊 कार्यप्रदर्शन तुलना</div>
+              <canvas id="barChart" class="chart-container"></canvas>
+            </div>
+          </div>
+          <div class="col">
+            <div class="chart-panel">
+              <div class="chart-header">🥧 प्रतिशत वाटप</div>
+              <canvas id="donutChart" class="chart-container"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="suggestion-box" id="aiSuggestion"></div>
+      </div>
+      <div class="glass mt-3">
+        <div
+          style="font-weight: 700; font-size: 1.08em; margin-bottom: 1em;"
+        >
+          तालुक्यांची संपूर्ण माहिती व रँकिंग
+        </div>
+        <div class="table-responsive" style="max-height: 320px">
+          <table
+            class="table table-bordered table-sm text-center"
+            id="blockDetailsTable"
+          >
+            <thead class="sticky-top">
+              <tr>
+                <th>तालुका</th>
+                <th>रँक</th>
+              </tr>
+            </thead>
+            <tbody id="talukaRanksBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 2 - unchanged, your existing page 2 can go here -->
+
+    <div id="page2" style="display: none;">
+      <!-- Your second page's content here as per your previous design -->
     </div>
   </div>
-  <div class="glass">
-    <div class="row-badges">
-      <span><svg width="28" height="28"><circle cx="14" cy="14" r="13" fill="#ffd700" stroke="#fc0" stroke-width="1.5"/><text x="14" y="20" font-size="16" fill="#b68c00" font-weight="bold" text-anchor="middle">1</text></svg> TOP 5</span>
-      <span><svg width="28" height="28"><circle cx="14" cy="14" r="13" fill="#e5e5e5" stroke="#aaa" stroke-width="1.5"/><text x="14" y="20" font-size="16" fill="#353535" font-weight="bold" text-anchor="middle">2</text></svg> मध्यम 5</span>
-      <span><svg width="28" height="28"><circle cx="14" cy="14" r="13" fill="#de9c68" stroke="#9c5c07" stroke-width="1.5"/><text x="14" y="20" font-size="16" fill="#fff" font-weight="bold" text-anchor="middle">3</text></svg> तळ 5</span>
-    </div>
-    <div class="kpi-list" id="kpiList"></div>
-    <div class="row row-cols-1 row-cols-md-2 g-3">
-      <div class="col"><div class="chart-panel"><div class="chart-header">📊 कार्यप्रदर्शन तुलना</div>
-        <div class="chart-container"><canvas id="barChart"></canvas></div></div></div>
-      <div class="col"><div class="chart-panel"><div class="chart-header">🥧 प्रतिशत वाटप</div>
-        <div class="chart-container"><canvas id="donutChart"></canvas></div></div></div>
-    </div>
-    <div class="glass mt-3">
-      <div style="font-weight:700;font-size:1.08em;margin-bottom:1em;">तालुक्यांची संपूर्ण माहिती व रँकिंग</div>
-      <div class="table-responsive" style="max-height:320px">
-        <table class="table table-bordered table-sm text-center" id="blockDetailsTable">
-          <thead class="sticky-top"><tr><th>तालुका</th><th>रँक</th></tr></thead>
-          <tbody id="talukaRanksBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
 
-<script>
-function renderPage1(){
-  const scheme = document.getElementById('schemeDropdown').value || schemes[0];
-  // Actual rank calculation for the selected scheme
-  const all = rawData.map(r=>({b:r._block,rank:parseInt(r[scheme])||999})).sort((a,b)=>a.rank-b.rank);
-  document.getElementById('kpiList').innerHTML = all.map((t,i)=>`
-    <div class="kpi-badge ${i<5?'top':i<10?'mid':'bot'}" data-block="${t.b}">
-      ${i<3?svgMedal(i+1):''}
-      <span class="taluka">${t.b}</span>
-      <span style="margin-left:.52em;">#${isFinite(t.rank) ? t.rank : '-'}</span>
-    </div>
-  `).join('');
-  // Bar chart: rank as y-value, colored
-  const pal = ["#6366f1","#10b981","#f59e0b","#ef4444","#3b82f6","#818cf8"];
-  barChart?.destroy();donutChart?.destroy();
-  barChart=new Chart(document.getElementById('barChart').getContext('2d'),{
-    type:'bar',
-    data:{labels:all.map(x=>x.b),datasets:[{data:all.map(x=>isFinite(x.rank)?x.rank:0),backgroundColor:pal,borderRadius:8}]},
-    options:{indexAxis:'y',plugins:{legend:{display:false},datalabels:{anchor:'end',align:'right',formatter:v=>`#${v>0?v:'-'}`}},
-    responsive:true,maintainAspectRatio:false},plugins:[ChartDataLabels]
-  });
-  // Donut chart: percentage share of all ranks
-  donutChart=new Chart(document.getElementById('donutChart').getContext('2d'),{
-    type:'doughnut',
-    data:{labels:all.map(x=>x.b),datasets:[{data:all.map(x=>isFinite(x.rank)?x.rank:0),backgroundColor:pal}]},
-    options:{plugins:{legend:{position:'bottom'},datalabels:{formatter:v=>`#${v>0?v:'-'}`}},responsive:true,maintainAspectRatio:false},plugins:[ChartDataLabels]
-  });
-  // Table: show actual ranks
-  document.getElementById('talukaRanksBody').innerHTML=all.map((x,i)=>`<tr class="${i<5?'top':i<10?'mid':'bot'}">
-    <td>${x.b}</td><td style="font-size:1.08em"><b>${isFinite(x.rank)?x.rank:'-'}</b></td>
-  </tr>`).join('');
-}
-</script>
+  <script>
+    const API = "AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU",
+      SHEET = "1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE",
+      RANGE = "Rank!B5:AJ20";
+    let headers, rawData, schemes;
+    let barChart, donutChart;
+    document.getElementById("page2").style.display = "none"; // hide second page by default
+
+    async function init() {
+      const vals = await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET}/values/${encodeURIComponent(
+          RANGE
+        )}?key=${API}`
+      )
+        .then((r) => r.json())
+        .then((d) => d.values);
+      headers = vals[0];
+      rawData = vals
+        .slice(1)
+        .map((r) => {
+          let o = {};
+          headers.forEach((h, i) => (o[h] = r[i]));
+          o._block = r[0];
+          return o;
+        });
+      schemes = headers;
+      renderTalukaChips();
+      renderSchemeDropdown();
+      renderPage1();
+      bindUI();
+    }
+
+    function renderTalukaChips() {
+      const chips = document.getElementById("talukaChips");
+      chips.innerHTML = rawData
+        .map((r) => `<span class="chip">${r._block}</span>`)
+        .join("");
+      chips.querySelectorAll(".chip").forEach((el) => {
+        el.onclick = () => el.classList.toggle("selected");
+      });
+    }
+
+    function renderSchemeDropdown() {
+      const sel = document.getElementById("schemeDropdown");
+      sel.innerHTML = schemes.map((s) => `<option>${s}</option>`).join("");
+    }
+
+    function getRankList(scheme) {
+      return rawData
+        .map((r) => ({ b: r._block, rank: parseInt(r[scheme]) || 999 }))
+        .sort((a, b) => a.rank - b.rank);
+    }
+
+    function renderPage1() {
+      const scheme = document.getElementById("schemeDropdown").value || schemes[0];
+      const all = getRankList(scheme);
+
+      document.getElementById("kpiList").innerHTML = all
+        .map(
+          (t, i) =>
+            `<div class="kpi-badge ${
+              i < 5 ? "top" : i < 10 ? "mid" : "bot"
+            }" data-block="${t.b}">
+            ${i < 3 ? svgMedal(i + 1) : ""}
+            <span class="taluka">${t.b}</span>
+            <span style="margin-left:.52em;">#${
+              isFinite(t.rank) && t.rank <= 15 ? t.rank : "-"
+            }</span>
+          </div>`
+        )
+        .join("");
+
+      const pal = [
+        "#6366f1",
+        "#10b981",
+        "#f59e0b",
+        "#ef4444",
+        "#3b82f6",
+        "#818cf8",
+      ];
+      barChart?.destroy();
+      donutChart?.destroy();
+      barChart = new Chart(document.getElementById("barChart").getContext("2d"), {
+        type: "bar",
+        data: {
+          labels: all.map((x) => x.b),
+          datasets: [
+            {
+              data: all.map((x) => (isFinite(x.rank) && x.rank <= 15 ? x.rank : 0)),
+              backgroundColor: pal,
+              borderRadius: 8,
+            },
+          ],
+        },
+        options: {
+          indexAxis: "y",
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              anchor: "end",
+              align: "right",
+              formatter: (v) => (v > 0 ? `#${v}` : "-"),
+            },
+          },
+          responsive: true,
+          maintainAspectRatio: false,
+        },
+        plugins: [ChartDataLabels],
+      });
+
+      donutChart = new Chart(document.getElementById("donutChart").getContext("2d"), {
+        type: "doughnut",
+        data: {
+          labels: all.map((x) => x.b),
+          datasets: [
+            {
+              data: all.map((x) =>
+                isFinite(x.rank) && x.rank <= 15 ? x.rank : 0
+              ),
+              backgroundColor: pal,
+            },
+          ],
+        },
+        options: {
+          plugins: {
+            legend: { position: "bottom" },
+            datalabels: { formatter: (v) => (v > 0 ? `#${v}` : "-") },
+          },
+          responsive: true,
+          maintainAspectRatio: false,
+        },
+        plugins: [ChartDataLabels],
+      });
+
+      // Table render
+      document.getElementById("talukaRanksBody").innerHTML = all
+        .map(
+          (x, i) =>
+            `<tr class="${
+              i < 5 ? "top" : i < 10 ? "mid" : "bot"
+            }"><td>${x.b}</td><td style="font-size:1.08em"><b>${
+              isFinite(x.rank) && x.rank <= 15 ? x.rank : "-"
+            }</b></td></tr>`
+        )
+        .join("");
+
+      // Add click handlers to KPI badges - optional (if you want to link to second page)
+      document.querySelectorAll("#kpiList .kpi-badge").forEach((node) => {
+        node.onclick = () => {
+          // Could navigate to page 2 or show details
+        };
+      });
+
+      // AI Suggestion for the top block (just a simple example)
+      const top = all.find((b) => isFinite(b.rank) && b.rank <= 15);
+      if (top) {
+        document.getElementById("aiSuggestion").innerText =
+          top.rank > 3
+            ? `${top.b} ब्लॉकची रँक #${top.rank} आहे. "विशेष लक्ष" (${findWeakSchemes(
+                top.b
+              )}) योजनेवर कार्य करा.`
+            : `👏 ${top.b} ब्लॉक सर्वाधिक रँकवर आहे! अब प्रगतीसाठी मध्यम व तळस्तरीय योजना सुधारायच्या आहेत.`;
+      } else {
+        document.getElementById("aiSuggestion").innerText = "";
+      }
+    }
+
+    function bindUI() {
+      document.getElementById("p1btn").onclick = () => showPage(1);
+      document.getElementById("p2btn").onclick = () => showPage(2);
+      document.getElementById("schemeDropdown").onchange = () => renderPage1();
+      document.getElementById("resetBtn").onclick = () => {
+        document.querySelectorAll(".chip").forEach((e) => e.classList.remove("selected"));
+        renderPage1();
+      };
+      document.getElementById("updateBtn").onclick = () => renderPage1();
+    }
+
+    function showPage(pg) {
+      document.getElementById("page1").style.display = pg === 1 ? "" : "none";
+      document.getElementById("page2").style.display = pg === 2 ? "" : "none";
+      if (pg === 1) renderPage1();
+      else {
+        // Keep your second page unchanged:
+        // You can load second page's JS here if needed
+      }
+    }
+
+    function findWeakSchemes(block) {
+      const arr = schemes.map((s) => ({
+        s,
+        rank: parseInt(
+          rawData.find((r) => r._block === block)[s]
+        ) || 999,
+      }));
+      return arr
+        .sort((a, b) => b.rank - a.rank)
+        .slice(0, 3)
+        .map((x) => x.s)
+        .join(", ");
+    }
+
+    function svgMedal(rank) {
+      if (rank === 1)
+        return `<svg width="28" height="28" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#ffd700" stroke="#fc0" stroke-width="1.5"/><text x="16" y="21" font-size="16" fill="#b68c00" font-weight="bold" text-anchor="middle">1</text></svg>`;
+      if (rank === 2)
+        return `<svg width="28" height="28" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#e5e5e5" stroke="#aaa" stroke-width="1.5"/><text x="16" y="21" font-size="16" fill="#353535" font-weight="bold" text-anchor="middle">2</text></svg>`;
+      if (rank === 3)
+        return `<svg width="28" height="28" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#de9c68" stroke="#9c5c07" stroke-width="1.5"/><text x="16" y="21" font-size="16" fill="#fff" font-weight="bold" text-anchor="middle">3</text></svg>`;
+      return "";
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
