@@ -9,78 +9,21 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <style>
-    body {
-      font-family: 'Noto Sans Devanagari', sans-serif;
-      background: #f8fafc;
-      color: #1f2937;
-    }
-    .glass {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 1px 8px rgba(0,0,0,0.05);
-      padding: 0.8rem 1rem;
-      margin-bottom: 1.2rem;
-    }
-    .kpi-row {
-      display: flex;
-      justify-content: space-around;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    .kpi-card {
-      flex: 1 1 33%;
-      text-align: center;
-      background: #f3f4f6;
-      border-radius: 8px;
-      padding: 0.6rem;
-      font-weight: 700;
-      font-size: 0.9rem;
-    }
+    body { font-family: 'Noto Sans Devanagari', sans-serif; background: #f8fafc; color: #1f2937; }
+    .glass { background: #fff; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.05); padding: 0.8rem 1rem; margin-bottom: 1.2rem; }
+    .kpi-row { display: flex; justify-content: space-around; gap: 1rem; margin-bottom: 1rem; }
+    .kpi-card { flex: 1 1 33%; text-align: center; background: #f3f4f6; border-radius: 8px; padding: 0.6rem; font-weight: 700; font-size: 0.9rem; }
     .kpi-card.top { background: linear-gradient(90deg,#bbf7d0 ,#6ee7b7); }
     .kpi-card.mid { background: linear-gradient(90deg,#fde68a ,#fef9c3); }
     .kpi-card.bot { background: linear-gradient(90deg,#fecaca ,#f87171); }
-    .kpi-card .chip {
-      display: block;
-      font-size: 0.9em;
-      margin-bottom: 4px;
-    }
-    .chart-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: space-between;
-    }
-    .chart-box {
-      flex: 1 1 48%;
-      background: #f9fafb;
-      border-radius: 10px;
-      padding: 1rem;
-    }
-    canvas {
-      max-width: 100%;
-    }
-    .info-badge {
-      background: #eef2ff;
-      padding: 6px 12px;
-      border-left: 4px solid #6366f1;
-      font-size: 0.85em;
-      border-radius: 6px;
-      margin-top: 0.8rem;
-    }
-    .dept-chip {
-      display:inline-block;
-      padding:6px 10px;
-      border-radius:20px;
-      font-size:0.88em;
-      background:#e0e7ff;
-      color:#1e3a8a;
-      margin: 3px 6px 3px 0;
-      cursor: pointer;
-    }
-    .dept-chip.selected {
-      background: #fbbf24;
-      color: #1c1c1c;
-    }
+    .kpi-card .chip { display: block; font-size: 0.9em; margin-bottom: 4px; }
+    .chart-container { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; }
+    .chart-box { flex: 1 1 48%; background: #f9fafb; border-radius: 10px; padding: 1rem; }
+    canvas { max-width: 100%; }
+    .info-badge { background: #eef2ff; padding: 6px 12px; border-left: 4px solid #6366f1; font-size: 0.85em; border-radius: 6px; margin-top: 0.8rem; }
+    .form-label { font-weight: 600; }
+    .table thead th { background: #6366f1; color: #fff; text-align: center; }
+    .table tbody td { text-align: center; font-size: 0.9em; }
   </style>
 </head>
 <body>
@@ -88,21 +31,13 @@
   <h2 class="text-center mb-3">📊 तालुका योजना तुलनात्मक डॅशबोर्ड</h2>
   <div class="glass">
     <div class="row align-items-center g-2">
-      <div class="col-md-5">
+      <div class="col-md-6">
         <label class="form-label">योजना निवडा:</label>
-        <select id="schemeSelect" multiple class="form-select form-select-sm" size="5"></select>
-      </div>
-      <div class="col-md-5">
-        <label class="form-label">तालुका निवडा:</label>
-        <div id="talukaChips"></div>
-      </div>
-      <div class="col-md-2 text-end">
-        <button class="btn btn-outline-danger btn-sm" id="resetBtn">Reset</button>
-        <button class="btn btn-primary btn-sm ms-1" id="submitBtn">Submit</button>
+        <select id="schemeSelect" class="form-select form-select-sm"></select>
       </div>
     </div>
     <div class="info-badge mt-2">
-      <i class="fa fa-info-circle me-1"></i> योजना आणि तालुका निवडा आणि Submit क्लिक करा.
+      <i class="fa fa-info-circle me-1"></i> योजना ड्रॉपडाऊनमधून निवडा. डेटा खाली अपडेट होईल.
     </div>
   </div>
 
@@ -119,10 +54,18 @@
       </div>
     </div>
   </div>
+
+  <div class="glass">
+    <h5 class="mb-2 text-primary">📋 तालुक्यांची यादी</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered" id="dataTable">
+        <thead><tr><th>रँक</th><th>तालुका</th><th>गुण</th></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script>
 const CONFIG = {
   apiKey: "AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU",
@@ -146,8 +89,18 @@ async function fetchData() {
     return obj;
   });
   schemes = headers.filter((_, i) => i !== idxBlock);
+  populateSchemeDropdown();
   selectedScheme = schemes[0];
   updateDashboard();
+}
+
+function populateSchemeDropdown() {
+  const sel = document.getElementById('schemeSelect');
+  sel.innerHTML = schemes.map(s => `<option value="${s}">${s}</option>`).join('');
+  sel.onchange = () => {
+    selectedScheme = sel.value;
+    updateDashboard();
+  };
 }
 
 function updateDashboard() {
@@ -155,16 +108,14 @@ function updateDashboard() {
     taluka: r._block,
     value: parseFloat(r[selectedScheme]) || 0
   })).filter(d => !isNaN(d.value));
-
+  data.sort((a,b) => b.value - a.value);
   renderKPI(data);
   renderCharts(data);
+  renderTable(data);
 }
 
 function renderKPI(data) {
-  const sorted = [...data].sort((a,b) => b.value - a.value);
-  const top = sorted[0];
-  const mid = sorted[Math.floor(sorted.length / 2)];
-  const bot = sorted.at(-1);
+  const [top, mid, bot] = [data[0], data[Math.floor(data.length/2)], data.at(-1)];
   const kpiRow = document.getElementById('kpiRow');
   kpiRow.innerHTML = '';
   [
@@ -182,12 +133,10 @@ function renderKPI(data) {
 function renderCharts(data) {
   const labels = data.map(d => d.taluka);
   const values = data.map(d => d.value);
-
   if (window.barChart) window.barChart.destroy();
   if (window.donutChart) window.donutChart.destroy();
 
-  const barCtx = document.getElementById('barChart').getContext('2d');
-  window.barChart = new Chart(barCtx, {
+  window.barChart = new Chart(document.getElementById('barChart'), {
     type: 'bar',
     data: {
       labels: labels,
@@ -196,13 +145,11 @@ function renderCharts(data) {
     options: {
       indexAxis: 'y',
       responsive: true,
-      plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'right', formatter: v => v } }
-    },
-    plugins: [ChartDataLabels]
+      plugins: { legend: { display: false } }
+    }
   });
 
-  const donutCtx = document.getElementById('donutChart').getContext('2d');
-  window.donutChart = new Chart(donutCtx, {
+  window.donutChart = new Chart(document.getElementById('donutChart'), {
     type: 'doughnut',
     data: {
       labels: labels,
@@ -210,10 +157,14 @@ function renderCharts(data) {
     },
     options: {
       responsive: true,
-      plugins: { legend: { position: 'bottom' }, datalabels: { anchor: 'end', align: 'end', formatter: v => v } }
-    },
-    plugins: [ChartDataLabels]
+      plugins: { legend: { position: 'bottom' } }
+    }
   });
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = data.map((d, i) => `<tr><td>${i+1}</td><td>${d.taluka}</td><td>${d.value}</td></tr>`).join('');
 }
 
 fetchData();
