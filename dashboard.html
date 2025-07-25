@@ -9,33 +9,77 @@
   <!-- Chart.js & DataLabels -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <!-- Noto Sans Devanagari -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    body { background: #f0f4ff; font-family: 'Noto Sans Devanagari', sans-serif; padding: 2rem; }
-    .glass { background: rgba(255,255,255,0.85); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
-    .kpi { text-align: center; padding: 1rem; border-radius: 8px; font-weight: 600; }
+    body {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+      background: #f8fafc;
+      padding: 1.5rem;
+      color: #1f2937;
+    }
+    .glass {
+      background: rgba(255,255,255,0.9);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+    }
+    .kpi {
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+    }
     .kpi.top { background: #d1fae5; color: #065f46; }
     .kpi.mid { background: #fef3c7; color: #92400e; }
     .kpi.bot { background: #fee2e2; color: #991b1b; }
-    .kpi h4 { margin: .3rem 0; }
-    .chart-container { height: 350px; }
+    .kpi h4 { margin: .5rem 0; font-size: 1.1rem; }
+    .chart-container { height: 320px; }
+    .table thead th {
+      background: #6366f1;
+      color: #fff;
+      border: 1px solid #4f46e5;
+      text-align: center;
+      vertical-align: middle;
+      font-weight: 600;
+    }
+    .table tbody td {
+      border: 1px solid #d1d5db;
+      vertical-align: middle;
+      padding: .75rem;
+      text-align: center;
+    }
+    .table tbody tr.top5  { background: #ecfdf5; }
+    .table tbody tr.mid5  { background: #fffbeb; }
+    .table tbody tr.bot5  { background: #fef2f2; }
+    .checkbox-container {
+      max-height: 120px;
+      overflow-y: auto;
+      background: #f1f5f9;
+      padding: .5rem;
+      border-radius: 6px;
+    }
+    .checkbox-container label { white-space: nowrap; }
     .btn-export { margin-left: .5rem; }
-    .emoji { font-size: 1.4em; vertical-align: middle; }
-    .checkbox-container { max-height: 150px; overflow-y: auto; }
+    /* hide charts until scheme selected */
+    .chart-wrapper { display: none; }
+    .show-chart { display: block; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2 class="text-primary text-center mb-4">
-      📊 तालुका योजना तुलनात्मक डॅशबोर्ड<br>
-      <small class="text-muted">(जळगाव जिल्हा)</small>
-    </h2>
+  <div class="container-fluid">
+    <h2 class="text-center mb-4">📊 तालुका योजना तुलनात्मक डॅशबोर्ड<br>
+      <small class="text-muted">(जळगाव जिल्हा)</small></h2>
 
     <!-- Controls -->
     <div class="glass p-4">
-      <div class="row gy-3 align-items-center">
+      <div class="row g-3 align-items-center">
         <div class="col-md-4">
           <label class="form-label">योजना निवडा:</label>
-          <select id="schemeSelect" class="form-select"></select>
+          <select id="schemeSelect" class="form-select">
+            <option value="" selected>-- निवडा --</option>
+          </select>
         </div>
         <div class="col-md-5">
           <label class="form-label">तालुका निवडा:</label>
@@ -51,32 +95,32 @@
     </div>
 
     <!-- KPI Rows -->
-    <div id="kpiRow1" class="row gy-3 mb-2"></div>
-    <div id="kpiRow2" class="row gy-3 mb-4"></div>
+    <div id="kpiRow1" class="row g-3 mb-2"></div>
+    <div id="kpiRow2" class="row g-3 mb-4"></div>
 
     <!-- Bar Chart -->
-    <div class="glass p-4 mb-4">
-      <h5 class="mb-3 text-indigo-900"><i class="fa fa-chart-bar me-2"></i>तालुका एकूण स्कोअर रँकिंग</h5>
+    <div id="barWrapper" class="glass p-4 chart-wrapper mb-4">
+      <h5 class="mb-3"><i class="fa fa-chart-bar me-2 text-primary"></i>तालुका एकूण स्कोअर रँकिंग</h5>
       <div class="chart-container"><canvas id="barChart"></canvas></div>
     </div>
 
     <!-- Donut Chart -->
-    <div class="glass p-4 mb-4">
-      <h5 class="mb-3 text-indigo-900"><i class="fa fa-chart-pie me-2"></i>तालुक्यांचे वर्गीकरण (Donut Chart)</h5>
+    <div id="donutWrapper" class="glass p-4 chart-wrapper mb-4">
+      <h5 class="mb-3"><i class="fa fa-chart-pie me-2 text-primary"></i>तालुक्यांचे वर्गीकरण (Donut)</h5>
       <div class="chart-container"><canvas id="donutChart"></canvas></div>
     </div>
 
     <!-- Radar Chart -->
-    <div class="glass p-4 mb-4">
-      <h5 class="mb-3 text-indigo-900"><i class="fa fa-chart-radar me-2"></i>प्रत्येक तालुक्याचे सर्व योजनांनिहाय रँकिंग</h5>
+    <div id="radarWrapper" class="glass p-4 chart-wrapper mb-4">
+      <h5 class="mb-3"><i class="fa fa-chart-radar me-2 text-primary"></i>तालुका × सर्व योजनांनिहाय रँकिंग</h5>
       <div class="chart-container"><canvas id="radarChart"></canvas></div>
     </div>
 
     <!-- Data Table -->
     <div class="glass p-4 mb-4">
-      <h5 class="mb-3 text-indigo-900"><i class="fa fa-table me-2"></i>तालुक्यांची पूर्ण माहिती व रँकिंग</h5>
-      <div style="overflow-x:auto;">
-        <table class="table table-sm" id="dataTable">
+      <h5 class="mb-3"><i class="fa fa-table me-2 text-primary"></i>तालुक्यांची पूर्ण माहिती व रँकिंग</h5>
+      <div class="table-responsive">
+        <table class="table table-bordered" id="dataTable">
           <thead><tr id="tableHeader"></tr></thead>
           <tbody id="tableBody"></tbody>
         </table>
@@ -84,6 +128,8 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <script>
     const CONFIG = {
       apiKey: 'AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU',
@@ -94,15 +140,13 @@
     let barChart, donutChart, radarChart;
     const selectedBlocks = new Set();
 
-    // Fetch sheet data
+    // Fetch and parse
     async function fetchSheet() {
       const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${encodeURIComponent(CONFIG.range)}?majorDimension=ROWS&valueRenderOption=UNFORMATTED_VALUE&key=${CONFIG.apiKey}`;
       const res = await fetch(url);
       if (!res.ok) throw Error(res.statusText);
       return (await res.json()).values;
     }
-
-    // Parse data
     function parse(values) {
       headers = values[0];
       const idxBlock = headers.findIndex(h => /तालुका/i.test(h));
@@ -118,23 +162,20 @@
 
     // Render controls
     function renderControls() {
-      // Schemes
       const sel = document.getElementById('schemeSelect');
-      sel.innerHTML = schemes.map(s => `<option>${s}</option>`).join('');
-      sel.value = schemes[0];
+      sel.innerHTML = `<option value="">-- निवडा --</option>` +
+        schemes.map(s => `<option>${s}</option>`).join('');
+      sel.value = '';
 
-      // Taluka checkboxes (all checked by default)
       const cbx = document.getElementById('talukaCheckboxes');
       cbx.innerHTML = blocks.map(b => `
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="checkbox" id="cb_${b._block}" value="${b._block}" checked>
           <label class="form-check-label" for="cb_${b._block}">${b._block}</label>
         </div>`).join('');
-      cbx.querySelectorAll('input').forEach(i => {
-        selectedBlocks.add(i.value);
-      });
+      // pre-check all
+      blocks.forEach(b => selectedBlocks.add(b._block));
 
-      // Buttons
       document.getElementById('resetBtn').onclick = () => {
         selectedBlocks.clear();
         cbx.querySelectorAll('input').forEach(i => i.checked = false);
@@ -149,22 +190,21 @@
       };
     }
 
-    // Compute filtered data
+    // Compute
     function compute() {
       const scheme = document.getElementById('schemeSelect').value;
-      // collect selected blocks
+      // update selection set
       document.querySelectorAll('#talukaCheckboxes input').forEach(i => {
-        if (i.checked) selectedBlocks.add(i.value);
-        else selectedBlocks.delete(i.value);
+        i.checked ? selectedBlocks.add(i.value) : selectedBlocks.delete(i.value);
       });
-      let data = rawData.map(r => ({ _block: r._block, val: parseFloat(r[scheme]) || 0 }));
+      let data = rawData.map(r => ({ _block: r._block, val: parseFloat(r[scheme])||0 }));
       if (selectedBlocks.size) data = data.filter(d => selectedBlocks.has(d._block));
       data.sort((a,b) => b.val - a.val);
       data.forEach((d,i) => d.rank = i+1);
       return data;
     }
 
-    // Render KPIs
+    // Render KPI
     function renderKPIs(data) {
       const top5 = data.slice(0,5),
             mid5 = data.slice(Math.floor((data.length-5)/2), Math.floor((data.length-5)/2)+5),
@@ -188,55 +228,46 @@
         </div></div>`).join('');
     }
 
-    // Render Bar Chart
+    // Render charts
     function renderBar(data) {
+      document.getElementById('barWrapper').classList.add('show-chart');
       const ctx = document.getElementById('barChart').getContext('2d');
       barChart?.destroy();
       barChart = new Chart(ctx, {
         type: 'bar',
-        data: {
-          labels: data.map(d => d._block),
-          datasets: [{ label:'स्कोअर', data: data.map(d => d.val), backgroundColor:'#6366f1', borderRadius:4 }]
-        },
-        options: {
-          indexAxis:'y',
-          plugins:{ legend:{display:false}, datalabels:{anchor:'end',align:'right',formatter:v=>v} }
-        },
-        plugins:[ChartDataLabels]
+        data: { labels: data.map(d => d._block), datasets: [{ label: 'स्कोअर', data: data.map(d=>d.val), backgroundColor:'#6366f1', borderRadius:4 }]},
+        options: { indexAxis: 'y', plugins: { legend:{display:false}, datalabels:{anchor:'end',align:'right',formatter:v=>v}} },
+        plugins: [ChartDataLabels]
       });
     }
-
-    // Render Donut Chart
     function renderDonut(data) {
+      document.getElementById('donutWrapper').classList.add('show-chart');
       const ctx = document.getElementById('donutChart').getContext('2d');
       donutChart?.destroy();
       donutChart = new Chart(ctx, {
-        type:'doughnut',
-        data:{ labels:data.map(d=>d._block), datasets:[{ data:data.map(d=>d.val), backgroundColor:['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6'] }]},
-        options:{ plugins:{ legend:{position:'bottom'} } }
+        type: 'doughnut',
+        data: { labels: data.map(d=>d._block), datasets:[{ data:data.map(d=>d.val), backgroundColor:['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6'] }]},
+        options: { plugins:{ legend:{position:'bottom'} } }
       });
     }
-
-    // Render Radar Chart (all parameters)
     function renderRadar() {
-      const paramNames = schemes;
-      const datasets = rawData.map(r => ({
+      document.getElementById('radarWrapper').classList.add('show-chart');
+      const params = schemes;
+      const datasets = rawData.map(r=>({
         label: r._block,
-        data: paramNames.map(p => parseFloat(r[p])||0),
-        fill:true,
-        backgroundColor:'rgba(99,102,241,0.2)',
-        borderColor:'#6366f1'
+        data: params.map(p=>parseFloat(r[p])||0),
+        fill:true, backgroundColor:'rgba(99,102,241,0.2)', borderColor:'#6366f1'
       }));
       const ctx = document.getElementById('radarChart').getContext('2d');
       radarChart?.destroy();
       radarChart = new Chart(ctx, {
-        type:'radar',
-        data:{ labels:paramNames, datasets:datasets },
-        options:{ plugins:{ legend:{position:'right'} }, elements:{ line:{borderWidth:2} } }
+        type: 'radar',
+        data: { labels: params, datasets: datasets },
+        options: { plugins:{ legend:{position:'right'} }, elements:{ line:{borderWidth:2} } }
       });
     }
 
-    // Render Table
+    // Render table
     function renderTable(data) {
       const th = `<th>रँक</th>` + headers.map(h=>`<th>${h}</th>`).join('');
       document.getElementById('tableHeader').innerHTML = th;
@@ -251,16 +282,12 @@
     // Download CSV
     function downloadCSV() {
       const data = compute();
-      let csv = 'रँक,' + headers.join(',') + '\n'
-              + data.map(r => `${r.rank},` + headers.map(h=>`"${rawData.find(x=>x._block===r._block)[h]||''}"`).join(',')).join('\n');
-      const blob = new Blob([csv], { type:'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'taluka-data.csv'; a.click();
-      URL.revokeObjectURL(url);
+      let csv = 'रँक,'+headers.join(',')+'\n'+data.map(r=>`${r.rank},`+headers.map(h=>`"${rawData.find(x=>x._block===r._block)[h]||''}"`).join(',')).join('\n');
+      const blob = new Blob([csv],{type:'text/csv'}), url = URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;a.download='taluka-data.csv';a.click();URL.revokeObjectURL(url);
     }
 
-    // Main update
+    // Update all
     function updateAll() {
       const data = compute();
       renderKPIs(data);
@@ -271,14 +298,14 @@
     }
 
     // Init
-    (async() => {
+    (async()=>{
       try {
         const vals = await fetchSheet();
         parse(vals);
         renderControls();
         updateAll();
-      } catch (e) {
-        alert('डेटा लोडमध्ये समस्या: ' + e.message);
+      } catch(e) {
+        alert('डेटा लोडमध्ये अडचण: '+e.message);
       }
     })();
   </script>
