@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <style>
     body {
       font-family: 'Noto Sans Devanagari', sans-serif;
@@ -19,41 +21,51 @@
       padding: 0.8rem 1rem;
       margin-bottom: 1.2rem;
     }
-    .dashboard-3col {
+    .kpi-row {
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-    }
-    .kpi-col {
-      flex: 1 1 30%;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-    .chart-box {
-      flex: 1 1 35%;
-      background: #f9fafb;
-      border-radius: 10px;
-      padding: 0.5rem;
-    }
-    .chart-container {
-      height: 190px;
+      justify-content: space-around;
+      gap: 1rem;
+      margin-bottom: 1rem;
     }
     .kpi-card {
-      background: #e5e7eb;
+      flex: 1 1 33%;
+      text-align: center;
+      background: #f3f4f6;
       border-radius: 8px;
-      padding: 0.5rem 0.6rem;
-      font-size: 0.87em;
+      padding: 0.6rem;
       font-weight: 700;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+      font-size: 0.9rem;
     }
     .kpi-card.top { background: linear-gradient(90deg,#bbf7d0 ,#6ee7b7); }
     .kpi-card.mid { background: linear-gradient(90deg,#fde68a ,#fef9c3); }
     .kpi-card.bot { background: linear-gradient(90deg,#fecaca ,#f87171); }
-    .kpi-card span.chip {
+    .kpi-card .chip {
       display: block;
-      font-size: 0.95em;
+      font-size: 0.9em;
       margin-bottom: 4px;
+    }
+    .chart-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+    .chart-box {
+      flex: 1 1 48%;
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    canvas {
+      max-width: 100%;
+    }
+    .info-badge {
+      background: #eef2ff;
+      padding: 6px 12px;
+      border-left: 4px solid #6366f1;
+      font-size: 0.85em;
+      border-radius: 6px;
+      margin-top: 0.8rem;
     }
     .dept-chip {
       display:inline-block;
@@ -68,23 +80,6 @@
     .dept-chip.selected {
       background: #fbbf24;
       color: #1c1c1c;
-    }
-    .btn-sm { padding: 0.25rem 0.6rem; font-size: 0.8rem; }
-    .info-badge {
-      background: #eef2ff;
-      padding: 6px 12px;
-      border-left: 4px solid #6366f1;
-      font-size: 0.85em;
-      border-radius: 6px;
-      margin-top: 0.8rem;
-    }
-    @media(max-width: 768px) {
-      .dashboard-3col {
-        flex-direction: column;
-      }
-      .kpi-col, .chart-box {
-        flex: 1 1 100%;
-      }
     }
   </style>
 </head>
@@ -112,30 +107,116 @@
   </div>
 
   <div class="glass">
-    <div class="dashboard-3col">
-      <div class="kpi-col" id="kpiCol"></div>
+    <div class="kpi-row" id="kpiRow"></div>
+    <div class="chart-container">
       <div class="chart-box">
-        <div class="fw-bold text-primary mb-1">Bar Chart</div>
-        <div class="chart-container">
-          <canvas id="barChart"></canvas>
-        </div>
-        <button class="btn btn-success btn-sm mt-2" id="downloadBarBtn">⬇️ Download Bar</button>
+        <h6 class="text-primary">Bar Chart</h6>
+        <canvas id="barChart"></canvas>
       </div>
       <div class="chart-box">
-        <div class="fw-bold text-primary mb-1">Donut Chart</div>
-        <div class="chart-container">
-          <canvas id="donutChart"></canvas>
-        </div>
-        <button class="btn btn-warning btn-sm mt-2" id="downloadDonutBtn">⬇️ Download Donut</button>
+        <h6 class="text-primary">Donut Chart</h6>
+        <canvas id="donutChart"></canvas>
       </div>
     </div>
   </div>
-
-  <!-- Other components like table/chart etc. would continue here -->
 </div>
-<!-- Scripts and Chart JS -->
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-<!-- Add your optimized JS logic here -->
+<script>
+const CONFIG = {
+  apiKey: "AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU",
+  spreadsheetId: "1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE",
+  range: "Rank!B5:AJ20"
+};
+
+let rawData = [], schemes = [], selectedScheme = "";
+
+async function fetchData() {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${CONFIG.range}?majorDimension=ROWS&valueRenderOption=UNFORMATTED_VALUE&key=${CONFIG.apiKey}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  const rows = data.values;
+  const headers = rows[0];
+  const idxBlock = headers.findIndex(h => /तालुका/i.test(h));
+  rawData = rows.slice(1).map(r => {
+    let obj = {};
+    headers.forEach((h, i) => obj[h] = r[i]);
+    obj._block = r[idxBlock];
+    return obj;
+  });
+  schemes = headers.filter((_, i) => i !== idxBlock);
+  selectedScheme = schemes[0];
+  updateDashboard();
+}
+
+function updateDashboard() {
+  const data = rawData.map(r => ({
+    taluka: r._block,
+    value: parseFloat(r[selectedScheme]) || 0
+  })).filter(d => !isNaN(d.value));
+
+  renderKPI(data);
+  renderCharts(data);
+}
+
+function renderKPI(data) {
+  const sorted = [...data].sort((a,b) => b.value - a.value);
+  const top = sorted[0];
+  const mid = sorted[Math.floor(sorted.length / 2)];
+  const bot = sorted.at(-1);
+  const kpiRow = document.getElementById('kpiRow');
+  kpiRow.innerHTML = '';
+  [
+    { obj: top, label: '🏆 Top', cls: 'top' },
+    { obj: mid, label: '⚖️ मध्यम', cls: 'mid' },
+    { obj: bot, label: '🚨 तळ', cls: 'bot' },
+  ].forEach(entry => {
+    const div = document.createElement('div');
+    div.className = `kpi-card ${entry.cls}`;
+    div.innerHTML = `<span class="chip">${entry.label}</span>${entry.obj.taluka}<div>${entry.obj.value}</div>`;
+    kpiRow.appendChild(div);
+  });
+}
+
+function renderCharts(data) {
+  const labels = data.map(d => d.taluka);
+  const values = data.map(d => d.value);
+
+  if (window.barChart) window.barChart.destroy();
+  if (window.donutChart) window.donutChart.destroy();
+
+  const barCtx = document.getElementById('barChart').getContext('2d');
+  window.barChart = new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{ label: selectedScheme, data: values, backgroundColor: '#6366f1', borderRadius: 4 }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'right', formatter: v => v } }
+    },
+    plugins: [ChartDataLabels]
+  });
+
+  const donutCtx = document.getElementById('donutChart').getContext('2d');
+  window.donutChart = new Chart(donutCtx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{ data: values, backgroundColor: ['#4f46e5','#10b981','#f59e0b','#ef4444','#3b82f6','#818cf8','#f472b6','#2dd4bf'] }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom' }, datalabels: { anchor: 'end', align: 'end', formatter: v => v } }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+fetchData();
+</script>
 </body>
 </html>
