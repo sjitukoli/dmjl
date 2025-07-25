@@ -1,79 +1,99 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>तालुका योजना तुलनात्मक डॅशबोर्ड – जळगाव जिल्हा</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet"/>
-  <!-- Chart.js & DataLabels -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <style>
-    body { font-family: 'Noto Sans Devanagari', sans-serif; background: #f5f7ff; color: #243046; margin:0; padding:1.2rem;}
-    .glass { background: rgba(255,255,255,0.99); border-radius: 12px; box-shadow: 0 4px 16px rgba(85,105,180,.13); margin-bottom: 1.4rem; padding:1rem;}
-    .kpi-card { border-radius: 8px; font-weight: 600; margin-bottom: .45rem; background: linear-gradient(95deg,#e0e7ff 65%,#f1f5fe 120%); box-shadow: 0 2px 8px rgba(80,120,255,0.10); padding: .3rem .6rem; text-align:center; font-size:.97rem; color:#233;}
+    body { font-family: 'Noto Sans Devanagari', sans-serif; background: #f6f7fa; color: #23263a; margin:0; padding:1rem;}
+    .glass { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px #c3c6f1aa; margin-bottom: 1.1rem; padding:1.1rem;}
+    .dashboard-3col { display: flex; flex-wrap: wrap; gap: 1.25rem; }
+    .dashboard-3col > div { background: #f2f3f7; border-radius: 8px; padding: .8rem .4rem .7rem .4rem; flex: 1 1 30%; box-shadow: 0 2px 6px #99a2ff14;}
+    .kpi-card { background: linear-gradient(90deg, #a5f3fc 50%, #bae6fd 130%); border-radius: 8px; text-align: center; padding: .5em 0 .45em 0; font-size:1.04em; font-weight: 700; margin:.2em .3em;}
+    .kpi-card .rank { font-size:.95em; font-weight:700; display:block;}
+    .kpi-card .title { font-weight:600; color:#0284c7; margin-bottom:5px;}
+    .kpi-card .value { font-size:1.45em; color: #04535c }
     .kpi-card.top  { background: linear-gradient(90deg,#bbf7d0,#6ee7b7);}
     .kpi-card.mid  { background: linear-gradient(90deg,#fde68a,#fef9c3);}
     .kpi-card.bot  { background: linear-gradient(90deg,#fecaca,#f87171);}
-    .kpi-card.selected { box-shadow: 0 0 8px 1px #6366f1; border: 1.6px solid #4f46e5;}
-    .kpi-card span.chip { border-radius:5px; background:#e0e7ff; padding:1px 8px; margin-bottom:1px; font-size:.98em;}
+    /* Department(Taluka) Chip styling with hover/zoom/shadow */
+    .dept-chip {
+      display:inline-block; padding:7px 12px; border-radius:30px; font-size:1em; font-weight:600; background:#e0e7ff; margin:4px 7px 5px 0; color:#2d3d80;
+      box-shadow: 0 2px 8px #5661b433; transition: box-shadow .22s, background .22s, transform .2s;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .dept-chip:hover, .dept-chip.selected {
+      background: linear-gradient(93deg,#facc15 30%,#fbbf24 110%);
+      color: #1c1917;
+      border-color: #f59e0b;
+      box-shadow: 0 6px 26px #fde0478a;
+      transform: scale(1.10);
+      z-index: 1;
+    }
+    .chart-container { height: 185px; min-height: 130px; width: 100%; }
+    .dashboard-3col .chart-container { background:#fff; border-radius:10px; padding:.35rem;}
+    .form-label { font-weight: 700; }
     .checklist { display:flex; gap:.7rem; flex-wrap:wrap;}
-    .checklist label {user-select:none;margin-right:.34rem;font-weight:500;cursor:pointer;}
-    .chart-container { width: 100%; height: 185px; min-height: 130px; max-width:100%; margin-bottom:1.0rem; position:relative;}
-    .table thead th { background: #6366f1; color: #fff; font-weight: 700; border: 1px solid #6366f1; text-align: center;vertical-align: middle;padding:.55em;}
-    .table tbody td { border: 1px solid #e6e6ed; vertical-align: middle; padding: .39rem .2rem; text-align:center; font-size:.98em; background: #f8f9ff;}
-    .table tbody tr.selected-block td { background: #c7d2fe !important; font-weight: 700; color: #1e3a8a;}
+    .table thead th { background: #6366f1; color: #fff; border: 1px solid #6366f1; text-align: center;vertical-align: middle; font-size:1.01em !important;padding:.55em;}
+    .table tbody td { border: 1px solid #e6e6ed; vertical-align: middle; padding: .39rem .2rem; text-align:center; font-size:.97em;}
+    .table tbody tr.selected-block td { background: #c7d2fe!important; font-weight:700; color:#132065;}
     .table tbody tr.top5  td { background: #bbf7d0 !important;}
     .table tbody tr.mid5  td { background: #feeaa4 !important;}
     .table tbody tr.bot5  td { background: #ffdad7 !important;}
-    .dashboard-row { display: flex; flex-wrap: wrap; gap:1rem; margin-bottom:1.4rem;}
-    .col-left { flex: 1 1 38%; min-width:185px;}
-    .col-right { flex: 1 1 60%; min-width:230px;}
-    .btn-export { margin-left: 0.5rem; }
-    @media (max-width: 1000px) {.dashboard-row{flex-direction:column;} .col-left,.col-right{width:100%}; .chart-container{height:180px; min-height:140px;}}
+    .btn-export { margin-left:0.5rem;}
+    @media (max-width:950px) {.dashboard-3col{flex-direction:column;gap:.8rem;}
+      .dashboard-3col>div{min-width:0;}
+    }
   </style>
 </head>
 <body>
   <div class="container-fluid">
-    <h2 class="text-center mb-3">📊 तालुका योजना तुलनात्मक डॅशबोर्ड<br><small class="text-muted">(जळगाव जिल्हा)</small></h2>
-    <div class="glass mb-4">
+    <h2 class="text-center mb-3">📊 तालुका योजना तुलनात्मक डॅशबोर्ड<br>
+        <small class="text-muted">(जळगाव जिल्हा)</small>
+    </h2>
+    <div class="glass mb-3">
       <div class="row g-2 align-items-center">
-        <div class="col-md-6 col-xl-5">
-          <label class="form-label fw-bold mb-1">योजना निवडा:</label>
+        <div class="col-md-6">
+          <label class="form-label">योजना निवडा (Multiple):</label>
           <select id="schemeSelect" multiple class="form-select form-select-sm"></select>
         </div>
-        <div class="col-md-6 col-xl-5">
-          <label class="form-label fw-bold mb-1">तालुका निवडा:</label>
-          <div id="talukaCheckboxes" class="checklist"></div>
+        <div class="col-md-6">
+          <label class="form-label">तालुका निवडा:</label>
+          <!-- Department chips for Taluka selection -->
+          <div id="talukaChips" class="mb-2"></div>
         </div>
-        <div class="col-md-12 col-xl-2 mt-2 mt-xl-0 text-end">
+      </div>
+      <div class="row mt-2">
+        <div class="col text-end">
           <button id="resetBtn" class="btn btn-outline-danger btn-sm">Reset</button>
           <button id="submitBtn" class="btn btn-primary btn-sm ms-2">Submit</button>
         </div>
       </div>
     </div>
-    <div class="dashboard-row mb-2">
-      <div class="col-left">
-        <div id="kpiRow1" class="mb-1"></div>
-        <div id="kpiRow2" class="mb-1"></div>
-        <div id="kpiRow3"></div>
-      </div>
-      <div class="col-right">
-        <div class="glass p-2 mb-3">
-          <h5 class="mb-1 text-primary" style="font-size:1.1em;"><i class="fa fa-bars me-1"></i>Bar Chart</h5>
+    <div class="glass">
+      <div class="dashboard-3col">
+        <div>
+          <div id="kpiCol"></div>
+        </div>
+        <div>
+          <div class="mb-2 text-primary" style="font-weight:700;font-size:1.11em;">Bar Chart</div>
           <div id="barArea" class="chart-container"><canvas id="barChart"></canvas></div>
-          <h5 class="mb-1 mt-2 text-primary" style="font-size:1.1em;"><i class="fa fa-pie-chart me-1"></i>Donut Chart</h5>
+          <button id="downloadBarBtn" class="btn btn-success btn-sm btn-export mt-1">⬇️ Bar Chart</button>
+        </div>
+        <div>
+          <div class="mb-2 text-primary" style="font-weight:700;font-size:1.11em;">Donut Chart</div>
           <div id="donutArea" class="chart-container"><canvas id="donutChart"></canvas></div>
-          <div class="mt-2">
-            <button id="downloadChartBtn" class="btn btn-success btn-sm btn-export">⬇️ चार्ट</button>
-            <button id="downloadCsvBtn" class="btn btn-secondary btn-sm btn-export">📊 CSV</button>
-          </div>
+          <button id="downloadDonutBtn" class="btn btn-warning btn-sm btn-export mt-1">⬇️ Donut Chart</button>
         </div>
       </div>
     </div>
-    <div class="glass mb-4">
+    <div class="glass mb-3">
       <h5 class="mb-2 text-primary" style="font-size:1.08em;">
         <i class="fa fa-table me-2"></i>तालुक्यांची पूर्ण माहिती व रँकिंग
       </h5>
@@ -92,7 +112,7 @@
     const CONFIG = {
       apiKey: "AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU",
       spreadsheetId: "1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE",
-      range: "Rank!B5:AJ20",
+      range: "Rank!B5:AJ20"
     };
     let rawData=[], headers=[], blocks=[], schemes=[];
     let barChart, donutChart;
@@ -116,83 +136,87 @@
       rawData = blocks;
     }
     function renderControls() {
-      // Multi-select schemes
       const schemeSel=document.getElementById('schemeSelect');
       schemeSel.innerHTML=schemes.map(s=>`<option value="${s}">${s}</option>`).join('');
-      // Checkboxes for blocks (unselected by default)
-      const cbx=document.getElementById('talukaCheckboxes');
-      cbx.innerHTML=blocks.map(b=>`
-        <label><input type="checkbox" value="${b._block}"/> ${b._block}</label>`).join('');
+      // Dept chips for Taluka selection: color, shadow, zoom on hover
+      const talukaDiv=document.getElementById('talukaChips');
+      talukaDiv.innerHTML=blocks.map(b=>`
+        <span class="dept-chip" tabindex="0" data-block="${b._block}">${b._block}</span>
+      `).join('');
+      talukaDiv.querySelectorAll('.dept-chip').forEach(span=>{
+        span.onclick=()=>{
+          const name=span.getAttribute('data-block');
+          if(selectedBlocks.has(name)) { selectedBlocks.delete(name); span.classList.remove('selected');}
+          else {selectedBlocks.add(name); span.classList.add('selected');}
+        };
+      });
       document.getElementById('resetBtn').onclick = () => {
         selectedBlocks.clear(); selectedSchemes.clear();
-        cbx.querySelectorAll('input').forEach(i=>i.checked=false);
+        talukaDiv.querySelectorAll('.dept-chip').forEach(span=>span.classList.remove('selected'));
         schemeSel.selectedIndex=-1;
         clearDashboard();
       };
       document.getElementById('submitBtn').onclick = updateAll;
-      document.getElementById('downloadCsvBtn').onclick = downloadCSV;
-      document.getElementById('downloadChartBtn').onclick=()=>{
-        if(barChart) downloadChart(barChart,"bar-chart.png");
-        if(donutChart) downloadChart(donutChart,"donut-chart.png");
-      };
+      document.getElementById('downloadBarBtn').onclick=()=>barChart && downloadChart(barChart,"bar-chart.png");
+      document.getElementById('downloadDonutBtn').onclick=()=>donutChart && downloadChart(donutChart,"donut-chart.png");
     }
     function downloadChart(chart,filename){
       const a=document.createElement('a');
       a.href=chart.toBase64Image(); a.download=filename; a.click();
     }
     function collectSelections() {
-      selectedBlocks.clear(); selectedSchemes.clear();
-      document.querySelectorAll('#talukaCheckboxes input').forEach(i=>{
-        if(i.checked) selectedBlocks.add(i.value);
-      });
+      // block chips
+      selectedBlocks.clear();
+      document.querySelectorAll('#talukaChips .dept-chip.selected').forEach(
+        el=>selectedBlocks.add(el.getAttribute('data-block'))
+      );
+      // multi select schemes
+      selectedSchemes.clear();
       Array.from(document.getElementById('schemeSelect').selectedOptions).forEach(opt =>
         selectedSchemes.add(opt.value)
       );
     }
     function compute() {
       collectSelections();
-      if(selectedBlocks.size===0) return null;
-      if(selectedSchemes.size===0) return null;
-      const schemesArr=Array.from(selectedSchemes);
-      const blocksArr=Array.from(selectedBlocks).map(b=>rawData.find(r=>r._block===b)).filter(Boolean);
-      // For KPIs, use first scheme
-      const kpiScheme = schemesArr[0];
-      const kpiData = blocksArr.map(r=>({_block:r._block, val:parseFloat(r[kpiScheme])||0}));
+      if(selectedBlocks.size===0 || selectedSchemes.size===0) return null;
+      const scheme = Array.from(selectedSchemes)[0];
+      const blocksArr = Array.from(selectedBlocks).map(b=>rawData.find(r=>r._block===b)).filter(Boolean);
+      const kpiData = blocksArr.map(r=>({_block:r._block, val:parseFloat(r[scheme])||0}));
       kpiData.sort((a,b)=>b.val-a.val); kpiData.forEach((d,i)=>d.rank=i+1);
-      return { schemesArr, blocksArr, kpiData };
+      return { blocksArr, kpiData, scheme };
     }
-    function renderKPIs(data) {
-      if(!data) {['kpiRow1','kpiRow2','kpiRow3'].forEach(id=>document.getElementById(id).innerHTML=''); return;}
-      const rows = ['kpiRow1','kpiRow2','kpiRow3'];
-      const grps = [
-        data.kpiData.slice(0,5),
-        data.kpiData.slice(Math.floor((data.kpiData.length-5)/2), Math.floor((data.kpiData.length-5)/2)+5),
-        data.kpiData.slice(-5)
-      ];
-      const cls = ['top','mid','bot'];
-      const emo = ['🏆','⚖️','🚨'];
-      rows.forEach((id,i)=>{
-        document.getElementById(id).innerHTML = grps[i].map(d => `
-          <div class="kpi-card ${cls[i]} selected">
-            <span class="chip">${emo[i]} #${d.rank}</span><br>
-            ${d._block}<br>
-            <span>${d.val}</span>
-          </div>`).join('');
-      });
+    function renderKPI(data) {
+      if(!data) { document.getElementById('kpiCol').innerHTML = ""; return; }
+      let outTop = data.kpiData[0] ? `
+        <div class="kpi-card top"><span class="rank">🏆 टॉप रँक</span>
+          <span class="title">${data.kpiData[0]._block}</span>
+          <span class="value">${data.kpiData[0].val}</span>
+        </div>` : '';
+      let midval = data.kpiData.length>2 ? data.kpiData[Math.floor(data.kpiData.length/2)] : null;
+      let outMid = midval ? `
+        <div class="kpi-card mid"><span class="rank">⚖️ मध्यम</span>
+          <span class="title">${midval._block}</span>
+          <span class="value">${midval.val}</span>
+        </div>` : '';
+      let botval = data.kpiData.at(-1);
+      let outBot = botval ? `
+        <div class="kpi-card bot"><span class="rank">🚨 तळ</span>
+          <span class="title">${botval._block}</span>
+          <span class="value">${botval.val}</span>
+        </div>` : '';
+      document.getElementById('kpiCol').innerHTML = outTop + outMid + outBot;
     }
     function renderBar(data) {
       const ctx=document.getElementById('barChart').getContext('2d');
       barChart?.destroy();
-      const mainScheme=data.schemesArr[0];
       barChart=new Chart(ctx, {
         type:'bar',
         data: {
           labels: data.kpiData.map(d=>d._block),
           datasets: [{
-            label: mainScheme,
+            label: data.scheme,
             data: data.kpiData.map(d=>d.val),
-            backgroundColor:'#6366f1',
-            borderRadius:4
+            backgroundColor:'#6366f1', borderRadius:4
           }]
         },
         options:{
@@ -206,7 +230,6 @@
     function renderDonut(data) {
       const ctx=document.getElementById('donutChart').getContext('2d');
       donutChart?.destroy();
-      const mainScheme=data.schemesArr[0];
       donutChart=new Chart(ctx, {
         type:'doughnut',
         data:{
@@ -239,14 +262,18 @@
       document.getElementById('tableBody').innerHTML = rows;
     }
     function clearDashboard() {
-      ['kpiRow1','kpiRow2','kpiRow3','tableBody','tableHeader'].forEach(id=>document.getElementById(id).innerHTML='');
+      document.getElementById('kpiCol').innerHTML="";
+      document.getElementById('tableBody').innerHTML="";
+      document.getElementById('tableHeader').innerHTML="";
       barChart?.destroy(); donutChart?.destroy();
     }
     function updateAll() {
       const data = compute();
-      if(!data) return alert("कृपया कमीत कमी एक योजना आणि कमीत कमी एक तालुका निवडा.");
-      renderKPIs(data);
-      renderBar(data); renderDonut(data); renderTable(data);
+      if(!data) return alert("कृपया कमीत कमी एक योजना आणि एक तालुका निवडा.");
+      renderKPI(data);
+      renderBar(data);
+      renderDonut(data);
+      renderTable(data);
     }
     (async () => {
       try {
