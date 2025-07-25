@@ -1,172 +1,78 @@
-<!DOCTYPE html>
-<html lang="mr">
-<head>
-  <meta charset="UTF-8">
-  <title>योजना डॅशबोर्ड · जळगाव जिल्हा</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@700;400&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-  <style>
-    body { font-family:'Noto Sans Devanagari',sans-serif; background:#f4f6fa; color:#23263a; margin:0; padding:1.5rem;}
-    .glass { background: #fff; border-radius: 18px; box-shadow: 0 6px 32px #6366f11c; margin-bottom:1.7rem; padding:1.7rem;}
-    .tab-btn { font-weight:700; padding:.5em 1.5em; border-radius:2em; margin-right:10px; color:#222; background:#ede9fe; border:none;cursor:pointer; transition:.16s;}
-    .tab-btn.active,.tab-btn:focus,.tab-btn:hover { background:#7c3aed; color:#fff; transform:scale(1.07);}
-    .kpi-row-wrap { display: flex; gap: 1.2em; justify-content: center; align-items: stretch; margin: 1.5em 0 2.2em 0;}
-    .kpi-kard {flex: 1 1 0; background: #fff; border-radius: 28px; box-shadow: 0 3px 18px #0002;
-      display: flex; flex-direction: column; align-items: center; padding: 1.46em .7em 1.22em .7em;
-      position: relative; transition:box-shadow .23s, transform .23s, border .18s; min-width: 262px; cursor:pointer; border: 2.7px solid transparent;}
-    .kpi-kard:hover { box-shadow: 0 12px 38px #7c3aed38,0 1px 18px #ffc82b22; border-color: #818cf8; transform:translateY(-6px) scale(1.06);}
-    .kpi-medal { margin-bottom: .58em; animation: medalpop 1.4s infinite alternate cubic-bezier(.48,1.6,.7,.07);}
-    @keyframes medalpop { 0%{transform:scale(1);} 68%{transform:scale(1.11);} 100%{transform:scale(1);} }
-    .kpi-label { color: #345; font-size: 1.17em; font-weight: bold; margin-bottom: .5em;letter-spacing:.05em;}
-    .kpi-taluka-list {width: 100%; padding: 0; list-style-type: none; margin: 0;}
-    .kpi-taluka-list li {font-size: 1.15em; font-weight: 700; letter-spacing:.01em;
-      padding: .23em 0; border-radius: 6px; transition: background .13s, color .15s;
-      text-align: center; position:relative;}
-    .kpi-taluka-list li:hover { background:#f3f1fd; color:#7c3aed;}
-    .kpi-kard.top    { background: linear-gradient(92deg,#d1fae5 0%,#bcf7c0 100%); border-color:#34d399;}
-    .kpi-kard.mid    { background: linear-gradient(92deg,#fef9c3 0%,#fde68a 100%); border-color:#fad032;}
-    .kpi-kard.bot    { background: linear-gradient(92deg,#fee2e2 0%,#fecaca 100%); border-color:#f43f5e;}
-    .kpi-kard.top    .kpi-label { color: #059669;}
-    .kpi-kard.mid    .kpi-label { color: #b45309;}
-    .kpi-kard.bot    .kpi-label { color: #b91c1c;}
-    .chip {display:inline-block;padding:0.27em 1.14em;background:#e0e7ff; font-size:1.08em;font-weight:700;border-radius:23px; margin:4px 10px;transition:.15s;cursor:pointer;}
-    .chip.selected, .chip:hover { background:#fbbf24; color:#78350f; transform:scale(1.07);}
-    .chart-header { text-align:center; font-size:1.18em;font-weight:700;color:#6366f1;margin-bottom:.9rem;}
-    .chart-panel { background:linear-gradient(95deg,#f3f7fa,#f7f5fc 100%); border-radius:18px; padding:1.2em 1.5em; box-shadow:0 1px 20px #6366f111;margin-bottom:1.1em;}
-    .chart-container { height:240px!important; }
-    .table thead th{ background: #6366f1; color: #fff; position:sticky;top:0;z-index:3;}
-    .table-striped tbody tr:nth-child(odd) {background:#f5f7fa;}
-    .table-striped tbody tr.mid {background:#fef9c3!important;}
-    .table-striped tbody tr.top {background:#d1fae5!important;}
-    .table-striped tbody tr.bot {background:#fee2e2!important;}
-    .btn-ai,.btn-compact { background: linear-gradient(90deg,#818cf8,#fbbf24)!important; color:#fff!important; font-weight:700; border-radius:36px; padding:.7em 2.1em; margin:0 9px;box-shadow:0 2px 8px #6366f1aa;transition:.13s; border:none; letter-spacing:.03em;}
-    .btn-ai:hover,.btn-compact:hover {background:linear-gradient(91deg,#6366f1,#fbbf24)!important;}
-    @media (max-width:1050px){
-      .kpi-row-wrap{flex-direction:column;align-items:stretch;}
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="d-flex mb-3 justify-content-between align-items-center flex-wrap" style="gap:1rem;">
-      <h2 class="mb-0">📊 तालुका योजना डॅशबोर्ड</h2>
-      <div style="display:flex; align-items:center;">
-        <button id="p1btn" class="tab-btn active">मुख्य</button>
-        <button id="p2btn" class="tab-btn">योजना तपशील</button>
+<!-- (Assume you keep your existing Page 1 as in your last implementation) -->
+
+<!-- PAGE 2: “Scheme-wise Details” -->
+<div id="page2" style="display:none;">
+  <div class="glass mb-3" style="max-width:650px;margin:auto;">
+    <div style="display:flex; justify-content:center; align-items:center; gap:2em;">
+      <label class="form-label mb-0" style="font-size:1.12em;font-weight:700;">योजना:</label>
+      <select id="schemeDropdown2" class="form-select form-select-sm" style="width:260px; font-size:1.12em;"></select>
+    </div>
+  </div>
+  <div class="glass">
+    <div class="kpi-row-wrap">
+      <div class="kpi-kard top">
+        <div class="kpi-medal">
+          <svg width="48" height="48"><circle cx="24" cy="24" r="20" fill="#ffd700"/><circle cx="24" cy="24" r="18" fill="#fffbe9"/><text x="24" y="33" text-anchor="middle" font-size="24" fill="#b68c00" font-weight="bold">1</text></svg>
+        </div>
+        <div class="kpi-label">टॉप ५</div>
+        <ul class="kpi-taluka-list" id="kpiTopList2"></ul>
+      </div>
+      <div class="kpi-kard mid">
+        <div class="kpi-medal">
+          <svg width="48" height="48"><circle cx="24" cy="24" r="20" fill="#e5e5e5"/><circle cx="24" cy="24" r="18" fill="#f8faf9"/><text x="24" y="33" text-anchor="middle" font-size="24" fill="#757575" font-weight="bold">2</text></svg>
+        </div>
+        <div class="kpi-label">मध्यम ५</div>
+        <ul class="kpi-taluka-list" id="kpiMidList2"></ul>
+      </div>
+      <div class="kpi-kard bot">
+        <div class="kpi-medal">
+          <svg width="48" height="48"><circle cx="24" cy="24" r="20" fill="#de9c68"/><circle cx="24" cy="24" r="18" fill="#eed0b3"/><text x="24" y="33" text-anchor="middle" font-size="24" fill="#a3711d" font-weight="bold">3</text></svg>
+        </div>
+        <div class="kpi-label">तळ ५</div>
+        <ul class="kpi-taluka-list" id="kpiBotList2"></ul>
       </div>
     </div>
-    <!-- PAGE 1 -->
-    <div id="page1">
-      <div class="glass mb-4">
-        <div class="row align-items-end mb-0 pb-0 g-2">
-          <div class="col-md-6">
-            <select id="schemeDropdown" class="form-select form-select-sm"></select>
-          </div>
-          <div class="col-md-6">
-            <div id="talukaChips"></div>
-          </div>
-        </div>
-        <div class="text-end mt-3">
-          <button id="resetBtn" class="btn btn-compact mb-2">🔄 Reset</button>
-          <button id="updateBtn" class="btn btn-compact mb-2">🔍 Submit</button>
-        </div>
-      </div>
-      <!-- KPI ROW ANIMATED -->
-      <div class="kpi-row-wrap">
-        <div class="kpi-kard top">
-          <div class="kpi-medal">
-            <svg width="48" height="48"><circle cx="24" cy="24" r="20" fill="#ffd700"/><circle cx="24" cy="24" r="18" fill="#fffbe9"/><text x="24" y="33" text-anchor="middle" font-size="24" fill="#b68c00" font-weight="bold">1</text></svg>
-          </div>
-          <div class="kpi-label">टॉप ५</div>
-          <ul class="kpi-taluka-list" id="kpiTopList"></ul>
-        </div>
-        <div class="kpi-kard mid">
-          <div class="kpi-medal">
-            <svg width="48" height="48"><circle cx="24" cy="24" r="20" fill="#e5e5e5"/><circle cx="24" cy="24" r="18" fill="#f8faf9"/><text x="24" y="33" text-anchor="middle" font-size="24" fill="#757575" font-weight="bold">2</text></svg>
-          </div>
-          <div class="kpi-label">मध्यम ५</div>
-          <ul class="kpi-taluka-list" id="kpiMidList"></ul>
-        </div>
-        <div class="kpi-kard bot">
-          <div class="kpi-medal">
-            <svg width="48" height="48"><circle cx="24" cy="24" r="20" fill="#de9c68"/><circle cx="24" cy="24" r="18" fill="#eed0b3"/><text x="24" y="33" text-anchor="middle" font-size="24" fill="#a3711d" font-weight="bold">3</text></svg>
-          </div>
-          <div class="kpi-label">तळ ५</div>
-          <ul class="kpi-taluka-list" id="kpiBotList"></ul>
-        </div>
-      </div>
-      <div class="glass">
-        <div class="row row-cols-1 row-cols-md-2 g-3">
-          <div class="col"><div class="chart-panel">
-            <div class="chart-header">📊 कार्यप्रदर्शन तुलना</div>
-            <canvas id="barChart" class="chart-container"></canvas>
-          </div></div>
-          <div class="col"><div class="chart-panel">
-            <div class="chart-header">🥧 प्रतिशत वाटप</div>
-            <canvas id="donutChart" class="chart-container"></canvas>
-          </div></div>
-        </div>
-        <div class="glass mt-3">
-          <div style="font-weight:700;font-size:1.08em;margin-bottom:1em;">तालुक्यांची संपूर्ण माहिती व रँकिंग</div>
-          <div class="table-responsive" style="max-height:330px">
-            <table class="table table-bordered table-striped table-sm text-center" id="blockDetailsTable">
-              <thead><tr><th>तालुका</th><th>रँक</th></tr></thead>
-              <tbody id="talukaRanksBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+    <div class="chart-panel">
+      <div class="chart-header">🏅 योजना अंतर्गत तालुका रँकिंग</div>
+      <canvas id="barChart2" class="chart-container"></canvas>
     </div>
-    <!-- PAGE 2 BLANK -->
-    <div id="page2" style="display:none;">
-      <div class="glass" style="min-height:400px;display:flex;align-items:center;justify-content:center;font-size:1.25em;">
-        <span style="opacity:0.7;">दुसरे पृष्ठ (Scheme-wise Details) तयार करण्यात येईल.<br>Page 2 placeholder.</span>
+    <div class="glass mt-4" style="padding:1em 1.4em">
+      <div style="font-weight:700;font-size:1.09em;margin-bottom:1em;">तालुक्यांची रँकिंग यादी</div>
+      <div class="table-responsive" style="max-height:330px">
+        <table class="table table-bordered table-striped table-sm text-center" id="blockDetailsTable2">
+          <thead><tr><th>तालुका</th><th>रँक</th></tr></thead>
+          <tbody id="talukaRanksBody2"></tbody>
+        </table>
       </div>
     </div>
   </div>
-<script>
-const API = "AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU",
-      SHEET = "1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE",
-      RANGE = "Rank!B5:AJ20";
-let headers, rawData, schemes, barChart, donutChart;
+</div>
 
-async function init() {
-  const vals = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET}/values/${encodeURIComponent(RANGE)}?key=${API}`
-  ).then((r) => r.json()).then((d) => d.values);
-  headers = vals[0];
-  rawData = vals.slice(1).map(r => { let o={}; headers.forEach((h, i) => (o[h]=r[i])); o._block=r[0]; return o; });
-  schemes = headers;
-  renderTalukaChips();
-  renderSchemeDropdown();
-  renderPage1();
-  bindUI();
+<script>
+// -------- PAGE 2 DATA + UI LOGIC
+let barChart2;
+function renderSchemeDropdown2() {
+  document.getElementById("schemeDropdown2").innerHTML =
+    schemes.map(s=>`<option>${s}</option>`).join("");
 }
-function renderTalukaChips() {
-  const chips = document.getElementById("talukaChips");
-  chips.innerHTML = rawData.map((r) => `<span class="chip">${r._block}</span>`).join("");
-  chips.querySelectorAll(".chip").forEach((el) => {
-    el.onclick = () => el.classList.toggle("selected");
-  });
+function getRankList2(scheme) {
+  return rawData
+    .map((r) => ({ b: r._block, rank: parseInt(r[scheme])||999 }))
+    .sort((a, b) => a.rank-b.rank);
 }
-function renderSchemeDropdown() {
-  document.getElementById("schemeDropdown").innerHTML = schemes.map(s=>`<option>${s}</option>`).join("");
-}
-function getRankList(scheme) {
-  return rawData.map((r) => ({ b: r._block, rank: parseInt(r[scheme])||999 })).sort((a, b) => a.rank-b.rank);
-}
-function renderPage1() {
-  const scheme = document.getElementById("schemeDropdown").value || schemes[0];
-  const all = getRankList(scheme);
-  document.getElementById('kpiTopList').innerHTML = all.slice(0,5).map(x=>`<li>${x.b} <span style="color:#818cf8">&nbsp;#${x.rank}</span></li>`).join('');
-  document.getElementById('kpiMidList').innerHTML = all.slice(5,10).map(x=>`<li>${x.b} <span style="color:#b45309">&nbsp;#${x.rank}</span></li>`).join('');
-  document.getElementById('kpiBotList').innerHTML = all.slice(10,15).map(x=>`<li>${x.b} <span style="color:#b91c1c">&nbsp;#${x.rank}</span></li>`).join('');
+function renderPage2() {
+  renderSchemeDropdown2();
+  const scheme = document.getElementById("schemeDropdown2").value || schemes[0];
+  const all = getRankList2(scheme);
+  document.getElementById('kpiTopList2').innerHTML =
+    all.slice(0,5).map(x=>`<li>${x.b} <span style="color:#818cf8">&nbsp;#${x.rank}</span></li>`).join('');
+  document.getElementById('kpiMidList2').innerHTML =
+    all.slice(5,10).map(x=>`<li>${x.b} <span style="color:#b45309">&nbsp;#${x.rank}</span></li>`).join('');
+  document.getElementById('kpiBotList2').innerHTML =
+    all.slice(10,15).map(x=>`<li>${x.b} <span style="color:#b91c1c">&nbsp;#${x.rank}</span></li>`).join('');
+  barChart2?.destroy();
   const pal = ["#6366f1","#10b981","#f59e0b","#ef4444","#3b82f6","#818cf8"];
-  barChart?.destroy(); donutChart?.destroy();
-  barChart = new Chart(document.getElementById("barChart").getContext("2d"), {
+  barChart2 = new Chart(document.getElementById("barChart2").getContext("2d"), {
     type: "bar",
     data: {
       labels: all.map(x=>x.b),
@@ -180,34 +86,17 @@ function renderPage1() {
     }, responsive:true, maintainAspectRatio:false },
     plugins: [ChartDataLabels]
   });
-  donutChart = new Chart(document.getElementById("donutChart").getContext("2d"), {
-    type: "doughnut",
-    data: {
-      labels: all.map(x=>x.b),
-      datasets: [{ data: all.map(x=>(isFinite(x.rank)&&x.rank<=15?x.rank:0)), backgroundColor:pal }]
-    },
-    options: { plugins:{legend:{position:"bottom"},datalabels:{formatter:(v)=>v>0?`#${v}`:'-'}}, responsive:true, maintainAspectRatio:false },
-    plugins: [ChartDataLabels]
-  });
-  document.getElementById("talukaRanksBody").innerHTML =
-    all.slice(0,15).map((x,i)=>`<tr class='${i<5?'top':i<10?'mid':'bot'}'><td>${x.b}</td><td style="font-size:1.07em"><b>${isFinite(x.rank)&&x.rank<=15?x.rank:"-"}</b></td></tr>`).join('');
+  document.getElementById("talukaRanksBody2").innerHTML =
+    all.slice(0,15).map((x,i)=>`<tr class='${i<5?'top':i<10?'mid':'bot'}'>
+    <td>${x.b}</td><td style="font-size:1.07em"><b>${isFinite(x.rank)&&x.rank<=15?x.rank:"-"}</b></td>
+  </tr>`).join('');
 }
-function bindUI(){
-  document.getElementById("p1btn").onclick = () => showPage(1);
-  document.getElementById("p2btn").onclick = () => showPage(2);
-  document.getElementById("schemeDropdown").onchange = () => renderPage1();
-  document.getElementById("resetBtn").onclick = () => {
-    document.querySelectorAll(".chip").forEach((e) => e.classList.remove("selected"));
-    renderPage1();
-  };
-  document.getElementById("updateBtn").onclick = () => renderPage1();
-}
+document.getElementById("schemeDropdown2").addEventListener("change",renderPage2);
+document.getElementById("p2btn").onclick = () => { showPage(2); renderPage2(); };
+document.getElementById("p1btn").onclick = () => showPage(1);
 function showPage(pg){
   document.getElementById("page1").style.display = pg===1?"":"none";
   document.getElementById("page2").style.display = pg===2?"":"none";
   if(pg===1) renderPage1();
 }
-window.onload = init;
 </script>
-</body>
-</html>
