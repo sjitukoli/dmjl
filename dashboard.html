@@ -1,540 +1,1060 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Department Ranking Dashboard Pro</title>
+<!-- saved from url=(0049)https://dmjalgaon.github.io/Dashboard1/Index.html -->
+<html lang="mr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>तालुका योजना रँकिंग डॅशबोर्ड</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="./तालुका योजना रँकिंग डॅशबोर्ड_files/saved_resource"></script>
+    <!-- Chart.js CDN -->
+    <script src="./तालुका योजना रँकिंग डॅशबोर्ड_files/chart.js.download"></script>
+    <!-- Chart.js Datalabels Plugin for showing values on bars/doughnut -->
+    <script src="./तालुका योजना रँकिंग डॅशबोर्ड_files/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- Google Fonts - Inter for modern typography -->
+    <link href="./तालुका योजना रँकिंग डॅशबोर्ड_files/css2" rel="stylesheet">
+    <style>
+        /* सामान्य बॉडी स्टाइलिंग */
+        body {
+            background: linear-gradient(135deg, #ddeaff 0%, #a1c4fd 100%); /* सुंदर ग्रेडियंट पार्श्वभूमी */
+            min-height: 100vh; /* किमान पूर्ण उंची */
+            padding: 2rem 1rem; /* सर्व बाजूंनी पॅडिंग */
+            font-family: 'Inter', sans-serif; /* इंटर फॉन्ट वापरणे */
+            color: #1e293b; /* गडद निळा-राखाडी मजकूर रंग */
+        }
+        /* ग्लासमोर्फिझम इफेक्टसाठी कंटेनर */
+        .glass {
+            background: rgba(255,255,255,0.85); /* अर्ध-पारदर्शक पांढरा */
+            backdrop-filter: saturate(180%) blur(10px); /* पार्श्वभूमीला ब्लर आणि सॅचुरेशन */
+            border-radius: 1.2rem; /* गोलाकार कडा */
+            box-shadow: 0 12px 32px 0 #38bdf825; /* हलकी निळी सावली */
+            padding: 1.7rem 1rem 1.5rem 1rem; /* आतून पॅडिंग */
+            margin: 0 auto; /* मध्यभागी संरेखित करा */
+        }
+        /* KPI कार्ड्ससाठी स्टाइलिंग */
+        .kpi-card {
+            border-radius: 1.05em; /* गोलाकार कडा */
+            padding: 1.3em .5em; /* आतून पॅडिंग */
+            text-align: center; /* मजकूर मध्यभागी */
+            background: white; /* पांढरी पार्श्वभूमी */
+            box-shadow: 0 3px 14px #94a3b866; /* हलकी राखाडी सावली */
+            font-weight: 700; /* ठळक फॉन्ट */
+            position: relative; /* टूलटिपसाठी आवश्यक */
+            cursor: pointer; /* कर्सर पॉइंटरमध्ये बदलतो */
+            transition: transform 0.20s, box-shadow 0.18s; /* होव्हर इफेक्टसाठी संक्रमण */
+            border: 2px solid #93c5fd33; /* हलकी निळी किनार */
+        }
+        .kpi-card:hover {
+            transform: scale(1.072); /* होव्हर केल्यावर थोडे मोठे होते */
+            box-shadow: 0 12px 34px #2563eb33; /* गडद निळी सावली */
+            border: 2.25px solid #1e40af77; /* गडद निळी किनार */
+            color: #1e40af; /* मजकूर रंग बदलतो */
+            z-index:2; /* इतर घटकांवर दिसते */
+        }
+        .kpi-label { font-size: 1.16em; margin-top: 0.19em; color: #475569; font-weight: 800;} /* KPI लेबल स्टाइल */
+        .kpi-value { font-size: 2.3em; color:#2563eb; font-weight:900; margin-bottom:0.1em;} /* KPI व्हॅल्यू स्टाइल */
+        /* रँकिंग पिलसाठी पार्श्वभूमी रंग */
+        .pill-top { background:#bbf7d0cc; color:#065f46;} /* हिरवा */
+        .pill-mid { background:#feefb3bb; color:#78350f;} /* पिवळा */
+        .pill-bottom { background:#fecacabb; color:#991b1b;} /* लाल */
+        .kpi-info { font-size:1em; font-weight:600; line-height:1.5; } /* KPI माहिती स्टाइल */
+        /* टूलटिपसाठी स्टाइल */
+        .tooltip2:hover::after {
+            content: attr(data-tooltip2); /* data-tooltip2 ॲट्रिब्यूटमधील मजकूर दाखवते */
+            position: absolute; /* कार्डच्या सापेक्ष स्थान */
+            left:50%;top:-2.1em;transform:translateX(-50%); /* मध्यभागी आणि वरती */
+            background: #0ea5e9; color: #fff; /* निळी पार्श्वभूमी, पांढरा मजकूर */
+            font-size:0.97em; padding:0.23em 0.95em; /* फॉन्ट आणि पॅडिंग */
+            border-radius: .4em; pointer-events:none;opacity:0.97; /* गोलाकार कडा, क्लिक करण्यायोग्य नाही, अर्ध-पारदर्शक */
+            box-shadow:0 2px 9px #2563eb1a;white-space:nowrap; /* सावळी आणि मजकूर एका ओळीत */
+        }
+        /* टेबल स्टाइलिंग */
+        table {border-radius:0.8em; font-size:0.97em; overflow: hidden;} /* गोलाकार कडा आणि फॉन्ट */
+        thead tr th { background: #2563eb; color: white; padding:10px 13px; font-weight:700;} /* हेडर स्टाइल */
+        tbody tr { background: white; border-bottom: 1px solid #e7e5de;} /* बॉडी रो स्टाइल */
+        tbody tr:hover { background:#e0e7ff95;} /* होव्हर केल्यावर रंग बदलतो */
+        tbody tr.selected {background:#fef3c7;font-weight:900;color:#78350f;} /* निवडलेल्या पंक्तीसाठी स्टाइल */
+        td {padding:10px 13px;text-align:center;} /* सेल स्टाइल */
+        /* बटण स्टाइलिंग */
+        .btn {
+            background: #1e40af;
+            color:white;
+            font-weight:700;
+            padding:0.5em 1.3em;
+            border-radius:0.4em;
+            transition: background .22s, box-shadow .22s, transform .1s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #2563eb;
+            box-shadow: 0 6px 22px #38bdf84a;
+            transform: translateY(-2px);
+        }
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px #38bdf84a;
+        }
+        /* तुलना बटणासाठी विशिष्ट स्टाइल */
+        #cmpBtn {
+            background: linear-gradient(45deg, #2563eb, #3b82f6); /* निळा ग्रेडियंट */
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+        #cmpBtn:hover {
+            background: linear-gradient(45deg, #3b82f6, #60a5fa); /* होव्हरवर हलका ग्रेडियंट */
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+        }
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+        /* नवीन टेबल स्क्रोलिंगसाठी स्टाइल */
+        .table-scroll-container {
+            max-height: 400px; /* टेबलची कमाल उंची */
+            overflow-y: auto; /* उभ्या स्क्रोलिंगसाठी */
+            border-radius: 0.8em; /* कंटेनरसाठी गोलाकार कडा */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* हलकी सावली */
+            background-color: white; /* पार्श्वभूमी रंग */
+        }
+        .table-scroll-container table {
+            margin-top: 0; /* कंटेनरमध्ये असल्याने मार्जिनची गरज नाही */
+            border-radius: 0; /* कंटेनरला कडा असल्याने टेबलला गरज नाही */
+            box-shadow: none; /* कंटेनरला सावली असल्याने टेबलला गरज नाही */
+            border-collapse: separate; /* sticky headers/columns साठी आवश्यक */
+            border-spacing: 0; /* sticky headers/columns साठी आवश्यक */
+        }
+        .table-scroll-container thead th {
+            position: sticky; /* हेडर स्क्रोल करताना चिकटून राहतील */
+            top: 0;
+            background: #2563eb; /* हेडरची पार्श्वभूमी */
+            z-index: 10; /* इतर घटकांवर दिसण्यासाठी */
+        }
+        /* पहिल्या दोन कॉलमसाठी स्टिकी स्टाइल */
+        .table-scroll-container thead th.sticky-col-0,
+        .table-scroll-container tbody td.sticky-col-0 {
+            position: sticky;
+            left: 0;
+            z-index: 11; /* हेडरपेक्षा जास्त z-index */
+            background-color: #2563eb; /* हेडरसाठी पार्श्वभूमी */
+            color: white; /* हेडरसाठी मजकूर रंग */
+        }
+        .table-scroll-container tbody td.sticky-col-0 {
+            background-color: white; /* बॉडी सेलसाठी पार्श्वभूमी */
+            color: #1e293b; /* बॉडी सेलसाठी मजकूर रंग */
+        }
 
-  <!-- Chart.js & DataLabels -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.umd.min.js"></script>
-
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-  <style>
-    /* ---------- CUSTOM PROPERTIES ---------- */
-    :root{
-      --glass-bg:rgba(255,255,255,0.08);
-      --glass-border:rgba(255,255,255,0.18);
-      --glass-shadow:0 8px 32px rgba(31,38,135,0.37);
-      --primary-gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-      --accent-gradient:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);
-      --success-gradient:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);
-      --warning-gradient:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%);
-    }
-
-    /* ---------- GLOBAL ---------- */
-    *{scroll-behavior:smooth}
-    body{
-      font-family:'Inter',sans-serif;
-      background:linear-gradient(135deg,#667eea,#764ba2 50%,#f093fb);
-      color:#fff;
-      margin:0;
-      min-height:100vh;
-      overflow-x:hidden;
-    }
-
-    /* ---------- REUSABLE GLASS CARD ---------- */
-    .glass-card{
-      background:rgba(255,255,255,0.12);
-      backdrop-filter:blur(20px) saturate(200%);
-      border:1px solid rgba(255,255,255,0.2);
-      border-radius:20px;
-      transition:transform .3s,box-shadow .3s;
-      position:relative;
-      overflow:hidden;
-    }
-    .glass-card:hover{
-      transform:translateY(-8px);
-      box-shadow:0 20px 40px rgba(31,38,135,.5);
-      border-color:rgba(255,255,255,.3);
-    }
-
-    /* ---------- SIDEBAR & BUTTONS ---------- */
-    .sidebar,.dark-mode-toggle,.menu-toggle,.fab,.api-status,.notification{
-      backdrop-filter:blur(16px);
-      border:1px solid var(--glass-border);
-      border-radius:12px;
-    }
-    .sidebar{
-      position:fixed;top:0;left:0;
-      width:280px;height:100vh;
-      background:rgba(0,0,0,.3);
-      transform:translateX(-100%);
-      transition:transform .3s;
-      z-index:1000;
-      padding-top:2rem;
-    }
-    .sidebar.open{transform:translateX(0)}
-    .sidebar-item{
-      color:rgba(255,255,255,.8);
-      padding:1rem 2rem;
-      display:flex;align-items:center;gap:1rem;
-      cursor:pointer;
-      transition:background .3s;
-    }
-    .sidebar-item:hover{background:rgba(255,255,255,.1);color:#fff}
-
-    .menu-toggle,.dark-mode-toggle{
-      position:fixed;top:20px;padding:.75rem;
-      color:#fff;cursor:pointer;z-index:1100;
-    }
-    .menu-toggle{left:20px}
-    .dark-mode-toggle{right:20px}
-    .menu-toggle:hover,.dark-mode-toggle:hover{
-      background:rgba(255,255,255,.2);transform:scale(1.1)
-    }
-
-    .fab{
-      position:fixed;bottom:30px;right:30px;
-      width:60px;height:60px;
-      background:var(--accent-gradient);
-      color:#fff;
-      display:flex;align-items:center;justify-content:center;
-      font-size:1.5rem;border:none;cursor:pointer;
-      transition:transform .3s,box-shadow .3s;z-index:1000;
-    }
-    .fab:hover{transform:scale(1.1);box-shadow:0 12px 35px rgba(0,0,0,.4)}
-
-    .api-status{
-      position:fixed;top:70px;right:20px;
-      padding:.5rem 1rem;font-size:.875rem;z-index:1000;
-    }
-    .api-status.connected{border-color:#10b981}
-    .api-status.disconnected{border-color:#ef4444}
-
-    .notification{
-      position:fixed;top:4rem;right:1rem;
-      padding:1rem;max-width:300px;
-      transform:translateX(100%);transition:transform .3s;
-      z-index:1000;
-    }
-    .notification.show{transform:translateX(0)}
-
-    /* ---------- GRID LAYOUTS ---------- */
-    .dashboard-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
-      gap:1.5rem;
-    }
-    .kpi-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-      gap:1.5rem;
-    }
-    .department-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-      gap:1rem;
-    }
-
-    /* ---------- DROPDOWNS & BUTTONS ---------- */
-    .filter-dropdown,.interactive-btn{
-      background:var(--glass-bg);
-      border:1px solid var(--glass-border);
-      color:#fff;padding:.75rem 1.5rem;
-      border-radius:12px;font-weight:600;cursor:pointer;
-      transition:background .3s,transform .3s;
-    }
-    .filter-dropdown:hover,.interactive-btn:hover{
-      background:rgba(255,255,255,.2);transform:translateY(-2px);
-    }
-
-    /* ---------- CHART --------- */
-    .chart-container{position:relative;height:300px;padding:1.5rem}
-
-    /* ---------- TABLE ---------- */
-    .data-table,.ranking-table{width:100%;border-collapse:collapse;color:#fff}
-    .data-table th,.data-table td,
-    .ranking-table th,.ranking-table td{
-      padding:1rem;text-align:left;
-      border-bottom:1px solid rgba(255,255,255,.1);
-    }
-    .data-table th,.ranking-table th{
-      background:rgba(255,255,255,.1);
-      font-weight:600;text-transform:uppercase;
-      font-size:.875rem;letter-spacing:.05em;
-    }
-    .data-table tbody tr:hover,
-    .ranking-table tbody tr:hover{background:rgba(255,255,255,.05)}
-
-    /* ---------- DEPARTMENT CARD ---------- */
-    .department-card{
-      background:var(--glass-bg);
-      border-left:4px solid rgba(255,255,255,.3);
-      padding:1.5rem;border-radius:16px;cursor:pointer;
-      transition:transform .3s,border-color .3s,background .3s;
-      position:relative;
-    }
-    .department-card:hover{transform:translateX(5px);border-left-color:rgba(255,255,255,.8)}
-    .department-card.selected{
-      background:rgba(255,255,255,.2);border-left-color:#fff;
-    }
-    .department-rank{
-      position:absolute;top:10px;right:15px;
-      width:40px;height:40px;border-radius:50%;
-      background:rgba(255,255,255,.2);
-      display:flex;align-items:center;justify-content:center;
-      font-weight:bold;font-size:1.2rem;color:#fff;
-    }
-    .rank-1{background:#FFD700;color:#000}
-    .rank-2{background:#C0C0C0;color:#000}
-    .rank-3{background:#CD7F32;color:#fff}
-
-    .score-bar{height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;margin-top:5px}
-    .score-fill{height:100%;background:linear-gradient(90deg,#43e97b,#38f9d7);transition:width .5s}
-
-    .status-indicator{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px}
-    .status-excellent{background:#10b981}
-    .status-good{background:#3b82f6}
-    .status-average{background:#f59e0b}
-    .status-poor{background:#ef4444}
-
-    @media(max-width:768px){
-      .dashboard-grid,.department-grid{grid-template-columns:1fr}
-      .kpi-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-      .chart-container{height:250px;padding:1rem}
-    }
-  </style>
-</head>
+        .table-scroll-container thead th.sticky-col-1,
+        .table-scroll-container tbody td.sticky-col-1 {
+            position: sticky;
+            left: 60px; /* 'अ.क्र.' कॉलमच्या रुंदीनुसार समायोजित करा */
+            z-index: 11; /* हेडरपेक्षा जास्त z-index */
+            background-color: #2563eb; /* हेडरसाठी पार्श्वभूमी */
+            color: white; /* हेडरसाठी मजकूर रंग */
+        }
+        .table-scroll-container tbody td.sticky-col-1 {
+            background-color: white; /* बॉडी सेलसाठी पार्श्वभूमी */
+            color: #1e293b; /* बॉडी सेलसाठी मजकूर रंग */
+        }
+        /* हॉरिझॉन्टल चार्ट लेबलसाठी स्टाइल */
+        #horizontalBarChart canvas {
+            max-height: 384px; /* h-96 */
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.16 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.col-span-4{grid-column:span 4 / span 4}.mb-1{margin-bottom:0.25rem}.mb-10{margin-bottom:2.5rem}.mb-12{margin-bottom:3rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mb-7{margin-bottom:1.75rem}.mb-9{margin-bottom:2.25rem}.mt-1{margin-top:0.25rem}.flex{display:flex}.grid{display:grid}.h-80{height:20rem}.h-96{height:24rem}.w-\[180px\]{width:180px}.w-\[260px\]{width:260px}.min-w-full{min-width:100%}.max-w-7xl{max-width:80rem}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-center{justify-content:center}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.gap-6{gap:1.5rem}.gap-7{gap:1.75rem}.overflow-x-auto{overflow-x:auto}.rounded{border-radius:0.25rem}.rounded-lg{border-radius:0.5rem}.border{border-width:1px}.border-gray-400{--tw-border-opacity:1;border-color:rgb(156 163 175 / var(--tw-border-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.p-2{padding:0.5rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.text-center{text-align:center}.text-3xl{font-size:1.875rem;line-height:2.25rem}.font-extrabold{font-weight:800}.font-semibold{font-weight:600}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14 / var(--tw-text-opacity, 1))}.text-green-900{--tw-text-opacity:1;color:rgb(20 83 45 / var(--tw-text-opacity, 1))}.text-red-800{--tw-text-opacity:1;color:rgb(153 27 27 / var(--tw-text-opacity, 1))}.text-sky-800{--tw-text-opacity:1;color:rgb(7 89 133 / var(--tw-text-opacity, 1))}.text-sky-900{--tw-text-opacity:1;color:rgb(12 74 110 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.opacity-90{opacity:0.9}.shadow{--tw-shadow:0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.drop-shadow{--tw-drop-shadow:drop-shadow(0 1px 2px rgb(0 0 0 / 0.1)) drop-shadow(0 1px 1px rgb(0 0 0 / 0.06));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}@media (min-width: 768px){.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.md\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.md\:flex-row{flex-direction:row}.md\:text-4xl{font-size:2.25rem;line-height:2.5rem}}</style></head>
 <body>
-
-  <!-- API Status -->
-  <div id="apiStatus" class="api-status connected">
-    <span id="statusIndicator" class="status-indicator status-excellent"></span>
-    <span id="statusText">Google Sheets Connected</span>
-  </div>
-
-  <!-- Menu & Dark-Mode -->
-  <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-  <button class="dark-mode-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
-
-  <!-- Sidebar -->
-  <nav id="sidebar" class="sidebar">
-    <div class="sidebar-item" onclick="navigateTo('departmentRanking')"><i class="fas fa-chart-line"></i><span>Department Ranking</span></div>
-    <div class="sidebar-item" onclick="navigateTo('rankingChartSection')"><i class="fas fa-trophy"></i><span>Rankings</span></div>
-    <div class="sidebar-item" onclick="navigateTo('performanceSection')"><i class="fas fa-speedometer-alt"></i><span>Performance Trends</span></div>
-    <div class="sidebar-item" onclick="navigateTo('reportsSection')"><i class="fas fa-file-alt"></i><span>Detailed Table</span></div>
-    <div class="sidebar-item" onclick="refreshData()"><i class="fas fa-sync-alt"></i><span>Refresh Data</span></div>
-  </nav>
-
-  <!-- Main -->
-  <main class="min-h-screen p-6 pt-20 max-w-7xl mx-auto">
-
-    <!-- Header -->
-    <header class="glass-card mb-8 p-6">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 class="text-4xl font-bold">Department Ranking Dashboard Pro 🏆</h1>
-          <p class="opacity-80">Real-time Google Sheets integration</p>
-        </div>
-        <div class="flex flex-wrap gap-3">
-          <select id="departmentFilter" class="filter-dropdown" onchange="filterByDepartment()">
-            <option value="">All Departments</option>
-          </select>
-          <select id="timeFilter" class="filter-dropdown" onchange="filterByTime()">
-            <option value="current">Current Period</option>
-            <option value="quarter">This Quarter</option>
-            <option value="year">This Year</option>
-            <option value="custom">Custom Range</option>
-          </select>
-          <button class="interactive-btn" onclick="exportData()"><i class="fas fa-download mr-2"></i>Export All</button>
-          <button class="interactive-btn" onclick="refreshData()"><i class="fas fa-sync-alt mr-2"></i>Refresh</button>
-        </div>
-      </div>
-    </header>
-
-    <!-- Department Ranking -->
-    <section id="departmentRanking" class="mb-8">
-      <h2 class="text-2xl font-bold mb-4">Department Ranking</h2>
-      <div id="departmentCards" class="department-grid"></div>
-    </section>
-
-    <!-- KPI Cards -->
-    <section id="kpiSection" class="kpi-grid mb-8">
-      <div id="kpi1" class="glass-card p-6" style="background:var(--primary-gradient)">
-        <div class="text-xl font-semibold mb-2">Overall Score</div>
-        <div class="text-3xl font-bold" id="kpiValue1">—</div>
-        <div class="kpi-change" id="kpiChange1">—</div>
-      </div>
-      <div id="kpi2" class="glass-card p-6" style="background:var(--accent-gradient)">
-        <div class="text-xl font-semibold mb-2">Current Rank</div>
-        <div class="text-3xl font-bold" id="kpiValue2">—</div>
-        <div class="kpi-change" id="kpiChange2">—</div>
-      </div>
-      <div id="kpi3" class="glass-card p-6" style="background:var(--success-gradient)">
-        <div class="text-xl font-semibold mb-2">Efficiency Rate</div>
-        <div class="text-3xl font-bold" id="kpiValue3">—</div>
-        <div class="kpi-change" id="kpiChange3">—</div>
-      </div>
-      <div id="kpi4" class="glass-card p-6" style="background:var(--warning-gradient)">
-        <div class="text-xl font-semibold mb-2">Total Departments</div>
-        <div class="text-3xl font-bold" id="kpiValue4">—</div>
-        <div class="kpi-change" id="kpiChange4">—</div>
-      </div>
-    </section>
-
-    <!-- Charts & Feed -->
-    <div class="dashboard-grid mb-8">
-      <!-- Rankings Bar -->
-      <section id="rankingChartSection" class="glass-card p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-semibold">Department Rankings</h3>
-          <select id="rankingMetric" class="filter-dropdown" onchange="updateRankingChart()">
-            <option value="overall">Overall Score</option>
-            <option value="efficiency">Efficiency</option>
-            <option value="innovation">Innovation</option>
-            <option value="satisfaction">Satisfaction</option>
-          </select>
-        </div>
-        <div class="chart-container"><canvas id="rankingChart"></canvas></div>
-      </section>
-
-      <!-- Performance Line -->
-      <section id="performanceSection" class="glass-card p-6">
-        <h3 class="text-xl font-semibold mb-4">Performance Trends</h3>
-        <div class="chart-container"><canvas id="performanceChart"></canvas></div>
-      </section>
-
-      <!-- Radar Comparison -->
-      <section class="glass-card p-6">
-        <h3 class="text-xl font-semibold mb-4">Top 3 Comparison</h3>
-        <div class="chart-container"><canvas id="comparisonChart"></canvas></div>
-      </section>
-
-      <!-- Live Feed -->
-      <section class="glass-card p-6">
-        <h3 class="text-xl font-semibold mb-4">Live Performance Feed</h3>
-        <div id="performanceFeed" class="space-y-4"></div>
-      </section>
+<div class="glass max-w-7xl">
+    <h1 class="text-3xl md:text-4xl font-extrabold mb-1 text-center text-sky-800 drop-shadow">तालुका योजना रँकिंग डॅशबोर्ड</h1>
+    <p class="mb-6 mt-1 text-center text-sky-900 opacity-90">(कमी रँक = उत्तम कामगिरी)</p>
+    <div class="flex flex-col md:flex-row gap-4 items-center justify-center mb-6">
+        <!-- तालुका निवडण्यासाठी ड्रॉपdown -->
+        <select id="talukaSelect" class="rounded border-gray-400 border p-2 w-[260px]"><option value="">तालुका निवडा</option><option>जळगाव</option><option>जामनेर</option><option>भुसावळ</option><option>बोदवड</option><option>मुक्ताईनगर</option><option>रावेर</option><option>यावल</option><option>अमळनेर</option><option>चोपडा</option><option>एरंडोल</option><option>धरणगाव</option><option>पारोळा</option><option>पाचोरा</option><option>भडगाव</option><option>चाळीसगाव</option></select>
+        <!-- नवीन स्कीम निवडण्यासाठी ड्रॉपdown -->
+        <select id="schemeSelect" class="rounded border-gray-400 border p-2 w-[260px]"><option value="">स्कीम निवडा</option><option>जमीन महसूल व गौणखनिज वसुली टक्केवारी</option><option>घरकूलांना मोफत वाळू</option><option>अनधिकृत गौणखनिज वसुली टक्केवारी</option><option>शेतीपिक नुकसान EKYC </option><option>शेतकरी आत्महत्या प्रलंबित प्रकरणे</option><option>ई-चावडी 100% वसुली झालेल्या गावांची टक्केवारी</option><option>डिजिटल क्रॉप सर्वे पीक पाहणी नोंदिलेल्या owner’s प्लॉटची %</option><option>फेरफार नोंदी निर्गती
+नोटीस तयार करणे</option><option>फेरफार नोंदी निर्गती
+नोटीस बजावणे </option><option>नोंदणीकृत नोंदी-UnDisputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</option><option>नोंदणीकृत नोंदी-Disputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</option><option>अनोंदणीकृत नोंदी-UnDisputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</option><option>अनोंदणीकृत नोंदी-Disputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</option><option>ई-हक्क प्रणाली ग्राम महसूल अधिकाऱ्याकडे प्रलंबित अर्ज</option><option>जिवंत सातबारा टप्पा 1 प्रलंबित वारसनोंद अर्ज</option><option>जिवंत सातबारा टप्पा 2 एकुण साध्य %</option><option>ॲग्रीस्टॅक PM किसान लाभार्थीशी नोंदणीची टक्केवारी  </option><option>सेवा हमी कायदा वेळेत सेवा दिल्याची टक्केवारी</option><option>राज्य सेवा हमी आयोग अपिल स्तर 2
+प्रलंबित</option><option>नॉन क्रिमीलेअर प्रमाणपत्र पडताळणी प्रलंबित प्रकरणे</option><option>शिधापत्रिका Approved ekyc %</option><option>शिधापत्रिकेतील मयत व विवाहीत लाभार्थी वगळणे प्रलंबित एकुण लाभार्थी</option><option>शिधापत्रिका प्रलंबित आधार सिडींग</option><option>रोहयो अपूर्ण कामे </option><option>तहसिलदार यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे</option><option>मंडळ अधिकारी यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे</option><option>भूमिहीन लाभार्थ्यांना जागा वितरण टक्केवारी</option><option>PMAY-G अंतर्गत भूमिहीन लाभार्थ्यांचे तहसील कार्यालय स्तरावर प्रलंबित प्रस्ताव</option><option>महाराजस्व वितरीत प्रमाणपत्र</option><option>शेतसुलभ योजना तुकडा नोंद कमी केलेले ७/१२ %</option><option>मामलतदार अधिनियम कलम 143 प्रलंबित प्रस्ताव</option><option>कलम १५५ प्रलंबित प्रस्ताव</option><option>36,36अ च्या नोंदी घेण्यात आलेल्या 7/12 %</option></select>
+        <!-- रीसेट बटण -->
+        <button id="resetBtn" class="btn" style="display: inline-block;">संपूर्ण तालुके पाहा</button>
     </div>
-
-    <!-- Detailed Table -->
-    <section id="reportsSection" class="glass-card p-6 mb-8">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h3 class="text-xl font-semibold">Detailed Department Rankings</h3>
-        <div class="flex gap-3">
-          <input id="searchInput" type="text" placeholder="Search departments..." class="interactive-btn bg-opacity-20 placeholder-white" onkeyup="searchDepartments()">
-          <button class="interactive-btn" onclick="sortTable()"><i class="fas fa-sort"></i></button>
+    <!-- मुख्य KPI सारांश ब्लॉक्स -->
+    <div id="kpiSummary" class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-7">
+            <div class="kpi-card pill-top tooltip2" data-tooltip2="तुमचा एकूण रँक">
+                <div class="kpi-value" style="font-size: 1.8em;">2 / 15</div>
+                <div class="kpi-label" style="font-size: 0.95em;">🥇 एकूण रँक</div>
+            </div>
+            <div class="kpi-card pill-mid tooltip2" data-tooltip2="Best PERFORMING Parameter">
+                <div class="kpi-value" style="font-size: 1.8em;">शेतकरी आत्महत्या प्रलंबित प्रकरणे</div>
+                <div class="kpi-label" style="font-size: 0.95em;">📈 सर्वोत्तम योजना</div>
+            </div>
+            <div class="kpi-card pill-bottom tooltip2" data-tooltip2="Improvement Area">
+                <div class="kpi-value" style="font-size: 1.8em;">भूमिहीन लाभार्थ्यांना जागा वितरण टक्केवारी</div>
+                <div class="kpi-label" style="font-size: 0.95em;">⚠️ सुधारणा आवश्यक</div>
+            </div>
+            <div class="kpi-card tooltip2" data-tooltip2="टॉप 5 मधील योजना/पॅरामीटर्स">
+                <div class="kpi-value" style="font-size: 1.8em;">18 / 33</div>
+                <div class="kpi-label" style="font-size: 0.95em;">🏅 टॉप योजना</div>
+            </div>
         </div>
-      </div>
-      <div class="overflow-x-auto">
-        <table id="rankingTable" class="ranking-table">
-          <thead>
-            <tr>
-              <th>Rank</th><th>Department</th><th>Overall</th><th>Efficiency</th><th>Innovation</th><th>Satisfaction</th><th>Status</th><th>Change</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="rankingTableBody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="glass-card p-6">
-      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-        <div class="opacity-80">© 2025 Department Ranking Dashboard Pro</div>
-        <div class="flex gap-6">
-          <a href="#" class="opacity-80 hover:opacity-100">API Docs</a>
-          <a href="#" class="opacity-80 hover:opacity-100">Privacy</a>
-          <a href="#" class="opacity-80 hover:opacity-100">Support</a>
+    <!-- टॉप/मध्यम/तळटीप ३ तालुका KPI कार्ड्स -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-9">
+        <div class="kpi-card pill-top tooltip2" data-tooltip2="श्रेष्ठ ३ तालुके">
+            <div class="kpi-value" style="color:#16a34a;">🥇</div>
+            <div class="kpi-label">Top 3</div>
+            <ul id="top3List" class="mt-1 text-green-900 font-semibold"><li class="">भुसावळ</li></ul>
         </div>
-      </div>
-    </footer>
+        <div class="kpi-card pill-mid tooltip2" data-tooltip2="मध्यम ३ तालुके">
+            <div class="kpi-value" style="color:#b45309;">⚖️</div>
+            <div class="kpi-label">मध्यम ३</div>
+            <ul id="mid3List" class="mt-1 text-amber-800 font-semibold"></ul>
+        </div>
+        <div class="kpi-card pill-bottom tooltip2" data-tooltip2="तळटीप ३ तालुके">
+            <div class="kpi-value" style="color:#dc2626;">🥉</div>
+            <div class="kpi-label">तळटीप ३</div>
+            <ul id="bottom3List" class="mt-1 text-red-800 font-semibold"><li class="">भुसावळ</li></ul>
+        </div>
+    </div>
+    <!-- चार्ट्स विभाग -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-7 mb-10">
+        <div class="bg-white rounded-lg p-5 shadow-lg h-80"> <!-- h-80 जोडले आहे -->
+            <h3 class="font-semibold mb-3 text-center text-sky-800">सर्व योजना - सरासरी स्थान (Vertical Bar)</h3>
+            <canvas id="barChart" style="box-sizing: border-box; display: block; height: 280px; width: 570px;" width="712" height="350"></canvas> <!-- height ॲट्रिब्यूट काढले आहे -->
+        </div>
+        <div class="bg-white rounded-lg p-5 shadow-lg h-80"> <!-- h-80 जोडले आहे -->
+            <h3 class="font-semibold mb-3 text-center text-sky-800">तालुक्यांचे वर्गीकरण (Donut)</h3>
+            <canvas id="donutChart" style="box-sizing: border-box; display: block; height: 280px; width: 570px;" width="712" height="350"></canvas> <!-- height ॲट्रिब्यूट काढले आहे -->
+        </div>
+    </div>
+    <!-- अतिरिक्त: तालुका निहाय क्षैतिज बार चार्ट -->
+    <div class="mb-12 bg-white p-5 rounded-lg shadow-lg h-96"> <!-- h-96 जोडले आहे -->
+        <h3 class="font-semibold mb-4 text-sky-900">तालुका एकूण स्कोअर (Horizontal Bar)</h3>
+        <!-- नवीन स्कीम निवडण्यासाठी ड्रॉपडाउन (Horizontal Bar Chart साठी) -->
+        <select id="schemeSelectForHorizontalChart" class="rounded border-gray-400 border p-2 w-[260px] mb-4"><option value="">सर्व स्कीम्स</option><option>जमीन महसूल व गौणखनिज वसुली टक्केवारी</option><option>घरकूलांना मोफत वाळू</option><option>अनधिकृत गौणखनिज वसुली टक्केवारी</option><option>शेतीपिक नुकसान EKYC </option><option>शेतकरी आत्महत्या प्रलंबित प्रकरणे</option><option>ई-चावडी 100% वसुली झालेल्या गावांची टक्केवारी</option><option>डिजिटल क्रॉप सर्वे पीक पाहणी नोंदिलेल्या owner’s प्लॉटची %</option><option>फेरफार नोंदी निर्गती
+नोटीस तयार करणे</option><option>फेरफार नोंदी निर्गती
+नोटीस बजावणे </option><option>नोंदणीकृत नोंदी-UnDisputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</option><option>नोंदणीकृत नोंदी-Disputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</option><option>अनोंदणीकृत नोंदी-UnDisputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</option><option>अनोंदणीकृत नोंदी-Disputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</option><option>ई-हक्क प्रणाली ग्राम महसूल अधिकाऱ्याकडे प्रलंबित अर्ज</option><option>जिवंत सातबारा टप्पा 1 प्रलंबित वारसनोंद अर्ज</option><option>जिवंत सातबारा टप्पा 2 एकुण साध्य %</option><option>ॲग्रीस्टॅक PM किसान लाभार्थीशी नोंदणीची टक्केवारी  </option><option>सेवा हमी कायदा वेळेत सेवा दिल्याची टक्केवारी</option><option>राज्य सेवा हमी आयोग अपिल स्तर 2
+प्रलंबित</option><option>नॉन क्रिमीलेअर प्रमाणपत्र पडताळणी प्रलंबित प्रकरणे</option><option>शिधापत्रिका Approved ekyc %</option><option>शिधापत्रिकेतील मयत व विवाहीत लाभार्थी वगळणे प्रलंबित एकुण लाभार्थी</option><option>शिधापत्रिका प्रलंबित आधार सिडींग</option><option>रोहयो अपूर्ण कामे </option><option>तहसिलदार यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे</option><option>मंडळ अधिकारी यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे</option><option>भूमिहीन लाभार्थ्यांना जागा वितरण टक्केवारी</option><option>PMAY-G अंतर्गत भूमिहीन लाभार्थ्यांचे तहसील कार्यालय स्तरावर प्रलंबित प्रस्ताव</option><option>महाराजस्व वितरीत प्रमाणपत्र</option><option>शेतसुलभ योजना तुकडा नोंद कमी केलेले ७/१२ %</option><option>मामलतदार अधिनियम कलम 143 प्रलंबित प्रस्ताव</option><option>कलम १५५ प्रलंबित प्रस्ताव</option><option>36,36अ च्या नोंदी घेण्यात आलेल्या 7/12 %</option></select>
+        <canvas id="horizontalBarChart" style="box-sizing: border-box; display: block; height: 344px; width: 1208px;" width="1510" height="430"></canvas> <!-- height ॲट्रिब्यूट काढले आहे -->
+    </div>
+    <!-- टेबल: पॅरामीटर-निहाय टॉप (टाय) तालुके -->
+    <div class="mb-6 bg-white p-4 rounded-lg shadow">
+        <h3 class="font-semibold text-sky-900 mb-3">योजनानुसार टॉप रँक व टाय तालुके</h3>
+        <table id="paramTopTable" class="min-w-full"><thead><tr><th>योजना</th><th>👑 Top</th><th>⚖️ Middle</th><th>🥉 Down</th></tr></thead>
+        <tbody><tr>
+            <td>जमीन महसूल व गौणखनिज वसुली टक्केवारी</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>घरकूलांना मोफत वाळू</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>अनधिकृत गौणखनिज वसुली टक्केवारी</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>शेतीपिक नुकसान EKYC </td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>शेतकरी आत्महत्या प्रलंबित प्रकरणे</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>ई-चावडी 100% वसुली झालेल्या गावांची टक्केवारी</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>डिजिटल क्रॉप सर्वे पीक पाहणी नोंदिलेल्या owner’s प्लॉटची %</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>फेरफार नोंदी निर्गती
+नोटीस तयार करणे</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>फेरफार नोंदी निर्गती
+नोटीस बजावणे </td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>नोंदणीकृत नोंदी-UnDisputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>नोंदणीकृत नोंदी-Disputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>अनोंदणीकृत नोंदी-UnDisputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>अनोंदणीकृत नोंदी-Disputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>ई-हक्क प्रणाली ग्राम महसूल अधिकाऱ्याकडे प्रलंबित अर्ज</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>जिवंत सातबारा टप्पा 1 प्रलंबित वारसनोंद अर्ज</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>जिवंत सातबारा टप्पा 2 एकुण साध्य %</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>ॲग्रीस्टॅक PM किसान लाभार्थीशी नोंदणीची टक्केवारी  </td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>सेवा हमी कायदा वेळेत सेवा दिल्याची टक्केवारी</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>राज्य सेवा हमी आयोग अपिल स्तर 2
+प्रलंबित</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>नॉन क्रिमीलेअर प्रमाणपत्र पडताळणी प्रलंबित प्रकरणे</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>शिधापत्रिका Approved ekyc %</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>शिधापत्रिकेतील मयत व विवाहीत लाभार्थी वगळणे प्रलंबित एकुण लाभार्थी</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>शिधापत्रिका प्रलंबित आधार सिडींग</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>रोहयो अपूर्ण कामे </td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>तहसिलदार यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>मंडळ अधिकारी यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>भूमिहीन लाभार्थ्यांना जागा वितरण टक्केवारी</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>PMAY-G अंतर्गत भूमिहीन लाभार्थ्यांचे तहसील कार्यालय स्तरावर प्रलंबित प्रस्ताव</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>महाराजस्व वितरीत प्रमाणपत्र</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>शेतसुलभ योजना तुकडा नोंद कमी केलेले ७/१२ %</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>मामलतदार अधिनियम कलम 143 प्रलंबित प्रस्ताव</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>कलम १५५ प्रलंबित प्रस्ताव</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr><tr>
+            <td>36,36अ च्या नोंदी घेण्यात आलेल्या 7/12 %</td>
+            <td style="color:#16a34a;font-weight:700">भुसावळ</td>
+            <td style="color:#ca8a04;font-weight:700">भुसावळ</td>
+            <td style="color:#dc2626;font-weight:700">भुसावळ</td>
+        </tr></tbody></table>
+    </div>
+    <!-- संपूर्ण तालुका रँकिंग यादी टेबल -->
+    <div class="overflow-x-auto mb-10 bg-white rounded-lg p-4 shadow table-scroll-container">
+        <h3 class="font-semibold text-sky-900 mb-2">संपूर्ण तालुक्यांची रँकिंग यादी</h3>
+        <table id="fullTable" class="min-w-full"><thead><tr><th class="sticky-col-0">तालुका</th><th class="sticky-col-0">तालुका</th> SS<th class="sticky-col-1">जमीन महसूल व गौणखनिज वसुली टक्केवारी</th><th class="">घरकूलांना मोफत वाळू</th><th class="">अनधिकृत गौणखनिज वसुली टक्केवारी</th><th class="">शेतीपिक नुकसान EKYC </th><th class="">शेतकरी आत्महत्या प्रलंबित प्रकरणे</th><th class="">ई-चावडी 100% वसुली झालेल्या गावांची टक्केवारी</th><th class="">डिजिटल क्रॉप सर्वे पीक पाहणी नोंदिलेल्या owner’s प्लॉटची %</th><th class="">फेरफार नोंदी निर्गती
+नोटीस तयार करणे</th><th class="">फेरफार नोंदी निर्गती
+नोटीस बजावणे </th><th class="">नोंदणीकृत नोंदी-UnDisputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</th><th class="">नोंदणीकृत नोंदी-Disputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</th><th class="">अनोंदणीकृत नोंदी-UnDisputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</th><th class="">अनोंदणीकृत नोंदी-Disputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</th><th class="">ई-हक्क प्रणाली ग्राम महसूल अधिकाऱ्याकडे प्रलंबित अर्ज</th><th class="">जिवंत सातबारा टप्पा 1 प्रलंबित वारसनोंद अर्ज</th><th class="">जिवंत सातबारा टप्पा 2 एकुण साध्य %</th><th class="">ॲग्रीस्टॅक PM किसान लाभार्थीशी नोंदणीची टक्केवारी  </th><th class="">सेवा हमी कायदा वेळेत सेवा दिल्याची टक्केवारी</th><th class="">राज्य सेवा हमी आयोग अपिल स्तर 2
+प्रलंबित</th><th class="">नॉन क्रिमीलेअर प्रमाणपत्र पडताळणी प्रलंबित प्रकरणे</th><th class="">शिधापत्रिका Approved ekyc %</th><th class="">शिधापत्रिकेतील मयत व विवाहीत लाभार्थी वगळणे प्रलंबित एकुण लाभार्थी</th><th class="">शिधापत्रिका प्रलंबित आधार सिडींग</th><th class="">रोहयो अपूर्ण कामे </th><th class="">तहसिलदार यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे</th><th class="">मंडळ अधिकारी यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे</th><th class="">भूमिहीन लाभार्थ्यांना जागा वितरण टक्केवारी</th><th class="">PMAY-G अंतर्गत भूमिहीन लाभार्थ्यांचे तहसील कार्यालय स्तरावर प्रलंबित प्रस्ताव</th><th class="">महाराजस्व वितरीत प्रमाणपत्र</th><th class="">शेतसुलभ योजना तुकडा नोंद कमी केलेले ७/१२ %</th><th class="">मामलतदार अधिनियम कलम 143 प्रलंबित प्रस्ताव</th><th class="">कलम १५५ प्रलंबित प्रस्ताव</th><th class="">36,36अ च्या नोंदी घेण्यात आलेल्या 7/12 %</th></tr></thead><tbody><tr class="selected"><td class="sticky-col-0">1</td><td class="sticky-col-1">भुसावळ</td><td>9</td><td>10</td><td>11</td><td>5</td><td>1</td><td>14</td><td>7</td><td>1</td><td>1</td><td>1</td><td>2</td><td>3</td><td>1</td><td>8</td><td>1</td><td>1</td><td>2</td><td>14</td><td>1</td><td>13</td><td>8</td><td>10</td><td>7</td><td>1</td><td>1</td><td>1</td><td>15</td><td>1</td><td>10</td><td>6</td><td>2</td><td>13</td><td>4</td></tr></tbody></table>
+    </div>
+    <!-- तुलना विभाग -->
+    <div class="bg-white rounded-lg p-5 shadow-md">
+        <h3 class="font-semibold text-center mb-4">तालुका तुलना करा</h3>
+        <div class="flex flex-col md:flex-row items-center gap-3 mb-3">
+            <select id="cmpA" class="border rounded p-2 w-[180px]"><option value="" selected="" disabled="">तालुका निवडा</option><option>जळगाव</option><option>जामनेर</option><option>भुसावळ</option><option>बोदवड</option><option>मुक्ताईनगर</option><option>रावेर</option><option>यावल</option><option>अमळनेर</option><option>चोपडा</option><option>एरंडोल</option><option>धरणगाव</option><option>पारोळा</option><option>पाचोरा</option><option>भडगाव</option><option>चाळीसगाव</option></select>
+            <span>-VS-</span>
+            <select id="cmpB" class="border rounded p-2 w-[180px]"><option value="" selected="" disabled="">तालुका निवडा</option><option>जळगाव</option><option>जामनेर</option><option>भुसावळ</option><option>बोदवड</option><option>मुक्ताईनगर</option><option>रावेर</option><option>यावल</option><option>अमळनेर</option><option>चोपडा</option><option>एरंडोल</option><option>धरणगाव</option><option>पारोळा</option><option>पाचोरा</option><option>भडगाव</option><option>चाळीसगाव</option></select>
+            <button id="cmpBtn" class="btn">तुलना</button>
+        </div>
+        <div id="cmpResult"></div>
+    </div>
+</div>
+<script>
+// Chart.js datalabels प्लगइन जागतिक स्तरावर नोंदणी करा
+Chart.register(ChartDataLabels);
 
-  </main>
+// Google Sheet ID, रेंज आणि API की कॉन्स्टंट्स
+const SHEET_ID = "1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE";
+const RANGE = "Rank!B5:AI20"; // वापरकर्त्याने दिलेली रेंज
+const API_KEY = "AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU";
 
-  <!-- Floating Button -->
-  <button class="fab" onclick="showUploadModal()"><i class="fas fa-plus"></i></button>
+// ग्लोबल व्हेरिएबल्स
+let headers = [], data = [], talukas = [], schemes = [];
+let barChartInstance = null; // चार्ट व्हेरिएबल्सला null ने इनिशियलाइझ करा
+let donutChartInstance = null;
+let horizontalBarChartInstance = null;
+
+// सुरक्षितपणे स्ट्रिंगला नंबरमध्ये रूपांतरित करा. अवैध नंबर असल्यास Infinity परत करा (सर्वात वाईट रँकसाठी).
+function safeNum(x) {
+    let n = +x; // स्ट्रिंगला नंबरमध्ये रूपांतरित करण्याचा प्रयत्न करा
+    return isNaN(n) ? Infinity : n; // जर NaN असेल तर Infinity, अन्यथा नंबर
+}
+
+// डॅशबोर्ड इनिशियलाइझ करा आणि डेटा फेच करा
+async function init() {
+    // Google Sheets API URL तयार करा
+    let url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+    
+    // UI घटकांना लोडिंग स्थिती दर्शवा
+    document.getElementById('talukaSelect').innerHTML = `<option value="">लोड होत आहे...</option>`;
+    document.getElementById('talukaSelect').disabled = true;
+    document.getElementById('schemeSelect').innerHTML = `<option value="">लोड होत आहे...</option>`;
+    document.getElementById('schemeSelect').disabled = true;
+    document.getElementById('schemeSelectForHorizontalChart').innerHTML = `<option value="">लोड होत आहे...</option>`;
+    document.getElementById('schemeSelectForHorizontalChart').disabled = true;
+    document.getElementById('resetBtn').style.display = 'none';
+    document.getElementById('kpiSummary').innerHTML = `<div class="col-span-4 text-center text-gray-500">डेटा लोड होत आहे...</div>`;
+    document.getElementById('top3List').innerHTML = `<li>लोड होत आहे...</li>`;
+    document.getElementById('mid3List').innerHTML = `<li>लोड होत आहे...</li>`;
+    document.getElementById('bottom3List').innerHTML = `<li>लोड होत आहे...</li>`;
+    document.getElementById('paramTopTable').innerHTML = `<thead><tr><th>योजना</th><th>👑 Top</th><th>⚖️ Middle</th><th>🥉 Down</th></tr></thead><tbody><tr><td colspan="4" class="text-center text-gray-500">लोड होत आहे...</td></tr></tbody>`;
+    document.getElementById('fullTable').innerHTML = `<thead><tr><th>अ.क्र.</th><th>तालुका</th></tr></thead><tbody><tr><td colspan="2" class="text-center text-gray-500">लोड होत आहे...</td></tr></tbody>`;
+
+    try {
+        // API कॉल करा
+        let r = await fetch(url);
+        // जर प्रतिसाद यशस्वी नसेल (उदा. 404, 403), तर त्रुटी फेका
+        if (!r.ok) {
+            const errorText = await r.text();
+            console.error('API प्रतिसाद त्रुटी:', r.status, r.statusText, errorText);
+            throw new Error(`डेटा मिळवताना त्रुटी आली: ${r.statusText}. कृपया Sheet ID, Range आणि API Key तपासा.`);
+        }
+        // प्रतिसादाला JSON मध्ये रूपांतरित करा
+        let j = await r.json();
+
+        // डीबगिंगसाठी कन्सोलमध्ये API प्रतिसाद लॉग करा
+        console.log('API Response data.values:', j.values); 
+        console.log('First row (potential headers):', j.values ? j.values[0] : 'No values array'); 
+
+        // जर डेटा व्हॅल्यूज रिकाम्या असतील किंवा उपलब्ध नसतील, तर त्रुटी संदेश दाखवा
+        if (!j.values || j.values.length === 0) {
+            document.getElementById('kpiSummary').innerHTML = `<div class="col-span-4 text-center text-red-600 font-semibold">Google Sheet मधून कोणताही डेटा आढळला नाही. कृपया Sheet ID, Range आणि Sheet मधील डेटा तपासा.</div>`;
+            return;
+        }
+
+        // पहिली पंक्ती हेडर म्हणून सेट करा
+        headers = j.values[0];
+        // जर हेडर्स रिकामे असतील, तर त्रुटी संदेश दाखवा
+        if (!headers || headers.length === 0) {
+            document.getElementById('kpiSummary').innerHTML = `<div class="col-span-4 text-center text-red-600 font-semibold">Google Sheet मधून हेडर्स (Headers) आढळले नाहीत. कृपया खात्री करा की रेंजमध्ये पहिली पंक्ती हेडर्स आहेत.</div>`;
+            return;
+        }
+
+        // डेटा पंक्तींना ऑब्जेक्ट्समध्ये रूपांतरित करा आणि 'तालुका' नसलेल्या पंक्ती फिल्टर करा
+        data = j.values.slice(1).map(row => {
+            const rowObject = {};
+            headers.forEach((h, i) => {
+                rowObject[h] = row[i] || ""; // रिकाम्या सेलसाठी रिकामी स्ट्रिंग
+            });
+            return rowObject;
+        }).filter(r => r['तालुका'] && r['तालुका'].trim() !== ''); // फक्त 'तालुका' नाव असलेल्या पंक्ती फिल्टर करा
+
+        // तालुक्यांची यादी तयार करा
+        talukas = data.map(r => r['तालुका']);
+        // स्कीम्सची यादी तयार करा (तालुका आणि अ.क्र. वगळून)
+        schemes = headers.filter(h => h !== 'तालुका' && h !== 'अ.क्र.');
 
 
-  <!-- ---------- SCRIPTS ---------- -->
-  <script>
-    /* ---------- GOOGLE SHEETS CONFIG ---------- */
-    const GOOGLE_SHEETS_CONFIG={
-      apiKey:'AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU',
-      spreadsheetId:'1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE',
-      range:'Rank!B5:AJ20',
-      baseUrl:'https://sheets.googleapis.com/v4/spreadsheets'
-    };
+        // डीबगिंगसाठी कन्सोलमध्ये प्रक्रिया केलेला डेटा लॉग करा
+        console.log('Processed Headers:', headers);
+        console.log('Processed Data:', data);
+        console.log('Talukas:', talukas);
+        console.log('Schemes:', schemes);
 
-    /* ---------- STATE ---------- */
-    let departmentData=[],selectedDepartment=null,charts={},isDataLoading=false,lastRefresh=0;
 
-    /* ---------- INIT ---------- */
-    document.addEventListener('DOMContentLoaded',initializeDashboard);
+        // जर तालुक्यांची संख्या 0 असेल, तर त्रुटी संदेश दाखवा
+        if (talukas.length === 0) {
+            document.getElementById('kpiSummary').innerHTML = `<div class="col-span-4 text-center text-red-600 font-semibold">विश्लेषण करण्यासाठी कोणताही तालुका डेटा उपलब्ध नाही. कृपया तुमच्या शीटमधील "तालुका" कॉलममध्ये नावे असल्याची खात्री करा.</div>`;
+            return;
+        }
 
-    async function initializeDashboard(){
-      showLoading(true);
-      try{await loadDataFromGoogleSheets()}catch{departmentData=getSampleData()}
-      setupFilters();setupDepartmentCards();setupCharts();updateKPIs();populateRankingTable();setupLiveFeed();
-      showLoading(false);showNotification('Dashboard loaded!','success');
+        // UI घटक सक्षम करा आणि डेटा पॉप्युलेट करा
+        document.getElementById('talukaSelect').disabled = false;
+        document.getElementById('talukaSelect').innerHTML =
+            `<option value="">तालुका निवडा</option>` + talukas.map(t => `<option>${t}</option>`).join('');
+
+        document.getElementById('schemeSelect').disabled = false;
+        document.getElementById('schemeSelect').innerHTML =
+            `<option value="">स्कीम निवडा</option>` + schemes.map(s => `<option>${s}</option>`).join('');
+        
+        document.getElementById('schemeSelectForHorizontalChart').disabled = false;
+        document.getElementById('schemeSelectForHorizontalChart').innerHTML =
+            `<option value="">सर्व स्कीम्स</option>` + schemes.map(s => `<option>${s}</option>`).join('');
+
+
+        // सर्व डॅशबोर्ड घटक रेंडर करा
+        filterDataAndRender(); // नवीन फिल्टरिंग फंक्शन कॉल करा
+
+    } catch (error) {
+        // त्रुटी आल्यास कन्सोलमध्ये लॉग करा आणि UI मध्ये संदेश दाखवा
+        console.error('डेटा मिळवताना त्रुटी आली:', error);
+        document.getElementById('kpiSummary').innerHTML = `<div class="col-span-4 text-center text-red-600 font-semibold">डेटा लोड करताना त्रुटी: ${error.message}. कृपया कन्सोल तपासा.</div>`;
+    }
+}
+
+// डेटा फिल्टर करा आणि डॅशबोर्ड रेंडर करा
+function filterDataAndRender() {
+    const selectedTaluka = document.getElementById('talukaSelect').value;
+    const selectedScheme = document.getElementById('schemeSelect').value;
+    const selectedSchemeForHorizontalChart = document.getElementById('schemeSelectForHorizontalChart').value;
+
+    let filteredData = data;
+    let filteredSchemes = schemes;
+    let filteredSchemesForHorizontalChart = schemes;
+
+    if (selectedTaluka) {
+        filteredData = data.filter(r => r['तालुका'] === selectedTaluka);
     }
 
-    /* ---------- DATA ---------- */
-    async function loadDataFromGoogleSheets(){
-      updateAPIStatus('connecting');
-      const{baseUrl,spreadsheetId,range,apiKey}=GOOGLE_SHEETS_CONFIG;
-      const endpoint=\`\${baseUrl}/\${spreadsheetId}/values/\${encodeURIComponent(range)}?majorDimension=ROWS&valueRenderOption=UNFORMATTED_VALUE&key=\${apiKey}\`;
-      const res=await fetch(endpoint,{cache:'no-store'});
-      if(!res.ok)throw new Error('Sheets API '+res.status);
-      const json=await res.json();
-      if(!json.values||json.values.length<2)throw new Error('Empty sheet');
-      departmentData=parseSheetData(json.values);
-      updateAPIStatus('connected');
+    if (selectedScheme) {
+        filteredSchemes = [selectedScheme];
+    } else {
+        filteredSchemes = headers.filter(h => h !== 'तालुका' && h !== 'अ.क्र.');
     }
 
-    function parseSheetData(values){
-      const headers=values[0].map(h=>h.trim().toLowerCase());
-      return values.slice(1).map((row,i)=>{
-        const get=name=>row[headers.indexOf(name)]||'';
-        const score=parseFloat(get('overall score'))||0;
-        const eff=parseFloat(get('efficiency'))||0;
-        const inv=parseFloat(get('innovation'))||0;
-        const sat=parseFloat(get('satisfaction'))||0;
-        const change=get('change')||'0%';
-        const status=score>=85?'excellent':score>=75?'good':score>=65?'average':'poor';
-        return{ id:i+1,name:get('department'),score,efficiency:eff,innovation:inv,satisfaction:sat,change,status,trend:change.includes('+')?'up':'down'};
-      }).sort((a,b)=>b.score-a.score).map((d,idx)=>({...d,rank:idx+1}));
+    if (selectedSchemeForHorizontalChart) {
+        filteredSchemesForHorizontalChart = [selectedSchemeForHorizontalChart];
+    } else {
+        filteredSchemesForHorizontalChart = headers.filter(h => h !== 'तालुका' && h !== 'अ.क्र.');
     }
 
-    /* ---------- FALLBACK SAMPLE ---------- */
-    function getSampleData(){return[
-      {id:1,name:'Housing & Urban Affairs',score:87.03,efficiency:92.5,innovation:88.2,satisfaction:85.7,change:'+2.5%',status:'excellent',trend:'up'},
-      {id:2,name:'Petroleum & Natural Gas',score:83.56,efficiency:89.1,innovation:82.3,satisfaction:79.8,change:'+1.2%',status:'excellent',trend:'up'},
-      {id:3,name:'Youth Affairs',score:83.25,efficiency:91.2,innovation:85.1,satisfaction:73.4,change:'+3.1%',status:'good',trend:'up'},
-      {id:4,name:'Food & Public Distribution',score:79.98,efficiency:85.7,innovation:74.2,satisfaction:80,change:'-0.5%',status:'good',trend:'down'},
-      {id:5,name:'Pharmaceuticals',score:79.43,efficiency:83.2,innovation:88.5,satisfaction:66.6,change:'+1.8%',status:'good',trend:'up'}
-    ].map((d,idx)=>({...d,rank:idx+1}))}
 
-    /* ---------- STATUS ---------- */
-    function updateAPIStatus(status){
-      const el=document.getElementById('apiStatus'),ind=document.getElementById('statusIndicator'),txt=document.getElementById('statusText');
-      el.className='api-status '+status;
-      if(status==='connected'){ind.className='status-indicator status-excellent';txt.textContent='Google Sheets Connected'}
-      else if(status==='connecting'){ind.className='status-indicator status-good';txt.textContent='Connecting…'}
-      else{ind.className='status-indicator status-poor';txt.textContent='Offline – sample data'}
+    renderSummaryKPI(selectedTaluka, filteredData, filteredSchemes);
+    renderTopMidBot(filteredData, filteredSchemes);
+    renderCharts(filteredData, filteredSchemes);
+    renderHorizontalChart(filteredData, filteredSchemesForHorizontalChart); // हॉरिझॉन्टल चार्टसाठी वेगळी स्कीम फिल्टरिंग
+    renderParamTops(filteredData, filteredSchemes);
+    renderFullTable(filteredData, selectedTaluka, selectedScheme);
+    populateCmpDropdowns();
+
+    if (selectedTaluka || selectedScheme || selectedSchemeForHorizontalChart) {
+        document.getElementById('resetBtn').style.display = 'inline-block';
+    } else {
+        document.getElementById('resetBtn').style.display = 'none';
+    }
+    highlightTableRow(selectedTaluka);
+}
+
+
+// सारांश KPI (Key Performance Indicators) रेंडर करा
+function renderSummaryKPI(selTaluka, currentData, currentSchemes) {
+    const params = currentSchemes; // आता फिल्टर केलेल्या स्कीम्स वापरल्या जातील
+    let totalT = data.length; // एकूण तालुक्यांची संख्या नेहमी मूळ डेटावरून
+    let totalP = schemes.length; // एकूण स्कीम्सची संख्या नेहमी मूळ स्कीम्सवरून
+
+    if (!selTaluka) { // जर कोणताही तालुका निवडलेला नसेल (डिफॉल्ट व्ह्यू)
+        document.getElementById('kpiSummary').innerHTML = `
+            <div class="kpi-card tooltip2" data-tooltip2="तालुके (${totalT})"><div class="kpi-value">${totalT}</div><div class="kpi-label">तालुक्यांची एकूण संख्या</div></div>
+            <div class="kpi-card tooltip2" data-tooltip2="योजना/पॅरामीटर्स (${totalP})"><div class="kpi-value">${totalP}</div><div class="kpi-label">योजना/पॅरामीटर्स</div></div>
+            <div class="kpi-card tooltip2" data-tooltip2="Dashboard वापरा!"><div class="kpi-value">📊</div><div class="kpi-label">समग्र चित्र</div></div>
+            <div class="kpi-card tooltip2" data-tooltip2="टॉप 5 मधील योजना/पॅरामीटर्स (अंदाजे)"><div class="kpi-value">${Math.max(1, Math.floor(totalP * 0.7))}</div><div class="kpi-label">Bests: योजना</div></div>
+        `;
+    } else { // जर विशिष्ट तालुका निवडलेला असेल
+        let talD = data.find(r => r['तालुका'] === selTaluka); // मूळ डेटावरून तालुका डेटा शोधा
+        if (!talD) { 
+            document.getElementById('kpiSummary').innerHTML = `<div class="col-span-4 text-center text-red-600 font-semibold">निवडलेल्या तालुक्याचा डेटा आढळला नाही.</div>`;
+            return;
+        }
+
+        let bestP = params[0], worstP = params[0]; 
+        // प्रारंभिक सर्वोत्तम/सर्वात वाईट पॅरामीटर शोधण्यासाठी वैध पॅरामीटर शोधा
+        for(let p of params) {
+            if (safeNum(talD[p]) !== Infinity) {
+                bestP = p;
+                worstP = p;
+                break;
+            }
+        }
+
+        let bestCnt = 0; 
+        params.forEach(p => {
+            const val = safeNum(talD[p]);
+            if (val < safeNum(talD[bestP])) bestP = p; 
+            if (val > safeNum(talD[worstP])) worstP = p; 
+            if (val <= 5 && val !== Infinity) bestCnt++; 
+        });
+
+        // एकूण रँकची गणना करण्यासाठी मूळ स्कीम्स वापरल्या जातील
+        let allSchemesForRankSum = headers.filter(h => h !== 'तालुका' && h !== 'अ.क्र.');
+        let rankSum = allSchemesForRankSum.reduce((a, p) => a + safeNum(talD[p]), 0);
+        let allTalRankSum = data.map(r => allSchemesForRankSum.reduce((a, p) => a + safeNum(r[p]), 0));
+        let overallRank = allTalRankSum.slice().sort((a, b) => a - b).findIndex(x => x === rankSum) + 1;
+
+        document.getElementById('kpiSummary').innerHTML = `
+            <div class="kpi-card pill-top tooltip2" data-tooltip2="तुमचा एकूण रँक">
+                <div class="kpi-value" style="font-size: 1.8em;">${overallRank} / ${totalT}</div>
+                <div class="kpi-label" style="font-size: 0.95em;">🥇 एकूण रँक</div>
+            </div>
+            <div class="kpi-card pill-mid tooltip2" data-tooltip2="Best PERFORMING Parameter">
+                <div class="kpi-value" style="font-size: 1.8em;">${bestP}</div>
+                <div class="kpi-label" style="font-size: 0.95em;">📈 सर्वोत्तम योजना</div>
+            </div>
+            <div class="kpi-card pill-bottom tooltip2" data-tooltip2="Improvement Area">
+                <div class="kpi-value" style="font-size: 1.8em;">${worstP}</div>
+                <div class="kpi-label" style="font-size: 0.95em;">⚠️ सुधारणा आवश्यक</div>
+            </div>
+            <div class="kpi-card tooltip2" data-tooltip2="टॉप 5 मधील योजना/पॅरामीटर्स">
+                <div class="kpi-value" style="font-size: 1.8em;">${bestCnt} / ${params.length}</div>
+                <div class="kpi-label" style="font-size: 0.95em;">🏅 टॉप योजना</div>
+            </div>
+        `;
+    }
+}
+
+// टॉप, मध्यम आणि तळटीप ३ तालुके रेंडर करा
+function renderTopMidBot(currentData, currentSchemes) {
+    const params = currentSchemes;
+    if (currentData.length === 0 || params.length === 0) {
+        document.getElementById('top3List').innerHTML = `<li>डेटा उपलब्ध नाही</li>`;
+        document.getElementById('mid3List').innerHTML = `<li>डेटा उपलब्ध नाही</li>`;
+        document.getElementById('bottom3List').innerHTML = `<li>डेटा उपलब्ध नाही</li>`;
+        return;
     }
 
-    /* ---------- UI BUILDERS ---------- */
-    function setupFilters(){
-      const sel=document.getElementById('departmentFilter');
-      sel.innerHTML='<option value="">All Departments</option>';
-      departmentData.forEach(d=>{sel.innerHTML+=\`<option value="\${d.id}">\${d.name}</option>\`});
+    let sumR = currentData.map(r => ({ t: r['तालुका'], s: params.reduce((a, p) => a + safeNum(r[p]), 0) }));
+    let sorted = sumR.slice().sort((a, b) => a.s - b.s);
+    let N = sorted.length;
+
+    let top3 = sorted.slice(0, Math.min(3, N));
+    let mid3 = [];
+    if (N > 6) {
+        let midStart = Math.floor(N / 2) - 1;
+        mid3 = sorted.slice(Math.max(0, midStart), Math.min(N, midStart + 3));
+    } else if (N > 3) {
+        mid3 = sorted.slice(Math.min(3, N - 3), Math.max(3, N - 3) + 3);
+    }
+    let bot3 = sorted.slice(Math.max(0, N - 3), N);
+
+    let ul = (lst, cls) => lst.map(a => `<li class="${cls}">${a.t}</li>`).join(''); 
+    document.getElementById('top3List').innerHTML = ul(top3, "");
+    document.getElementById('mid3List').innerHTML = ul(mid3, "");
+    document.getElementById('bottom3List').innerHTML = ul(bot3, "");
+}
+
+// चार्ट्स रेंडर करा (व्हर्टिकल बार आणि डोनट चार्ट)
+function renderCharts(currentData, currentSchemes) {
+    const params = currentSchemes;
+    if (currentData.length === 0 || params.length === 0) {
+        if (barChartInstance) { barChartInstance.destroy(); barChartInstance = null; }
+        if (donutChartInstance) { donutChartInstance.destroy(); donutChartInstance = null; }
+        document.getElementById('barChart').innerHTML = `<p class="text-center text-gray-500 mt-4">चार्टसाठी डेटा उपलब्ध नाही.</p>`;
+        document.getElementById('donutChart').innerHTML = `<p class="text-center text-gray-500 mt-4">चार्टसाठी डेटा उपलब्ध नाही.</p>`;
+        return;
     }
 
-    function setupDepartmentCards(){
-      const container=document.getElementById('departmentCards');container.innerHTML='';
-      departmentData.slice(0,8).forEach((d,i)=>{
-        const card=document.createElement('div');
-        card.className='department-card';card.style.background=\`var(--\${['primary','accent','success','warning'][i%4]}-gradient)\`;
-        card.onclick=()=>selectDepartment(d.id);
-        card.innerHTML=\`
-          <div class="department-rank rank-\${d.rank<=3?d.rank:''}">\${d.rank}</div>
-          <h4 class="font-bold text-lg">\${d.name}</h4>
-          <div class="flex justify-between items-center"><span>Score</span><span>\${d.score.toFixed(1)}</span></div>
-          <div class="score-bar"><div class="score-fill" style="width:\${d.score}%"></div></div>
-          <div class="flex justify-between items-center mt-2">
-            <span class="status-indicator status-\${d.status}"></span>
-            <span class="\${d.trend==='up'?'text-green-300':'text-red-300'}"><i class="fas fa-arrow-\${d.trend}"></i>\${d.change}</span>
-          </div>\`;
-        container.appendChild(card);
-      });
+    // व्हर्टिकल बार चार्ट: पॅरामीटर विरुद्ध सरासरी रँक
+    let avgs = params.map(p => {
+        let vals = currentData.map(r => safeNum(r[p])).filter(x => x !== Infinity);
+        return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+    });
+    let ctx = document.getElementById('barChart').getContext('2d');
+    if (barChartInstance) barChartInstance.destroy(); // जुना चार्ट अस्तित्वात असल्यास नष्ट करा
+    barChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: params,
+            datasets: [{
+                label: 'सरासरी रँक',
+                data: avgs,
+                backgroundColor: avgs.map(r => r < 5 ? '#22c55e' : r < 10 ? '#fbbf24' : '#ef4444'), // रँकनुसार रंग
+                borderRadius: 5 // बारसाठी गोलाकार कडा
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    reverse: true,
+                    title: { display: true, text: 'सरासरी रँक', font: { size: 14, weight: 'bold' } }
+                },
+                x: {
+                    title: { display: true, text: 'योजना', font: { size: 14, weight: 'bold' } }
+                }
+            },
+            plugins: {
+                legend: { display: false }, // लेजेंड लपवा
+                datalabels: { // डेटा लेबल प्लगइन
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: (value) => value.toFixed(1), // व्हॅल्यू 1 दशांश स्थळापर्यंत दाखवा
+                    font: { weight: 'bold', size: 10 }
+                },
+                tooltip: { // टूलटिप कस्टमायझेशन
+                    callbacks: {
+                        label: function(context) {
+                            return `सरासरी रँक: ${context.raw.toFixed(1)}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // डोनट चार्ट (टॉप/मध्यम/तळटीप)
+    let sumR = currentData.map(r => ({ t: r['तालुका'], s: params.reduce((a, p) => a + safeNum(r[p]), 0) })).sort((a, b) => a.s - b.s);
+    let N = sumR.length;
+    let topQ = Math.floor(N * 0.33);
+    let botQ = Math.floor(N * 0.33);
+    let midQ = N - topQ - botQ;
+
+    let dtx = document.getElementById('donutChart').getContext('2d');
+    if (donutChartInstance) donutChartInstance.destroy(); // जुना चार्ट अस्तित्वात असल्यास नष्ट करा
+    donutChartInstance = new Chart(dtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['उत्तम कामगिरी', 'मध्यम कामगिरी', 'कमी कामगिरी'],
+            datasets: [{
+                data: [topQ, midQ, botQ],
+                backgroundColor: ['#22c55e', '#fde047', '#ef4444'], // रंग
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '60%', // डोनट चार्टचा आकार लहान केला
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { size: 12 } } }, // लेजेंड खाली
+                datalabels: {
+                    formatter: (value, ctx) => {
+                        let sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                        let percentage = (value * 100 / sum).toFixed(0) + "%"; // टक्केवारी दाखवा
+                        return percentage;
+                    },
+                    color: '#fff', // पांढरा मजकूर
+                    font: { weight: 'bold', size: 10 } // फॉन्ट आकार लहान केला
+                }
+            }
+        }
+    });
+}
+
+// क्षैतिज बार चार्ट: तालुका निहाय एकूण स्कोअर
+function renderHorizontalChart(currentData, currentSchemes) {
+    const params = currentSchemes; // हे आता निवडलेल्या स्कीमनुसार फिल्टर केलेले स्कीम्स असतील
+    if (currentData.length === 0 || params.length === 0) {
+        if (horizontalBarChartInstance) { horizontalBarChartInstance.destroy(); horizontalBarChartInstance = null; }
+        document.getElementById('horizontalBarChart').innerHTML = `<p class="text-center text-gray-500 mt-4">चार्टसाठी डेटा उपलब्ध नाही.</p>`;
+        return;
     }
 
-    /* ---------- KPI ---------- */
-    function updateKPIs(deptId){
-      const overall=!deptId,dept=departmentData.find(d=>d.id===deptId);
-      const avgScore=departmentData.reduce((s,d)=>s+d.score,0)/departmentData.length;
-      const avgEff=departmentData.reduce((s,d)=>s+d.efficiency,0)/departmentData.length;
-      const vals=overall?[avgScore,departmentData.length,avgEff,departmentData.length]:[dept.score,'#'+dept.rank,dept.efficiency,departmentData.length];
-      ['kpiValue1','kpiValue2','kpiValue3','kpiValue4'].forEach((id,i)=>{
-        document.getElementById(id).textContent=(i===2?vals[i]+'%':vals[i].toFixed?vals[i].toFixed(1):vals[i]);
-      });
-      ['kpiChange1','kpiChange2','kpiChange3','kpiChange4'].forEach((cid,i)=>{
-        document.getElementById(cid).innerHTML=overall?'<i class="fas fa-arrow-up"></i>+2.1%':(i===1?'<i class="fas fa-arrow-'+dept.trend+'"></i>Rank '+dept.rank:'<i class="fas fa-arrow-'+dept.trend+'"></i>'+dept.change);
-      });
+    let talukaScores = currentData.map(r => ({
+        taluka: r['तालुका'],
+        score: params.reduce((a, p) => a + safeNum(r[p]), 0)
+    }));
+
+    talukaScores.sort((a, b) => a.score - b.score);
+
+    const talNames = talukaScores.map(item => item.taluka);
+    const totals = talukaScores.map(item => item.score);
+
+    // रँकनुसार पार्श्वभूमी रंग सेट करा
+    const backgroundColors = totals.map((score, index) => {
+        if (index < 3) return '#22c55e';
+        if (index >= totals.length - 3) return '#ef4444';
+        return '#fde047';
+    });
+
+    let ctx = document.getElementById('horizontalBarChart').getContext('2d');
+    if (horizontalBarChartInstance) horizontalBarChartInstance.destroy(); // जुना चार्ट अस्तित्वात असल्यास नष्ट करा
+    horizontalBarChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: talNames,
+            datasets: [{
+                label: 'एकूण स्कोअर (कमी = चांगले)',
+                data: totals,
+                backgroundColor: backgroundColors,
+                borderColor: backgroundColors.map(color => {
+                    // चांगल्या कॉन्ट्रास्टसाठी किनार रंग थोडा गडद करा
+                    if (color.startsWith('#')) {
+                        let c = parseInt(color.substring(1), 16);
+                        let r = (c >> 16) & 0xFF;
+                        let g = (c >> 8) & 0xFF;
+                        let b = (c >> 0) & 0xFF;
+                        r = Math.max(0, r - 30);
+                        g = Math.max(0, g - 30);
+                        b = Math.max(0, b - 30);
+                        return `#${(g | (b << 8) | (r << 16)).toString(16).padStart(6, '0')}`;
+                    }
+                    return color;
+                }),
+                borderWidth: 1,
+                borderRadius: 5,
+                hoverBackgroundColor: backgroundColors.map(color => {
+                    // होव्हर रंगाला थोडा हलका करा
+                    if (color.startsWith('#')) {
+                        let c = parseInt(color.substring(1), 16);
+                        let r = (c >> 16) & 0xFF;
+                        let g = (c >> 8) & 0xFF;
+                        let b = (c >> 0) & 0xFF;
+                        r = Math.min(255, r + 20);
+                        g = Math.min(255, g + 20);
+                        b = Math.min(255, b + 20);
+                        return `#${(g | (b << 8) | (r << 16)).toString(16).padStart(6, '0')}`;
+                    }
+                    return color;
+                })
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'एकूण स्कोअर', font: { size: 14, weight: 'bold' } },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                y: {
+                    // तालुका लेबलसाठी फॉन्ट आकार समायोजित करा
+                    ticks: {
+                        font: {
+                            size: 10 // तालुका लेबलचा फॉन्ट आकार
+                        }
+                    },
+                    title: { display: true, text: 'तालुका', font: { size: 14, weight: 'bold' } },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                title: { display: true, text: 'तालुका एकूण स्कोअर (कमी गुण = उत्तम कामगिरी)', font: { size: 16, weight: 'bold' } },
+                datalabels: {
+                    anchor: 'end',
+                    align: 'right',
+                    formatter: (value) => value.toFixed(0),
+                    font: { weight: 'bold', size: 12 }
+                }
+            }
+        }
+    });
+}
+
+// पॅरामीटर-निहाय टॉप (टाय) तालुके रेंडर करा
+function renderParamTops(currentData, currentSchemes) {
+    const params = currentSchemes;
+    if (currentData.length === 0 || params.length === 0) {
+        document.getElementById('paramTopTable').innerHTML = `<thead><tr><th>योजना</th><th>👑 Top</th><th>⚖️ Middle</th><th>🥉 Down</th></tr></thead><tbody><tr><td colspan="4" class="text-center text-gray-500">डेटा उपलब्ध नाही</td></tr></tbody>`;
+        return;
     }
 
-    /* ---------- CHARTS ---------- */
-    function setupCharts(){
-      const commonOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.1)'}},x:{grid:{color:'rgba(255,255,255,.1)'}}}};
-      // Bar
-      charts.ranking=new Chart(document.getElementById('rankingChart'),{
-        type:'bar',
-        data:{labels:departmentData.slice(0,8).map(d=>d.name),datasets:[{label:'Overall Score',data:departmentData.slice(0,8).map(d=>d.score),backgroundColor:'rgba(102,126,234,.8)',borderColor:'#667eea',borderWidth:2,borderRadius:8,borderSkipped:false}]},
-        options:{...commonOpts,plugins:{...commonOpts.plugins,datalabels:{color:'#fff',anchor:'end',align:'top',formatter:v=>v.toFixed(1)}}}
-      });
-      // Line
-      const m=['Jan','Feb','Mar','Apr','May','Jun'],base=departmentData[0];
-      charts.performance=new Chart(document.getElementById('performanceChart'),{
-        type:'line',
-        data:{labels:m,datasets:[
-          {label:'Overall Score',data:[75,78,82,85,83,base.score],borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,.1)',fill:true,tension:.4,borderWidth:3,pointBackgroundColor:'#60a5fa',pointBorderColor:'#fff',pointRadius:6},
-          {label:'Efficiency',data:[70,73,77,82,85,base.efficiency],borderColor:'#f093fb',backgroundColor:'rgba(240,147,251,.1)',fill:true,tension:.4,borderWidth:3,pointBackgroundColor:'#f093fb',pointBorderColor:'#fff',pointRadius:6}
-        ]},
-        options:{...commonOpts,plugins:{legend:{position:'top',labels:{padding:20,usePointStyle:true,font:{size:12}}},datalabels:{display:false}}}
-      });
-      // Radar
-      const top3=departmentData.slice(0,3),cols=['#667eea','#f093fb','#4facfe'];
-      charts.comparison=new Chart(document.getElementById('comparisonChart'),{
-        type:'radar',
-        data:{labels:['Overall','Efficiency','Innovation','Satisfaction'],datasets:top3.map((d,i)=>({label:d.name,data:[d.score,d.efficiency,d.innovation,d.satisfaction],borderColor:cols[i],backgroundColor:cols[i].replace(')',' ,.2)'),borderWidth:2,pointBackgroundColor:cols[i],pointBorderColor:'#fff',pointBorderWidth:2}))},
-        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:20,usePointStyle:true,font:{size:12}}}},scales:{r:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,.1)'},angleLines:{color:'rgba(255,255,255,.1)'},pointLabels:{color:'#fff',font:{size:12}}}}}
-      });
+    let rows = params.map(p => {
+        let paramValues = currentData.map(r => safeNum(r[p])).filter(x => x !== Infinity);
+        if (paramValues.length === 0) {
+            return `<tr><td>${p}</td><td colspan="3" class="text-gray-500">डेटा उपलब्ध नाही</td></tr>`;
+        }
+
+        let min = Math.min(...paramValues);
+        let tops = currentData.filter(r => safeNum(r[p]) === min).map(r => r['तालुका']);
+
+        let sortedValues = paramValues.slice().sort((x, y) => x - y);
+        let midIndex = Math.floor(sortedValues.length / 2);
+        let midVal = sortedValues[midIndex];
+        let mids = currentData.filter(r => safeNum(r[p]) === midVal).map(r => r['तालुका']);
+
+        let max = Math.max(...paramValues);
+        let downs = currentData.filter(r => safeNum(r[p]) === max).map(r => r['तालुका']);
+
+        return `<tr>
+            <td>${p}</td>
+            <td style="color:#16a34a;font-weight:700">${tops.join(", ")}</td>
+            <td style="color:#ca8a04;font-weight:700">${mids.join(", ")}</td>
+            <td style="color:#dc2626;font-weight:700">${downs.join(", ")}</td>
+        </tr>`;
+    }).join('');
+    document.getElementById('paramTopTable').innerHTML =
+        `<thead><tr><th>योजना</th><th>👑 Top</th><th>⚖️ Middle</th><th>🥉 Down</th></tr></thead>
+        <tbody>${rows}</tbody>`;
+}
+
+// संपूर्ण तालुक्यांची रँकिंग यादी रेंडर करा
+function renderFullTable(currentData, selectedTaluka, selectedScheme) {
+    let tbl = document.getElementById('fullTable');
+    
+    // 'अ.क्र.' आणि 'तालुका' हेडर नेहमी दाखवा
+    let displayHeaders = ['अ.क्र.', 'तालुका'];
+    let dataHeaders = headers.filter(h => h !== 'अ.क्र.' && h !== 'तालुका');
+
+    // जर स्कीम निवडली असेल, तर ती स्कीम डेटा हेडर्समध्ये जोडा
+    if (selectedScheme) {
+        displayHeaders.push(selectedScheme);
+        dataHeaders = [selectedScheme]; // फक्त निवडलेली स्कीम डेटासाठी
+    } else {
+        displayHeaders = headers; // सर्व हेडर्स दाखवा
     }
 
-    /* ---------- TABLE ---------- */
-    function populateRankingTable(){
-      const tbody=document.getElementById('rankingTableBody');tbody.innerHTML='';
-      departmentData.forEach(d=>{
-        const tr=document.createElement('tr');
-        tr.innerHTML=\`
-          <td>\${d.rank}</td><td>\${d.name}</td><td>\${d.score.toFixed(1)}</td>
-          <td>\${d.efficiency.toFixed(1)}%</td><td>\${d.innovation.toFixed(1)}%</td><td>\${d.satisfaction.toFixed(1)}%</td>
-          <td><span class="status-indicator status-\${d.status}"></span> \${d.status}</td>
-          <td class="\${d.trend==='up'?'text-green-300':'text-red-300'}"><i class="fas fa-arrow-\${d.trend}"></i>\${d.change}</td>
-          <td><button class="text-blue-400 mr-2" onclick="viewDetails(\${d.id})"><i class="fas fa-eye"></i></button><button class="text-green-400" onclick="exportDept(\${d.id})"><i class="fas fa-download"></i></button></td>\`;
-        tbody.appendChild(tr);
-      });
+    let th = displayHeaders.map((h, idx) => {
+        let classes = '';
+        if (idx === 0) classes = 'sticky-col-0'; // For 'अ.क्र.'
+        if (idx === 1) classes = 'sticky-col-1'; // For 'तालुका'
+        return `<th class="${classes}">${h}</th>`;
+    }).join('');
+
+    let tr = currentData.map((r, index) => {
+        let rowContent = `<td class="sticky-col-0">${index + 1}</td><td class="sticky-col-1">${r['तालुका']}</td>`;
+        
+        // जर स्कीम निवडली असेल, तर फक्त त्या स्कीमचे मूल्य दाखवा
+        if (selectedScheme) {
+            rowContent += `<td>${r[selectedScheme] === "" ? '-' : r[selectedScheme]}</td>`;
+        } else {
+            // अन्यथा, सर्व स्कीम्सची मूल्ये दाखवा
+            rowContent += headers.filter(h => h !== 'अ.क्र.' && h !== 'तालुका').map(h => {
+                const val = r[h];
+                return `<td>${val === "" ? '-' : val}</td>`;
+            }).join('');
+        }
+        return `<tr>${rowContent}</tr>`;
+    }).join('');
+    tbl.innerHTML = `<thead><tr>${th}</tr></thead><tbody>${tr}</tbody>`;
+
+    // निवडलेला तालुका हायलाइट करा
+    if (selectedTaluka) {
+        highlightTableRow(selectedTaluka);
+    }
+}
+
+// तुलना ड्रॉपडाउन पॉप्युलेट करा
+function populateCmpDropdowns() {
+    ['cmpA', 'cmpB'].forEach(id => {
+        document.getElementById(id).innerHTML =
+            `<option value="" selected disabled>तालुका निवडा</option>` + talukas.map(t => `<option>${t}</option>`).join('');
+    });
+}
+
+// तालुका निवडल्यावर इव्हेंट हँडलर
+document.getElementById('talukaSelect').onchange = function() {
+    filterDataAndRender();
+};
+
+// स्कीम निवडल्यावर इव्हेंट हँडलर
+document.getElementById('schemeSelect').onchange = function() {
+    filterDataAndRender();
+};
+
+// हॉरिझॉन्टल चार्टसाठी स्कीम निवडल्यावर इव्हेंट हँडलर
+document.getElementById('schemeSelectForHorizontalChart').onchange = function() {
+    filterDataAndRender();
+};
+
+// रीसेट बटण क्लिक झाल्यावर इव्हेंट हँडलर
+document.getElementById('resetBtn').onclick = function() {
+    document.getElementById('talukaSelect').value = ""; // ड्रॉपडाउन रीसेट करा
+    document.getElementById('schemeSelect').value = ""; // स्कीम ड्रॉपdown रीसेट करा
+    document.getElementById('schemeSelectForHorizontalChart').value = ""; // हॉरिझॉन्टल चार्ट स्कीम ड्रॉपडाउन रीसेट करा
+    filterDataAndRender(); // फिल्टर रीसेट करून पुन्हा रेंडर करा
+    document.getElementById('resetBtn').style.display = 'none'; // रीसेट बटण लपवा
+    document.querySelectorAll('#fullTable tbody tr').forEach(row => row.classList.remove('selected')); // हायलाइट काढा
+};
+
+// टेबल पंक्ती हायलाइट करा
+function highlightTableRow(taluka) {
+    document.querySelectorAll('#fullTable tbody tr').forEach(row => {
+        if (row.firstElementChild && row.firstElementChild.nextElementSibling && row.firstElementChild.nextElementSibling.textContent === taluka)
+            row.classList.add('selected');
+        else row.classList.remove('selected');
+    });
+}
+
+// तुलना बटण क्लिक झाल्यावर इव्हेंट हँडलर
+document.getElementById('cmpBtn').onclick = function() {
+    let a = document.getElementById('cmpA').value;
+    let b = document.getElementById('cmpB').value;
+
+    if (!talukas.includes(a) || !talukas.includes(b) || a === b) {
+        document.getElementById('cmpResult').innerHTML = "<div class='text-red-700 font-semibold text-center mt-4'>कृपया तुलना करण्यासाठी दोन वेगळे तालुके निवडा.</div>";
+        return;
     }
 
-    /* ---------- INTERACTIONS ---------- */
-    function selectDepartment(id){selectedDepartment=id;document.querySelectorAll('.department-card').forEach(c=>c.classList.toggle('selected',c.onclick.toString().includes('('+id+')')));updateKPIs(id);updateChartsForDept(id);document.getElementById('departmentFilter').value=id;showNotification('Selected department #'+id,'info')}
-    function updateChartsForDept(id){const d=departmentData.find(x=>x.id===id);if(!d)return;charts.performance.data.datasets[0].data=[d.score-15,d.score-10,d.score-5,d.score-2,d.score+1,d.score];charts.performance.data.datasets[1].data=[d.efficiency-12,d.efficiency-8,d.efficiency-4,d.efficiency-1,d.efficiency+2,d.efficiency];charts.performance.update()}
-    function filterByDepartment(){const id=+document.getElementById('departmentFilter').value;if(id)selectDepartment(id);else{selectedDepartment=null;updateKPIs();document.querySelectorAll('.department-card').forEach(c=>c.classList.remove('selected'))}}
-    function filterByTime(){showNotification('Time filter changed','info')}
-    function searchDepartments(){const t=document.getElementById('searchInput').value.toLowerCase();document.querySelectorAll('#rankingTableBody tr').forEach(r=>r.style.display=r.cells[1].textContent.toLowerCase().includes(t)?'':'none')}
-    function sortTable(){const b=document.getElementById('rankingTableBody');Array.from(b.children).sort((a,b)=>parseFloat(b.cells[2].textContent)-parseFloat(a.cells[2].textContent)).forEach(r=>b.appendChild(r));showNotification('Table sorted by score','success')}
-    function updateRankingChart(){const metric=document.getElementById('rankingMetric').value;const map={'efficiency':'Efficiency','innovation':'Innovation','satisfaction':'Satisfaction','overall':'Overall Score'};const data=departmentData.slice(0,8).map(d=>metric==='efficiency'?d.efficiency:metric==='innovation'?d.innovation:metric==='satisfaction'?d.satisfaction:d.score);charts.ranking.data.datasets[0].data=data;charts.ranking.data.datasets[0].label=map[metric];charts.ranking.update()}
+    let pa = data.find(r => r['तालुका'] === a);
+    let pb = data.find(r => r['तालuka'] === b); 
 
-    /* ---------- REFRESH ---------- */
-    async function refreshData(){if(Date.now()-lastRefresh<100)return;lastRefresh=Date.now();showLoading(true);try{await loadDataFromGoogleSheets();setupFilters();setupDepartmentCards();updateKPIs(selectedDepartment);populateRankingTable();Object.values(charts).forEach(c=>c.destroy());setupCharts();showNotification('Data refreshed','success')}catch{showNotification('Refresh failed','error')}showLoading(false)}
+    const params = headers.filter(h => h !== 'तालुका' && h !== 'अ.क्र.');
 
-    /* ---------- LIVE FEED ---------- */
-    function setupLiveFeed(){const feed=document.getElementById('performanceFeed');feed.innerHTML=[{icon:'fa-trophy',text:'Housing leads ranking',time:'2m ago',type:'success'},{icon:'fa-chart-line',text:'Efficiency +5%',time:'5m ago',type:'info'},{icon:'fa-bell',text:'New data available',time:'8m ago',type:'warning'},{icon:'fa-sync-alt',text:'Sync complete',time:'12m ago',type:'success'}].map(u=>\`<div class="flex items-center gap-3 p-3 rounded-lg bg-white bg-opacity-10"><i class="fas \${u.icon} text-\${u.type==='success'?'green':u.type==='warning'?'yellow':'blue'}-400"></i><div><div class="font-medium">\${u.text}</div><div class="text-sm opacity-60">\${u.time}</div></div></div>\`).join('')}
+    let rows = params.map(p => {
+        let av = safeNum(pa[p]);
+        let bv = safeNum(pb[p]);
+        let diff = av - bv;तालुका एकूण स्कोअर (Horizontal Bar)
+        let sig = diff === 0 ? '-' : diff < 0 ? '⬆️' : '⬇️'; // ⬆️ म्हणजे A चांगले, ⬇️ म्हणजे B चांगले
 
-    /* ---------- EXPORT ---------- */
-    function exportData(){const rows=departmentData.map(d=>\`\${d.rank},"${d.name}",\${d.score},\${d.efficiency},\${d.innovation},\${d.satisfaction},"${d.change}"\`);const csv=['Rank,Department,Score,Efficiency,Innovation,Satisfaction,Change',...rows].join('\\n');downloadCSV(csv,'department_rankings.csv');showNotification('All data exported','success')}
-    function exportDept(id){const d=departmentData.find(x=>x.id===id);const csv=['Metric,Value',\`Department,"${d.name}"\`,\`Rank,\${d.rank}\`,\`Score,\${d.score}\`,\`Efficiency,\${d.efficiency}\`,\`Innovation,\${d.innovation}\`,\`Satisfaction,\${d.satisfaction}\`,\`Change,"${d.change}"\`].join('\\n');downloadCSV(csv,d.name.replace(/\\s+/g,'_')+'.csv');showNotification(d.name+' exported','success')}
-    function downloadCSV(csv,filename){const uri='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);const link=document.createElement('a');link.href=uri;link.download=filename;document.body.appendChild(link);link.click();document.body.removeChild(link)}
+        let colorA = '';
+        let colorB = '';
+        if (av < bv) { colorA = '#16a34a'; colorB = '#ef4444'; } // A चांगले (कमी रँक)
+        else if (bv < av) { colorA = '#ef4444'; colorB = '#16a34a'; } // B चांगले
 
-    /* ---------- MISC ---------- */
-    function showUploadModal(){showNotification('Upload feature coming soon','info')}
-    function viewDetails(id){selectDepartment(id);showNotification('Viewing details for department '+id,'info')}
-    function showLoading(show){isDataLoading=show;document.querySelectorAll('.interactive-btn').forEach(btn=>{if(show){btn.innerHTML='<div class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>';btn.disabled=true}else{btn.disabled=false;btn.innerHTML=btn.innerHTML.replace(/<.*?>/,'')}})}
-    function showNotification(msg,type='info'){const n=document.createElement('div');n.className='notification';n.innerHTML=\`<i class="fas \${type==='success'?'fa-check-circle':type==='error'?'fa-exclamation-circle':type==='warning'?'fa-exclamation-triangle':'fa-info-circle'} text-\${type==='success'?'green':type==='error'?'red':type==='warning'?'yellow':'blue'}-400 mr-2"></i>\${msg}\`;document.body.appendChild(n);setTimeout(()=>n.classList.add('show'),100);setTimeout(()=>{n.classList.remove('show');setTimeout(()=>document.body.removeChild(n),300)},3000)}
-    function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
-    function toggleDarkMode(){showNotification('Dark-mode toggle clicked','info')}
-    function navigateTo(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});toggleSidebar()}
+        return `<tr>
+            <td>${p}</td>
+            <td style="color:${colorA};font-weight:700">${av !== Infinity ? av : '-'}</td>
+            <td style="color:${colorB};font-weight:700">${bv !== Infinity ? bv : '-'}</td>
+            <td>${sig} ${Math.abs(diff)}</td>
+        </tr>`;
+    }).join('');
 
-    /* ---------- AUTO REFRESH (5 min) ---------- */
-    setInterval(()=>{if(!isDataLoading)refreshData()},300000);
-  </script>
-</body>
-</html>
+    document.getElementById('cmpResult').innerHTML =
+        `<table class="min-w-full border mt-4"><thead><tr><th>योजना</th><th>${a}</th><th>${b}</th><th>फरक</th></tr></thead><tbody>${rows}</tbody></table>`;
+};
+
+// विंडो लोड झाल्यावर init फंक्शन कॉल करा
+window.onload = init;
+</script>
+
+
+</body></html>
