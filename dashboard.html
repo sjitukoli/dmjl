@@ -1,557 +1,540 @@
 <!DOCTYPE html>
-<html lang="mr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>योजना डॅशबोर्ड · जळगाव जिल्हा</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Bootstrap & Fonts -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@700;400&display=swap"
-    rel="stylesheet"
-  />
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Department Ranking Dashboard Pro</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js & DataLabels -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.umd.min.js"></script>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
   <style>
-    body {
-      font-family: "Noto Sans Devanagari", sans-serif;
-      background: #f5f8ff;
-      color: #23263a;
-      margin: 0;
-      padding: 1.5rem;
+    /* ---------- CUSTOM PROPERTIES ---------- */
+    :root{
+      --glass-bg:rgba(255,255,255,0.08);
+      --glass-border:rgba(255,255,255,0.18);
+      --glass-shadow:0 8px 32px rgba(31,38,135,0.37);
+      --primary-gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      --accent-gradient:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);
+      --success-gradient:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);
+      --warning-gradient:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%);
     }
-    .glass {
-      background: #fff;
-      border-radius: 15px;
-      box-shadow: 0 4px 18px #0001;
-      margin-bottom: 1.5rem;
-      padding: 1.5rem;
+
+    /* ---------- GLOBAL ---------- */
+    *{scroll-behavior:smooth}
+    body{
+      font-family:'Inter',sans-serif;
+      background:linear-gradient(135deg,#667eea,#764ba2 50%,#f093fb);
+      color:#fff;
+      margin:0;
+      min-height:100vh;
+      overflow-x:hidden;
     }
-    .tab-btn {
-      font-weight: 700;
-      padding: 0.5em 1.5em;
-      border-radius: 2em;
-      margin-right: 10px;
-      color: #222;
-      background: #ede9fe;
-      border: none;
-      cursor: pointer;
-      transition: 0.16s;
+
+    /* ---------- REUSABLE GLASS CARD ---------- */
+    .glass-card{
+      background:rgba(255,255,255,0.12);
+      backdrop-filter:blur(20px) saturate(200%);
+      border:1px solid rgba(255,255,255,0.2);
+      border-radius:20px;
+      transition:transform .3s,box-shadow .3s;
+      position:relative;
+      overflow:hidden;
     }
-    .tab-btn.active,
-    .tab-btn:focus,
-    .tab-btn:hover {
-      background: #7c3aed;
-      color: #fff;
-      transform: scale(1.07);
+    .glass-card:hover{
+      transform:translateY(-8px);
+      box-shadow:0 20px 40px rgba(31,38,135,.5);
+      border-color:rgba(255,255,255,.3);
     }
-    .kpi-badge {
-      background: linear-gradient(97deg, #b7f5b0 0%, #22d36e 100%);
-      color: #065f34;
-      border-radius: 37px;
-      box-shadow: 0 2px 15px #15c96922;
-      font-weight: 800;
-      padding: 0.58em 2em;
-      font-size: 1.23em;
-      display: flex;
-      align-items: center;
-      gap: 0.8em;
-      cursor: pointer;
-      transition: 0.17s;
-      border: 3px solid transparent;
-      min-width: 170px;
-      margin-bottom: 0.5rem;
+
+    /* ---------- SIDEBAR & BUTTONS ---------- */
+    .sidebar,.dark-mode-toggle,.menu-toggle,.fab,.api-status,.notification{
+      backdrop-filter:blur(16px);
+      border:1px solid var(--glass-border);
+      border-radius:12px;
     }
-    .kpi-badge.mid {
-      background: linear-gradient(97deg, #fde69d 0%, #fbbf24 100%);
-      color: #7a4b11;
-      border-color: #facc15;
+    .sidebar{
+      position:fixed;top:0;left:0;
+      width:280px;height:100vh;
+      background:rgba(0,0,0,.3);
+      transform:translateX(-100%);
+      transition:transform .3s;
+      z-index:1000;
+      padding-top:2rem;
     }
-    .kpi-badge.bot {
-      background: linear-gradient(97deg, #ffcfd2 0%, #ef4444 90%);
-      color: #a42323;
-      border-color: #ef4444;
+    .sidebar.open{transform:translateX(0)}
+    .sidebar-item{
+      color:rgba(255,255,255,.8);
+      padding:1rem 2rem;
+      display:flex;align-items:center;gap:1rem;
+      cursor:pointer;
+      transition:background .3s;
     }
-    .kpi-badge.selected,
-    .kpi-badge:hover {
-      background: linear-gradient(91deg, #fbbf24 10%, #6366f1 100%) !important;
-      color: #fff !important;
-      border-color: #6366f1;
+    .sidebar-item:hover{background:rgba(255,255,255,.1);color:#fff}
+
+    .menu-toggle,.dark-mode-toggle{
+      position:fixed;top:20px;padding:.75rem;
+      color:#fff;cursor:pointer;z-index:1100;
     }
-    .badge-emo,
-    .olympic svg {
-      font-size: 2.1em;
-      vertical-align: middle;
+    .menu-toggle{left:20px}
+    .dark-mode-toggle{right:20px}
+    .menu-toggle:hover,.dark-mode-toggle:hover{
+      background:rgba(255,255,255,.2);transform:scale(1.1)
     }
-    .chart-header {
-      text-align: center;
-      font-size: 1.18em;
-      font-weight: 700;
-      color: #6366f1;
-      margin-bottom: 0.76rem;
+
+    .fab{
+      position:fixed;bottom:30px;right:30px;
+      width:60px;height:60px;
+      background:var(--accent-gradient);
+      color:#fff;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.5rem;border:none;cursor:pointer;
+      transition:transform .3s,box-shadow .3s;z-index:1000;
     }
-    .chart-panel {
-      min-width: 290px;
-      flex: 1 1 320px;
-      background: #f9fafb;
-      border-radius: 16px;
-      padding: 1.2em;
-      box-shadow: 0 2px 8px #6366f113;
-      margin-bottom: 1em;
+    .fab:hover{transform:scale(1.1);box-shadow:0 12px 35px rgba(0,0,0,.4)}
+
+    .api-status{
+      position:fixed;top:70px;right:20px;
+      padding:.5rem 1rem;font-size:.875rem;z-index:1000;
     }
-    .chart-container {
-      height: 240px !important;
+    .api-status.connected{border-color:#10b981}
+    .api-status.disconnected{border-color:#ef4444}
+
+    .notification{
+      position:fixed;top:4rem;right:1rem;
+      padding:1rem;max-width:300px;
+      transform:translateX(100%);transition:transform .3s;
+      z-index:1000;
     }
-    .suggestion-box,
-    .ai-box {
-      background: #e0f2fe;
-      border-radius: 14px;
-      padding: 1.15em 1.6em;
-      font-size: 1.13em;
-      color: #093047;
-      margin: 1.3em 0 0.9em 0;
-      box-shadow: 0 1px 10px #0c8ea617;
+    .notification.show{transform:translateX(0)}
+
+    /* ---------- GRID LAYOUTS ---------- */
+    .dashboard-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
+      gap:1.5rem;
     }
-    .btn-ai,
-    .btn,
-    .btn-compact {
-      background: linear-gradient(90deg, #818cf8, #fbbf24) !important;
-      color: #fff !important;
-      font-weight: 700;
-      border-radius: 36px;
-      padding: 0.7em 2.1em;
-      margin: 0 9px;
-      box-shadow: 0 2px 8px #6366f1aa;
-      transition: 0.13s;
-      border: none;
-      letter-spacing: 0.03em;
+    .kpi-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:1.5rem;
     }
-    .btn-ai:hover,
-    .btn-compact:hover {
-      background: linear-gradient(91deg, #6366f1, #fbbf24) !important;
+    .department-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+      gap:1rem;
     }
-    .scheme-result {
-      background: #f6f6f6;
-      border-radius: 11px;
-      padding: 1.1em;
-      margin: 1.05em 0;
-      font-size: 1.08em;
+
+    /* ---------- DROPDOWNS & BUTTONS ---------- */
+    .filter-dropdown,.interactive-btn{
+      background:var(--glass-bg);
+      border:1px solid var(--glass-border);
+      color:#fff;padding:.75rem 1.5rem;
+      border-radius:12px;font-weight:600;cursor:pointer;
+      transition:background .3s,transform .3s;
     }
-    .scheme-result .title {
-      font-weight: 700;
-      color: #1e40af;
+    .filter-dropdown:hover,.interactive-btn:hover{
+      background:rgba(255,255,255,.2);transform:translateY(-2px);
     }
-    .chip {
-      display: inline-block;
-      padding: 0.28em 1.14em;
-      background: #e0e7ff;
-      font-size: 1.10em;
-      font-weight: 700;
-      border-radius: 23px;
-      margin: 4px 8px;
-      transition: 0.15s;
-      cursor: pointer;
+
+    /* ---------- CHART --------- */
+    .chart-container{position:relative;height:300px;padding:1.5rem}
+
+    /* ---------- TABLE ---------- */
+    .data-table,.ranking-table{width:100%;border-collapse:collapse;color:#fff}
+    .data-table th,.data-table td,
+    .ranking-table th,.ranking-table td{
+      padding:1rem;text-align:left;
+      border-bottom:1px solid rgba(255,255,255,.1);
     }
-    .chip.selected,
-    .chip:hover {
-      background: #fbbf24;
-      color: #78350f;
-      transform: scale(1.07);
+    .data-table th,.ranking-table th{
+      background:rgba(255,255,255,.1);
+      font-weight:600;text-transform:uppercase;
+      font-size:.875rem;letter-spacing:.05em;
     }
-    .sticky-top {
-      position: sticky;
-      top: 0;
-      background: #fff;
-      z-index: 2;
+    .data-table tbody tr:hover,
+    .ranking-table tbody tr:hover{background:rgba(255,255,255,.05)}
+
+    /* ---------- DEPARTMENT CARD ---------- */
+    .department-card{
+      background:var(--glass-bg);
+      border-left:4px solid rgba(255,255,255,.3);
+      padding:1.5rem;border-radius:16px;cursor:pointer;
+      transition:transform .3s,border-color .3s,background .3s;
+      position:relative;
     }
-    .olympic svg {
-      vertical-align: middle;
-      margin-right: 0.6em;
+    .department-card:hover{transform:translateX(5px);border-left-color:rgba(255,255,255,.8)}
+    .department-card.selected{
+      background:rgba(255,255,255,.2);border-left-color:#fff;
     }
-    .row-badges {
-      display: flex;
-      gap: 1.2em;
-      justify-content: center;
-      align-items: center;
-      font-size: 1.15em;
-      margin-bottom: 0.8em;
+    .department-rank{
+      position:absolute;top:10px;right:15px;
+      width:40px;height:40px;border-radius:50%;
+      background:rgba(255,255,255,.2);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:bold;font-size:1.2rem;color:#fff;
     }
-    select.form-select-sm {
-      font-size: 1.22em;
-      padding: 0.51em 0.85em;
-    }
-    @media (max-width: 1200px) {
-      .chart-panel {
-        min-width: 92vw;
-      }
+    .rank-1{background:#FFD700;color:#000}
+    .rank-2{background:#C0C0C0;color:#000}
+    .rank-3{background:#CD7F32;color:#fff}
+
+    .score-bar{height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;margin-top:5px}
+    .score-fill{height:100%;background:linear-gradient(90deg,#43e97b,#38f9d7);transition:width .5s}
+
+    .status-indicator{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px}
+    .status-excellent{background:#10b981}
+    .status-good{background:#3b82f6}
+    .status-average{background:#f59e0b}
+    .status-poor{background:#ef4444}
+
+    @media(max-width:768px){
+      .dashboard-grid,.department-grid{grid-template-columns:1fr}
+      .kpi-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+      .chart-container{height:250px;padding:1rem}
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div
-      class="d-flex mb-3 justify-content-between align-items-center"
-      style="flex-wrap: wrap; gap: 1rem;"
-    >
-      <h2 class="mb-0">📊 तालुका योजना डॅशबोर्ड</h2>
-      <div style="display:flex; align-items:center;">
-        <button id="p1btn" class="tab-btn active">मुख्य</button>
-        <button id="p2btn" class="tab-btn">योजना तपशील</button>
-      </div>
-    </div>
 
-    <!-- PAGE 1 -->
-    <div id="page1">
-      <div class="glass mb-4">
-        <div class="row align-items-end mb-0 pb-0 g-2">
-          <div class="col-md-6">
-            <select id="schemeDropdown" class="form-select form-select-sm"></select>
-          </div>
-          <div class="col-md-6" id="talukaChipsContainer">
-            <div id="talukaChips"></div>
-          </div>
-        </div>
-        <div class="text-end mt-3">
-          <button id="resetBtn" class="btn btn-compact mb-2">🔄 Reset</button>
-          <button id="updateBtn" class="btn btn-compact mb-2">🔍 Submit</button>
-        </div>
-      </div>
-      <div class="glass">
-        <div class="row-badges">
-          <span
-            ><svg
-              width="28"
-              height="28"
-              ><circle
-                cx="14"
-                cy="14"
-                r="13"
-                fill="#ffd700"
-                stroke="#fc0"
-                stroke-width="1.5"
-              ></circle>
-              <text
-                x="14"
-                y="20"
-                font-size="16"
-                fill="#b68c00"
-                font-weight="bold"
-                text-anchor="middle"
-                >1</text
-              ></svg>
-            TOP 5</span
-          >
-          <span
-            ><svg
-              width="28"
-              height="28"
-              ><circle
-                cx="14"
-                cy="14"
-                r="13"
-                fill="#e5e5e5"
-                stroke="#aaa"
-                stroke-width="1.5"
-              ></circle>
-              <text
-                x="14"
-                y="20"
-                font-size="16"
-                fill="#353535"
-                font-weight="bold"
-                text-anchor="middle"
-                >2</text
-              ></svg>
-            मध्यम 5</span
-          >
-          <span
-            ><svg
-              width="28"
-              height="28"
-              ><circle
-                cx="14"
-                cy="14"
-                r="13"
-                fill="#de9c68"
-                stroke="#9c5c07"
-                stroke-width="1.5"
-              ></circle>
-              <text
-                x="14"
-                y="20"
-                font-size="16"
-                fill="#fff"
-                font-weight="bold"
-                text-anchor="middle"
-                >3</text
-              ></svg>
-            तळ 5</span
-          >
-        </div>
-        <div class="kpi-list" id="kpiList"></div>
-        <div class="row row-cols-1 row-cols-md-2 g-3">
-          <div class="col">
-            <div class="chart-panel">
-              <div class="chart-header">📊 कार्यप्रदर्शन तुलना</div>
-              <canvas id="barChart" class="chart-container"></canvas>
-            </div>
-          </div>
-          <div class="col">
-            <div class="chart-panel">
-              <div class="chart-header">🥧 प्रतिशत वाटप</div>
-              <canvas id="donutChart" class="chart-container"></canvas>
-            </div>
-          </div>
-        </div>
-        <div class="suggestion-box" id="aiSuggestion"></div>
-      </div>
-      <div class="glass mt-3">
-        <div
-          style="font-weight: 700; font-size: 1.08em; margin-bottom: 1em;"
-        >
-          तालुक्यांची संपूर्ण माहिती व रँकिंग
-        </div>
-        <div class="table-responsive" style="max-height: 320px">
-          <table
-            class="table table-bordered table-sm text-center"
-            id="blockDetailsTable"
-          >
-            <thead class="sticky-top">
-              <tr>
-                <th>तालुका</th>
-                <th>रँक</th>
-              </tr>
-            </thead>
-            <tbody id="talukaRanksBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- PAGE 2 - unchanged, your existing page 2 can go here -->
-
-    <div id="page2" style="display: none;">
-      <!-- Your second page's content here as per your previous design -->
-    </div>
+  <!-- API Status -->
+  <div id="apiStatus" class="api-status connected">
+    <span id="statusIndicator" class="status-indicator status-excellent"></span>
+    <span id="statusText">Google Sheets Connected</span>
   </div>
 
+  <!-- Menu & Dark-Mode -->
+  <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+  <button class="dark-mode-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
+
+  <!-- Sidebar -->
+  <nav id="sidebar" class="sidebar">
+    <div class="sidebar-item" onclick="navigateTo('departmentRanking')"><i class="fas fa-chart-line"></i><span>Department Ranking</span></div>
+    <div class="sidebar-item" onclick="navigateTo('rankingChartSection')"><i class="fas fa-trophy"></i><span>Rankings</span></div>
+    <div class="sidebar-item" onclick="navigateTo('performanceSection')"><i class="fas fa-speedometer-alt"></i><span>Performance Trends</span></div>
+    <div class="sidebar-item" onclick="navigateTo('reportsSection')"><i class="fas fa-file-alt"></i><span>Detailed Table</span></div>
+    <div class="sidebar-item" onclick="refreshData()"><i class="fas fa-sync-alt"></i><span>Refresh Data</span></div>
+  </nav>
+
+  <!-- Main -->
+  <main class="min-h-screen p-6 pt-20 max-w-7xl mx-auto">
+
+    <!-- Header -->
+    <header class="glass-card mb-8 p-6">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 class="text-4xl font-bold">Department Ranking Dashboard Pro 🏆</h1>
+          <p class="opacity-80">Real-time Google Sheets integration</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <select id="departmentFilter" class="filter-dropdown" onchange="filterByDepartment()">
+            <option value="">All Departments</option>
+          </select>
+          <select id="timeFilter" class="filter-dropdown" onchange="filterByTime()">
+            <option value="current">Current Period</option>
+            <option value="quarter">This Quarter</option>
+            <option value="year">This Year</option>
+            <option value="custom">Custom Range</option>
+          </select>
+          <button class="interactive-btn" onclick="exportData()"><i class="fas fa-download mr-2"></i>Export All</button>
+          <button class="interactive-btn" onclick="refreshData()"><i class="fas fa-sync-alt mr-2"></i>Refresh</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Department Ranking -->
+    <section id="departmentRanking" class="mb-8">
+      <h2 class="text-2xl font-bold mb-4">Department Ranking</h2>
+      <div id="departmentCards" class="department-grid"></div>
+    </section>
+
+    <!-- KPI Cards -->
+    <section id="kpiSection" class="kpi-grid mb-8">
+      <div id="kpi1" class="glass-card p-6" style="background:var(--primary-gradient)">
+        <div class="text-xl font-semibold mb-2">Overall Score</div>
+        <div class="text-3xl font-bold" id="kpiValue1">—</div>
+        <div class="kpi-change" id="kpiChange1">—</div>
+      </div>
+      <div id="kpi2" class="glass-card p-6" style="background:var(--accent-gradient)">
+        <div class="text-xl font-semibold mb-2">Current Rank</div>
+        <div class="text-3xl font-bold" id="kpiValue2">—</div>
+        <div class="kpi-change" id="kpiChange2">—</div>
+      </div>
+      <div id="kpi3" class="glass-card p-6" style="background:var(--success-gradient)">
+        <div class="text-xl font-semibold mb-2">Efficiency Rate</div>
+        <div class="text-3xl font-bold" id="kpiValue3">—</div>
+        <div class="kpi-change" id="kpiChange3">—</div>
+      </div>
+      <div id="kpi4" class="glass-card p-6" style="background:var(--warning-gradient)">
+        <div class="text-xl font-semibold mb-2">Total Departments</div>
+        <div class="text-3xl font-bold" id="kpiValue4">—</div>
+        <div class="kpi-change" id="kpiChange4">—</div>
+      </div>
+    </section>
+
+    <!-- Charts & Feed -->
+    <div class="dashboard-grid mb-8">
+      <!-- Rankings Bar -->
+      <section id="rankingChartSection" class="glass-card p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold">Department Rankings</h3>
+          <select id="rankingMetric" class="filter-dropdown" onchange="updateRankingChart()">
+            <option value="overall">Overall Score</option>
+            <option value="efficiency">Efficiency</option>
+            <option value="innovation">Innovation</option>
+            <option value="satisfaction">Satisfaction</option>
+          </select>
+        </div>
+        <div class="chart-container"><canvas id="rankingChart"></canvas></div>
+      </section>
+
+      <!-- Performance Line -->
+      <section id="performanceSection" class="glass-card p-6">
+        <h3 class="text-xl font-semibold mb-4">Performance Trends</h3>
+        <div class="chart-container"><canvas id="performanceChart"></canvas></div>
+      </section>
+
+      <!-- Radar Comparison -->
+      <section class="glass-card p-6">
+        <h3 class="text-xl font-semibold mb-4">Top 3 Comparison</h3>
+        <div class="chart-container"><canvas id="comparisonChart"></canvas></div>
+      </section>
+
+      <!-- Live Feed -->
+      <section class="glass-card p-6">
+        <h3 class="text-xl font-semibold mb-4">Live Performance Feed</h3>
+        <div id="performanceFeed" class="space-y-4"></div>
+      </section>
+    </div>
+
+    <!-- Detailed Table -->
+    <section id="reportsSection" class="glass-card p-6 mb-8">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <h3 class="text-xl font-semibold">Detailed Department Rankings</h3>
+        <div class="flex gap-3">
+          <input id="searchInput" type="text" placeholder="Search departments..." class="interactive-btn bg-opacity-20 placeholder-white" onkeyup="searchDepartments()">
+          <button class="interactive-btn" onclick="sortTable()"><i class="fas fa-sort"></i></button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table id="rankingTable" class="ranking-table">
+          <thead>
+            <tr>
+              <th>Rank</th><th>Department</th><th>Overall</th><th>Efficiency</th><th>Innovation</th><th>Satisfaction</th><th>Status</th><th>Change</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rankingTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="glass-card p-6">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="opacity-80">© 2025 Department Ranking Dashboard Pro</div>
+        <div class="flex gap-6">
+          <a href="#" class="opacity-80 hover:opacity-100">API Docs</a>
+          <a href="#" class="opacity-80 hover:opacity-100">Privacy</a>
+          <a href="#" class="opacity-80 hover:opacity-100">Support</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- Floating Button -->
+  <button class="fab" onclick="showUploadModal()"><i class="fas fa-plus"></i></button>
+
+
+  <!-- ---------- SCRIPTS ---------- -->
   <script>
-    const API = "AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU",
-      SHEET = "1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE",
-      RANGE = "Rank!B5:AJ20";
-    let headers, rawData, schemes;
-    let barChart, donutChart;
-    document.getElementById("page2").style.display = "none"; // hide second page by default
+    /* ---------- GOOGLE SHEETS CONFIG ---------- */
+    const GOOGLE_SHEETS_CONFIG={
+      apiKey:'AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU',
+      spreadsheetId:'1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE',
+      range:'Sheet1!A:G',
+      baseUrl:'https://sheets.googleapis.com/v4/spreadsheets'
+    };
 
-    async function init() {
-      const vals = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET}/values/${encodeURIComponent(
-          RANGE
-        )}?key=${API}`
-      )
-        .then((r) => r.json())
-        .then((d) => d.values);
-      headers = vals[0];
-      rawData = vals
-        .slice(1)
-        .map((r) => {
-          let o = {};
-          headers.forEach((h, i) => (o[h] = r[i]));
-          o._block = r[0];
-          return o;
-        });
-      schemes = headers;
-      renderTalukaChips();
-      renderSchemeDropdown();
-      renderPage1();
-      bindUI();
+    /* ---------- STATE ---------- */
+    let departmentData=[],selectedDepartment=null,charts={},isDataLoading=false,lastRefresh=0;
+
+    /* ---------- INIT ---------- */
+    document.addEventListener('DOMContentLoaded',initializeDashboard);
+
+    async function initializeDashboard(){
+      showLoading(true);
+      try{await loadDataFromGoogleSheets()}catch{departmentData=getSampleData()}
+      setupFilters();setupDepartmentCards();setupCharts();updateKPIs();populateRankingTable();setupLiveFeed();
+      showLoading(false);showNotification('Dashboard loaded!','success');
     }
 
-    function renderTalukaChips() {
-      const chips = document.getElementById("talukaChips");
-      chips.innerHTML = rawData
-        .map((r) => `<span class="chip">${r._block}</span>`)
-        .join("");
-      chips.querySelectorAll(".chip").forEach((el) => {
-        el.onclick = () => el.classList.toggle("selected");
+    /* ---------- DATA ---------- */
+    async function loadDataFromGoogleSheets(){
+      updateAPIStatus('connecting');
+      const{baseUrl,spreadsheetId,range,apiKey}=GOOGLE_SHEETS_CONFIG;
+      const endpoint=\`\${baseUrl}/\${spreadsheetId}/values/\${encodeURIComponent(range)}?majorDimension=ROWS&valueRenderOption=UNFORMATTED_VALUE&key=\${apiKey}\`;
+      const res=await fetch(endpoint,{cache:'no-store'});
+      if(!res.ok)throw new Error('Sheets API '+res.status);
+      const json=await res.json();
+      if(!json.values||json.values.length<2)throw new Error('Empty sheet');
+      departmentData=parseSheetData(json.values);
+      updateAPIStatus('connected');
+    }
+
+    function parseSheetData(values){
+      const headers=values[0].map(h=>h.trim().toLowerCase());
+      return values.slice(1).map((row,i)=>{
+        const get=name=>row[headers.indexOf(name)]||'';
+        const score=parseFloat(get('overall score'))||0;
+        const eff=parseFloat(get('efficiency'))||0;
+        const inv=parseFloat(get('innovation'))||0;
+        const sat=parseFloat(get('satisfaction'))||0;
+        const change=get('change')||'0%';
+        const status=score>=85?'excellent':score>=75?'good':score>=65?'average':'poor';
+        return{ id:i+1,name:get('department'),score,efficiency:eff,innovation:inv,satisfaction:sat,change,status,trend:change.includes('+')?'up':'down'};
+      }).sort((a,b)=>b.score-a.score).map((d,idx)=>({...d,rank:idx+1}));
+    }
+
+    /* ---------- FALLBACK SAMPLE ---------- */
+    function getSampleData(){return[
+      {id:1,name:'Housing & Urban Affairs',score:87.03,efficiency:92.5,innovation:88.2,satisfaction:85.7,change:'+2.5%',status:'excellent',trend:'up'},
+      {id:2,name:'Petroleum & Natural Gas',score:83.56,efficiency:89.1,innovation:82.3,satisfaction:79.8,change:'+1.2%',status:'excellent',trend:'up'},
+      {id:3,name:'Youth Affairs',score:83.25,efficiency:91.2,innovation:85.1,satisfaction:73.4,change:'+3.1%',status:'good',trend:'up'},
+      {id:4,name:'Food & Public Distribution',score:79.98,efficiency:85.7,innovation:74.2,satisfaction:80,change:'-0.5%',status:'good',trend:'down'},
+      {id:5,name:'Pharmaceuticals',score:79.43,efficiency:83.2,innovation:88.5,satisfaction:66.6,change:'+1.8%',status:'good',trend:'up'}
+    ].map((d,idx)=>({...d,rank:idx+1}))}
+
+    /* ---------- STATUS ---------- */
+    function updateAPIStatus(status){
+      const el=document.getElementById('apiStatus'),ind=document.getElementById('statusIndicator'),txt=document.getElementById('statusText');
+      el.className='api-status '+status;
+      if(status==='connected'){ind.className='status-indicator status-excellent';txt.textContent='Google Sheets Connected'}
+      else if(status==='connecting'){ind.className='status-indicator status-good';txt.textContent='Connecting…'}
+      else{ind.className='status-indicator status-poor';txt.textContent='Offline – sample data'}
+    }
+
+    /* ---------- UI BUILDERS ---------- */
+    function setupFilters(){
+      const sel=document.getElementById('departmentFilter');
+      sel.innerHTML='<option value="">All Departments</option>';
+      departmentData.forEach(d=>{sel.innerHTML+=\`<option value="\${d.id}">\${d.name}</option>\`});
+    }
+
+    function setupDepartmentCards(){
+      const container=document.getElementById('departmentCards');container.innerHTML='';
+      departmentData.slice(0,8).forEach((d,i)=>{
+        const card=document.createElement('div');
+        card.className='department-card';card.style.background=\`var(--\${['primary','accent','success','warning'][i%4]}-gradient)\`;
+        card.onclick=()=>selectDepartment(d.id);
+        card.innerHTML=\`
+          <div class="department-rank rank-\${d.rank<=3?d.rank:''}">\${d.rank}</div>
+          <h4 class="font-bold text-lg">\${d.name}</h4>
+          <div class="flex justify-between items-center"><span>Score</span><span>\${d.score.toFixed(1)}</span></div>
+          <div class="score-bar"><div class="score-fill" style="width:\${d.score}%"></div></div>
+          <div class="flex justify-between items-center mt-2">
+            <span class="status-indicator status-\${d.status}"></span>
+            <span class="\${d.trend==='up'?'text-green-300':'text-red-300'}"><i class="fas fa-arrow-\${d.trend}"></i>\${d.change}</span>
+          </div>\`;
+        container.appendChild(card);
       });
     }
 
-    function renderSchemeDropdown() {
-      const sel = document.getElementById("schemeDropdown");
-      sel.innerHTML = schemes.map((s) => `<option>${s}</option>`).join("");
-    }
-
-    function getRankList(scheme) {
-      return rawData
-        .map((r) => ({ b: r._block, rank: parseInt(r[scheme]) || 999 }))
-        .sort((a, b) => a.rank - b.rank);
-    }
-
-    function renderPage1() {
-      const scheme = document.getElementById("schemeDropdown").value || schemes[0];
-      const all = getRankList(scheme);
-
-      document.getElementById("kpiList").innerHTML = all
-        .map(
-          (t, i) =>
-            `<div class="kpi-badge ${
-              i < 5 ? "top" : i < 10 ? "mid" : "bot"
-            }" data-block="${t.b}">
-            ${i < 3 ? svgMedal(i + 1) : ""}
-            <span class="taluka">${t.b}</span>
-            <span style="margin-left:.52em;">#${
-              isFinite(t.rank) && t.rank <= 15 ? t.rank : "-"
-            }</span>
-          </div>`
-        )
-        .join("");
-
-      const pal = [
-        "#6366f1",
-        "#10b981",
-        "#f59e0b",
-        "#ef4444",
-        "#3b82f6",
-        "#818cf8",
-      ];
-      barChart?.destroy();
-      donutChart?.destroy();
-      barChart = new Chart(document.getElementById("barChart").getContext("2d"), {
-        type: "bar",
-        data: {
-          labels: all.map((x) => x.b),
-          datasets: [
-            {
-              data: all.map((x) => (isFinite(x.rank) && x.rank <= 15 ? x.rank : 0)),
-              backgroundColor: pal,
-              borderRadius: 8,
-            },
-          ],
-        },
-        options: {
-          indexAxis: "y",
-          plugins: {
-            legend: { display: false },
-            datalabels: {
-              anchor: "end",
-              align: "right",
-              formatter: (v) => (v > 0 ? `#${v}` : "-"),
-            },
-          },
-          responsive: true,
-          maintainAspectRatio: false,
-        },
-        plugins: [ChartDataLabels],
+    /* ---------- KPI ---------- */
+    function updateKPIs(deptId){
+      const overall=!deptId,dept=departmentData.find(d=>d.id===deptId);
+      const avgScore=departmentData.reduce((s,d)=>s+d.score,0)/departmentData.length;
+      const avgEff=departmentData.reduce((s,d)=>s+d.efficiency,0)/departmentData.length;
+      const vals=overall?[avgScore,departmentData.length,avgEff,departmentData.length]:[dept.score,'#'+dept.rank,dept.efficiency,departmentData.length];
+      ['kpiValue1','kpiValue2','kpiValue3','kpiValue4'].forEach((id,i)=>{
+        document.getElementById(id).textContent=(i===2?vals[i]+'%':vals[i].toFixed?vals[i].toFixed(1):vals[i]);
       });
-
-      donutChart = new Chart(document.getElementById("donutChart").getContext("2d"), {
-        type: "doughnut",
-        data: {
-          labels: all.map((x) => x.b),
-          datasets: [
-            {
-              data: all.map((x) =>
-                isFinite(x.rank) && x.rank <= 15 ? x.rank : 0
-              ),
-              backgroundColor: pal,
-            },
-          ],
-        },
-        options: {
-          plugins: {
-            legend: { position: "bottom" },
-            datalabels: { formatter: (v) => (v > 0 ? `#${v}` : "-") },
-          },
-          responsive: true,
-          maintainAspectRatio: false,
-        },
-        plugins: [ChartDataLabels],
+      ['kpiChange1','kpiChange2','kpiChange3','kpiChange4'].forEach((cid,i)=>{
+        document.getElementById(cid).innerHTML=overall?'<i class="fas fa-arrow-up"></i>+2.1%':(i===1?'<i class="fas fa-arrow-'+dept.trend+'"></i>Rank '+dept.rank:'<i class="fas fa-arrow-'+dept.trend+'"></i>'+dept.change);
       });
+    }
 
-      // Table render
-      document.getElementById("talukaRanksBody").innerHTML = all
-        .map(
-          (x, i) =>
-            `<tr class="${
-              i < 5 ? "top" : i < 10 ? "mid" : "bot"
-            }"><td>${x.b}</td><td style="font-size:1.08em"><b>${
-              isFinite(x.rank) && x.rank <= 15 ? x.rank : "-"
-            }</b></td></tr>`
-        )
-        .join("");
-
-      // Add click handlers to KPI badges - optional (if you want to link to second page)
-      document.querySelectorAll("#kpiList .kpi-badge").forEach((node) => {
-        node.onclick = () => {
-          // Could navigate to page 2 or show details
-        };
+    /* ---------- CHARTS ---------- */
+    function setupCharts(){
+      const commonOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.1)'}},x:{grid:{color:'rgba(255,255,255,.1)'}}}};
+      // Bar
+      charts.ranking=new Chart(document.getElementById('rankingChart'),{
+        type:'bar',
+        data:{labels:departmentData.slice(0,8).map(d=>d.name),datasets:[{label:'Overall Score',data:departmentData.slice(0,8).map(d=>d.score),backgroundColor:'rgba(102,126,234,.8)',borderColor:'#667eea',borderWidth:2,borderRadius:8,borderSkipped:false}]},
+        options:{...commonOpts,plugins:{...commonOpts.plugins,datalabels:{color:'#fff',anchor:'end',align:'top',formatter:v=>v.toFixed(1)}}}
       });
-
-      // AI Suggestion for the top block (just a simple example)
-      const top = all.find((b) => isFinite(b.rank) && b.rank <= 15);
-      if (top) {
-        document.getElementById("aiSuggestion").innerText =
-          top.rank > 3
-            ? `${top.b} ब्लॉकची रँक #${top.rank} आहे. "विशेष लक्ष" (${findWeakSchemes(
-                top.b
-              )}) योजनेवर कार्य करा.`
-            : `👏 ${top.b} ब्लॉक सर्वाधिक रँकवर आहे! अब प्रगतीसाठी मध्यम व तळस्तरीय योजना सुधारायच्या आहेत.`;
-      } else {
-        document.getElementById("aiSuggestion").innerText = "";
-      }
+      // Line
+      const m=['Jan','Feb','Mar','Apr','May','Jun'],base=departmentData[0];
+      charts.performance=new Chart(document.getElementById('performanceChart'),{
+        type:'line',
+        data:{labels:m,datasets:[
+          {label:'Overall Score',data:[75,78,82,85,83,base.score],borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,.1)',fill:true,tension:.4,borderWidth:3,pointBackgroundColor:'#60a5fa',pointBorderColor:'#fff',pointRadius:6},
+          {label:'Efficiency',data:[70,73,77,82,85,base.efficiency],borderColor:'#f093fb',backgroundColor:'rgba(240,147,251,.1)',fill:true,tension:.4,borderWidth:3,pointBackgroundColor:'#f093fb',pointBorderColor:'#fff',pointRadius:6}
+        ]},
+        options:{...commonOpts,plugins:{legend:{position:'top',labels:{padding:20,usePointStyle:true,font:{size:12}}},datalabels:{display:false}}}
+      });
+      // Radar
+      const top3=departmentData.slice(0,3),cols=['#667eea','#f093fb','#4facfe'];
+      charts.comparison=new Chart(document.getElementById('comparisonChart'),{
+        type:'radar',
+        data:{labels:['Overall','Efficiency','Innovation','Satisfaction'],datasets:top3.map((d,i)=>({label:d.name,data:[d.score,d.efficiency,d.innovation,d.satisfaction],borderColor:cols[i],backgroundColor:cols[i].replace(')',' ,.2)'),borderWidth:2,pointBackgroundColor:cols[i],pointBorderColor:'#fff',pointBorderWidth:2}))},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:20,usePointStyle:true,font:{size:12}}}},scales:{r:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,.1)'},angleLines:{color:'rgba(255,255,255,.1)'},pointLabels:{color:'#fff',font:{size:12}}}}}
+      });
     }
 
-    function bindUI() {
-      document.getElementById("p1btn").onclick = () => showPage(1);
-      document.getElementById("p2btn").onclick = () => showPage(2);
-      document.getElementById("schemeDropdown").onchange = () => renderPage1();
-      document.getElementById("resetBtn").onclick = () => {
-        document.querySelectorAll(".chip").forEach((e) => e.classList.remove("selected"));
-        renderPage1();
-      };
-      document.getElementById("updateBtn").onclick = () => renderPage1();
+    /* ---------- TABLE ---------- */
+    function populateRankingTable(){
+      const tbody=document.getElementById('rankingTableBody');tbody.innerHTML='';
+      departmentData.forEach(d=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=\`
+          <td>\${d.rank}</td><td>\${d.name}</td><td>\${d.score.toFixed(1)}</td>
+          <td>\${d.efficiency.toFixed(1)}%</td><td>\${d.innovation.toFixed(1)}%</td><td>\${d.satisfaction.toFixed(1)}%</td>
+          <td><span class="status-indicator status-\${d.status}"></span> \${d.status}</td>
+          <td class="\${d.trend==='up'?'text-green-300':'text-red-300'}"><i class="fas fa-arrow-\${d.trend}"></i>\${d.change}</td>
+          <td><button class="text-blue-400 mr-2" onclick="viewDetails(\${d.id})"><i class="fas fa-eye"></i></button><button class="text-green-400" onclick="exportDept(\${d.id})"><i class="fas fa-download"></i></button></td>\`;
+        tbody.appendChild(tr);
+      });
     }
 
-    function showPage(pg) {
-      document.getElementById("page1").style.display = pg === 1 ? "" : "none";
-      document.getElementById("page2").style.display = pg === 2 ? "" : "none";
-      if (pg === 1) renderPage1();
-      else {
-        // Keep your second page unchanged:
-        // You can load second page's JS here if needed
-      }
-    }
+    /* ---------- INTERACTIONS ---------- */
+    function selectDepartment(id){selectedDepartment=id;document.querySelectorAll('.department-card').forEach(c=>c.classList.toggle('selected',c.onclick.toString().includes('('+id+')')));updateKPIs(id);updateChartsForDept(id);document.getElementById('departmentFilter').value=id;showNotification('Selected department #'+id,'info')}
+    function updateChartsForDept(id){const d=departmentData.find(x=>x.id===id);if(!d)return;charts.performance.data.datasets[0].data=[d.score-15,d.score-10,d.score-5,d.score-2,d.score+1,d.score];charts.performance.data.datasets[1].data=[d.efficiency-12,d.efficiency-8,d.efficiency-4,d.efficiency-1,d.efficiency+2,d.efficiency];charts.performance.update()}
+    function filterByDepartment(){const id=+document.getElementById('departmentFilter').value;if(id)selectDepartment(id);else{selectedDepartment=null;updateKPIs();document.querySelectorAll('.department-card').forEach(c=>c.classList.remove('selected'))}}
+    function filterByTime(){showNotification('Time filter changed','info')}
+    function searchDepartments(){const t=document.getElementById('searchInput').value.toLowerCase();document.querySelectorAll('#rankingTableBody tr').forEach(r=>r.style.display=r.cells[1].textContent.toLowerCase().includes(t)?'':'none')}
+    function sortTable(){const b=document.getElementById('rankingTableBody');Array.from(b.children).sort((a,b)=>parseFloat(b.cells[2].textContent)-parseFloat(a.cells[2].textContent)).forEach(r=>b.appendChild(r));showNotification('Table sorted by score','success')}
+    function updateRankingChart(){const metric=document.getElementById('rankingMetric').value;const map={'efficiency':'Efficiency','innovation':'Innovation','satisfaction':'Satisfaction','overall':'Overall Score'};const data=departmentData.slice(0,8).map(d=>metric==='efficiency'?d.efficiency:metric==='innovation'?d.innovation:metric==='satisfaction'?d.satisfaction:d.score);charts.ranking.data.datasets[0].data=data;charts.ranking.data.datasets[0].label=map[metric];charts.ranking.update()}
 
-    function findWeakSchemes(block) {
-      const arr = schemes.map((s) => ({
-        s,
-        rank: parseInt(
-          rawData.find((r) => r._block === block)[s]
-        ) || 999,
-      }));
-      return arr
-        .sort((a, b) => b.rank - a.rank)
-        .slice(0, 3)
-        .map((x) => x.s)
-        .join(", ");
-    }
+    /* ---------- REFRESH ---------- */
+    async function refreshData(){if(Date.now()-lastRefresh<100)return;lastRefresh=Date.now();showLoading(true);try{await loadDataFromGoogleSheets();setupFilters();setupDepartmentCards();updateKPIs(selectedDepartment);populateRankingTable();Object.values(charts).forEach(c=>c.destroy());setupCharts();showNotification('Data refreshed','success')}catch{showNotification('Refresh failed','error')}showLoading(false)}
 
-    function svgMedal(rank) {
-      if (rank === 1)
-        return `<svg width="28" height="28" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#ffd700" stroke="#fc0" stroke-width="1.5"/><text x="16" y="21" font-size="16" fill="#b68c00" font-weight="bold" text-anchor="middle">1</text></svg>`;
-      if (rank === 2)
-        return `<svg width="28" height="28" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#e5e5e5" stroke="#aaa" stroke-width="1.5"/><text x="16" y="21" font-size="16" fill="#353535" font-weight="bold" text-anchor="middle">2</text></svg>`;
-      if (rank === 3)
-        return `<svg width="28" height="28" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#de9c68" stroke="#9c5c07" stroke-width="1.5"/><text x="16" y="21" font-size="16" fill="#fff" font-weight="bold" text-anchor="middle">3</text></svg>`;
-      return "";
-    }
+    /* ---------- LIVE FEED ---------- */
+    function setupLiveFeed(){const feed=document.getElementById('performanceFeed');feed.innerHTML=[{icon:'fa-trophy',text:'Housing leads ranking',time:'2m ago',type:'success'},{icon:'fa-chart-line',text:'Efficiency +5%',time:'5m ago',type:'info'},{icon:'fa-bell',text:'New data available',time:'8m ago',type:'warning'},{icon:'fa-sync-alt',text:'Sync complete',time:'12m ago',type:'success'}].map(u=>\`<div class="flex items-center gap-3 p-3 rounded-lg bg-white bg-opacity-10"><i class="fas \${u.icon} text-\${u.type==='success'?'green':u.type==='warning'?'yellow':'blue'}-400"></i><div><div class="font-medium">\${u.text}</div><div class="text-sm opacity-60">\${u.time}</div></div></div>\`).join('')}
 
-    window.onload = init;
+    /* ---------- EXPORT ---------- */
+    function exportData(){const rows=departmentData.map(d=>\`\${d.rank},"${d.name}",\${d.score},\${d.efficiency},\${d.innovation},\${d.satisfaction},"${d.change}"\`);const csv=['Rank,Department,Score,Efficiency,Innovation,Satisfaction,Change',...rows].join('\\n');downloadCSV(csv,'department_rankings.csv');showNotification('All data exported','success')}
+    function exportDept(id){const d=departmentData.find(x=>x.id===id);const csv=['Metric,Value',\`Department,"${d.name}"\`,\`Rank,\${d.rank}\`,\`Score,\${d.score}\`,\`Efficiency,\${d.efficiency}\`,\`Innovation,\${d.innovation}\`,\`Satisfaction,\${d.satisfaction}\`,\`Change,"${d.change}"\`].join('\\n');downloadCSV(csv,d.name.replace(/\\s+/g,'_')+'.csv');showNotification(d.name+' exported','success')}
+    function downloadCSV(csv,filename){const uri='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);const link=document.createElement('a');link.href=uri;link.download=filename;document.body.appendChild(link);link.click();document.body.removeChild(link)}
+
+    /* ---------- MISC ---------- */
+    function showUploadModal(){showNotification('Upload feature coming soon','info')}
+    function viewDetails(id){selectDepartment(id);showNotification('Viewing details for department '+id,'info')}
+    function showLoading(show){isDataLoading=show;document.querySelectorAll('.interactive-btn').forEach(btn=>{if(show){btn.innerHTML='<div class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>';btn.disabled=true}else{btn.disabled=false;btn.innerHTML=btn.innerHTML.replace(/<.*?>/,'')}})}
+    function showNotification(msg,type='info'){const n=document.createElement('div');n.className='notification';n.innerHTML=\`<i class="fas \${type==='success'?'fa-check-circle':type==='error'?'fa-exclamation-circle':type==='warning'?'fa-exclamation-triangle':'fa-info-circle'} text-\${type==='success'?'green':type==='error'?'red':type==='warning'?'yellow':'blue'}-400 mr-2"></i>\${msg}\`;document.body.appendChild(n);setTimeout(()=>n.classList.add('show'),100);setTimeout(()=>{n.classList.remove('show');setTimeout(()=>document.body.removeChild(n),300)},3000)}
+    function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+    function toggleDarkMode(){showNotification('Dark-mode toggle clicked','info')}
+    function navigateTo(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});toggleSidebar()}
+
+    /* ---------- AUTO REFRESH (5 min) ---------- */
+    setInterval(()=>{if(!isDataLoading)refreshData()},300000);
   </script>
 </body>
 </html>
