@@ -8,17 +8,22 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background: #f3f6fd; padding: 2rem; font-family: 'Noto Sans Devanagari', sans-serif; }
-    .card { border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    body { background: #f0f4ff; padding: 2rem; font-family: 'Noto Sans Devanagari', sans-serif; }
+    .card { border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
     .canvas-container { height: 400px; }
     .btn-export { float: right; margin-left: 10px; }
+    .kpi-card { padding: 1.2rem; border-radius: 10px; text-align: center; color: #333; font-weight: bold; font-size: 1.2rem; }
+    .top5 { background: #d1fae5; color: #065f46; }
+    .mid5 { background: #fef3c7; color: #92400e; }
+    .low5 { background: #fee2e2; color: #991b1b; }
+    .highlight { font-size: 2rem; }
   </style>
 </head>
 <body>
   <div class="container">
     <h2 class="mb-4 text-primary">📊 तालुका योजना तुलनात्मक डॅशबोर्ड</h2>
 
-    <div class="card p-4 mb-4">
+    <div class="card p-4">
       <div class="row align-items-center">
         <div class="col-md-6">
           <label for="talukaSelect" class="form-label">तालुका निवडा:</label>
@@ -38,8 +43,10 @@
       </div>
     </div>
 
+    <div class="row" id="kpiRow"></div>
+
     <div class="card p-4">
-      <h5 class="mb-3">⏬ तालुका एकूण स्कोअर रँकिंग</h5>
+      <h5 class="mb-3">📉 तालुका एकूण स्कोअर रँकिंग</h5>
       <div class="canvas-container">
         <canvas id="horizontalBarChart"></canvas>
       </div>
@@ -58,26 +65,50 @@
     let chartInstance;
 
     document.addEventListener("DOMContentLoaded", () => {
-      const cmpBtn = document.getElementById('cmpBtn');
-      if (cmpBtn) {
-        cmpBtn.addEventListener('click', () => {
-          const talukaSelect = document.getElementById('talukaSelect');
-          const selectedTalukas = Array.from(talukaSelect.selectedOptions).map(opt => opt.value);
-          if (selectedTalukas.length === 0) {
-            alert("कृपया एक किंवा अधिक तालुके निवडा.");
-            return;
-          }
-          let msg = "\n🟦 निवडलेले तालुके:\n" + selectedTalukas.join("\n");
-          alert(msg);
+      document.getElementById('cmpBtn').addEventListener('click', () => {
+        const selectedTalukas = Array.from(document.getElementById('talukaSelect').selectedOptions).map(opt => opt.value);
+        if (selectedTalukas.length === 0) {
+          alert("कृपया एक किंवा अधिक तालुके निवडा.");
+          return;
+        }
+        alert("\n🟦 निवडलेले तालुके:\n" + selectedTalukas.join("\n"));
+      });
+
+      renderHorizontalBarChart();
+      renderKPICards();
+    });
+
+    function renderKPICards() {
+      const sorted = [...dataValues].sort((a, b) => b.score - a.score);
+      const top5 = sorted.slice(0, 5);
+      const mid5 = sorted.length > 5 ? sorted.slice(Math.floor((sorted.length - 5) / 2), Math.floor((sorted.length + 5) / 2)) : [];
+      const low5 = sorted.slice(-5);
+
+      const kpiRow = document.getElementById('kpiRow');
+      kpiRow.innerHTML = '';
+
+      function createCard(title, data, className) {
+        data.forEach((item, index) => {
+          const col = document.createElement('div');
+          col.className = 'col-md-4';
+          col.innerHTML = `
+            <div class="kpi-card ${className}">
+              <div class="highlight">${index + 1}. ${item.taluka}</div>
+              <div>स्कोअर: ${item.score}</div>
+              <div>${title}</div>
+            </div>`;
+          kpiRow.appendChild(col);
         });
       }
 
-      renderHorizontalBarChart();
-    });
+      createCard("🏆 Top 5", top5, "top5");
+      createCard("⚖️ मध्यम 5", mid5, "mid5");
+      createCard("🚨 तळ 5", low5, "low5");
+    }
 
-    function renderHorizontalBarChart() {
+    function renderHorizontalBarChart(filteredData = dataValues) {
       const ctx = document.getElementById('horizontalBarChart').getContext('2d');
-      const sorted = [...dataValues].sort((a, b) => b.score - a.score);
+      const sorted = [...filteredData].sort((a, b) => b.score - a.score);
 
       if (chartInstance) chartInstance.destroy();
 
@@ -88,7 +119,7 @@
           datasets: [{
             label: 'एकूण स्कोअर',
             data: sorted.map(d => d.score),
-            backgroundColor: '#4f46e5',
+            backgroundColor: '#6366f1',
             borderRadius: 6,
             borderSkipped: false
           }]
