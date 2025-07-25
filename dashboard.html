@@ -3,162 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <title>तालुका योजना तुलनात्मक डॅशबोर्ड – जळगाव जिल्हा</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Bootstrap 5 -->
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <style>
-    body {
-      font-family: 'Noto Sans Devanagari', sans-serif;
-      background: #f7fafc;
-      color: #23263a;
-      margin: 0;
-      padding: 0.8rem;
-    }
-    .glass {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(99,102,241,0.1);
-      margin-bottom: 1rem;
-      padding: 0.8rem;
-    }
-    .dashboard-4col {
-      display: flex;
-      gap: 0.8rem;
-      height: 460px;
-    }
-    .kpi-col { flex: 0 0 22%; background: #f8fafc; border-radius: 8px; padding: 0.5rem; overflow-y: auto; }
-    .chart-col, .donut-col, .scheme-col {
-      flex: 0 0 26%;
-      background: #f8fafc;
-      border-radius: 8px;
-      padding: 0.4rem;
-      display: flex;
-      flex-direction: column;
-    }
-    /* KPI Cards */
-    .kpi-card {
-      border-radius: 50px;
-      text-align: center;
-      font-size: 1.05em;
-      font-weight: 700;
-      margin: 0.2rem 0;
-      padding: 0.4rem 0.2rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: 2px solid transparent;
-      position: relative;
-      overflow: hidden;
-    }
-    .kpi-card::before {
-      content: "";
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.4) 0%, transparent 70%);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .kpi-card:hover::before {
-      opacity: 1;
-    }
-    .kpi-card:hover {
-      border-color: #6366f1;
-      box-shadow: 0 2px 8px rgba(99,102,241,0.3);
-    }
-    .kpi-card.top { background: linear-gradient(90deg,#10b981,#6ee7b7); color:#fff; }
-    .kpi-card.mid { background: linear-gradient(90deg,#f59e0b,#fbbf24); color:#fff; }
-    .kpi-card.bot { background: linear-gradient(90deg,#ef4444,#f87171); color:#fff; }
-    .kpi-card.blink .kpi-emoji {
-      display: inline-block;
-      animation: blink 1.2s infinite;
-      font-size: 1.5em;
-    }
-    @keyframes blink {
-      0%,50%,100% { opacity: 1; }
-      25%,75% { opacity: 0.4; }
-    }
-    .kpi-emoji { font-size: 1.3em; display: block; }
-    .kpi-name { font-size: 1em; margin: 2px 0; }
-    .kpi-score { font-size: 1.2em; font-weight: 800; }
-    /* Chips */
-    .dept-chip {
-      display: inline-block; padding: 4px 8px; border-radius: 15px; font-size: 0.85em;
-      background: #e0e7ff; margin: 2px 4px; color: #3730a3; font-weight: 600;
-      cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
-      user-select: none;
-    }
-    .dept-chip.selected, .dept-chip:hover {
-      background: #fbbf24; color: #92400e; border-color: #f59e0b;
-      transform: scale(1.05);
-    }
-    /* Chart containers */
-    .chart-container {
-      width: 100%;
-      flex: 1;
-      margin-bottom: 0.8rem;
-    }
-    .chart-header {
-      font-size: 0.95em;
-      font-weight: 700;
-      color: #6366f1;
-      margin-bottom: 0.3rem;
-      text-align: center;
-      user-select: none;
-    }
-    .btn-export {
-      padding: 0.3rem 0.6rem;
-      font-size: 0.8em;
-      margin-top: 0.2rem;
-    }
-    /* Table */
-    .table {
-      font-size: 0.85em;
-    }
-    .table thead th {
-      background: #6366f1;
-      color: white;
-      padding: 0.4rem;
-      text-align: center;
-    }
-    .table tbody td {
-      padding: 0.3rem 0.2rem;
-      text-align: center;
-      border: 1px solid #e5e7eb;
-    }
-    .table tbody tr.selected-block td {
-      background: #dbeafe!important;
-      font-weight: 700;
-    }
-    .table tbody tr.top5 td { background: #d1fae5!important; }
-    .table tbody tr.mid5 td { background: #fef3c7!important; }
-    .table tbody tr.bot5 td { background: #fee2e2!important; }
-    @media (max-width: 1200px) {
-      .dashboard-4col {
-        flex-direction: column;
-        height: auto;
-      }
-      .kpi-col, .chart-col, .donut-col, .scheme-col {
-        flex: none;
-        height: 300px;
-      }
-    }
+    body {font-family:'Noto Sans Devanagari',sans-serif;background:#f7fafc;color:#23263a;margin:0;padding:1rem;}
+    .glass{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(99,102,241,0.1);margin-bottom:1rem;padding:1rem;}
+    .dashboard-4col{display:flex;gap:.8rem;height:460px;}
+    .kpi-col{flex:0 0 22%;background:#f0f4fa;border-radius:8px;padding:.6rem;overflow-y:auto;}
+    .chart-col,.donut-col,.scheme-col{flex:0 0 26%;background:#f0f4fa;border-radius:8px;padding:.6rem;display:flex;flex-direction:column;}
+    .kpi-card{position:relative;border-radius:50px;text-align:center;padding:.5rem;font-weight:700;margin:.3rem 0;cursor:pointer;transition:box-shadow .2s,border .2s;}
+    .kpi-card:hover{border:2px solid #6366f1;box-shadow:0 2px 10px rgba(99,102,241,.3);}
+    .kpi-card.top{background:linear-gradient(90deg,#10b981,#6ee7b7);color:#fff;}
+    .kpi-card.mid{background:linear-gradient(90deg,#f59e0b,#fbbf24);color:#fff;}
+    .kpi-card.bot{background:linear-gradient(90deg,#ef4444,#f87171);color:#fff;}
+    .kpi-card.blink .kpi-icon{animation:blink 1.2s infinite;}
+    @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:0.4}}
+    .kpi-icon{font-size:1.6em;margin-bottom:.3rem;}
+    .kpi-name{font-size:1em;margin:2px 0;}
+    .kpi-score{font-size:1.2em;font-weight:800;}
+    .dept-chip{display:inline-block;padding:4px 8px;border-radius:15px;background:#e0e7ff;color:#3730a3;font-weight:600;margin:2px;cursor:pointer;transition:transform .15s,border .15s;}
+    .dept-chip:hover,.dept-chip.selected{background:#fbbf24;color:#92400e;border:1px solid #f59e0b;transform:scale(1.05);}
+    .chart-header{font-size:1em;font-weight:700;color:#6366f1;text-align:center;margin-bottom:.4rem;user-select:none;}
+    .chart-container{flex:1;position:relative;margin-bottom:.8rem;}
+    .btn-compact{padding:.3rem .6rem;font-size:.8em;margin-top:.2rem;}
+    .table thead th{background:#6366f1;color:#fff;padding:.4rem;text-align:center;}
+    .table tbody td{padding:.3rem .2rem;text-align:center;border:1px solid #e5e7eb;}
+    .table .selected-block td{background:#dbeafe!important;font-weight:700;}
+    .table .top5 td{background:#d1fae5!important;}
+    .table .mid5 td{background:#fef3c7!important;}
+    .table .bot5 td{background:#fee2e2!important;}
+    @media(max-width:1200px){.dashboard-4col{flex-direction:column;height:auto}.kpi-col,.chart-col,.donut-col,.scheme-col{flex:none;height:300px}}
   </style>
 </head>
 <body>
   <div class="container-fluid">
-    <h2 class="text-center mb-2">
-      📊 तालुका योजना तुलनात्मक डॅशबोर्ड<br>
-      <small class="text-muted">(जळगाव जिल्हा)</small>
-    </h2>
+    <h2 class="text-center mb-3">📊 तालुका योजना तुलनात्मक डॅशबोर्ड<br><small class="text-muted">(जळगाव जिल्हा)</small></h2>
     <div class="glass mb-3">
-      <div class="row g-2 align-items-center">
+      <div class="row g-2">
         <div class="col-md-6 col-lg-5">
-          <label class="form-label">योजना निवडा (Multiple):</label>
+          <label class="form-label">योजना निवडा:</label>
           <select id="schemeSelect" multiple class="form-select form-select-sm" size="7"></select>
         </div>
         <div class="col-md-6 col-lg-5">
@@ -177,21 +63,21 @@
         <!-- KPI Column -->
         <div class="kpi-col" id="kpiCol" aria-live="polite"></div>
 
-        <!-- Bar Chart Column -->
+        <!-- Bar Chart -->
         <div class="chart-col">
           <div class="chart-header">📈 कार्यप्रदर्शन तुलना</div>
           <div class="chart-container"><canvas id="barChart"></canvas></div>
           <button id="downloadBarBtn" class="btn btn-success btn-compact">⬇️ डाउनलोड</button>
         </div>
 
-        <!-- Donut Chart Column -->
+        <!-- Donut Chart -->
         <div class="donut-col">
           <div class="chart-header">📊 प्रतिशत वाटप</div>
           <div class="chart-container"><canvas id="donutChart"></canvas></div>
           <button id="downloadDonutBtn" class="btn btn-warning btn-compact">⬇️ डाउनलोड</button>
         </div>
 
-        <!-- Scheme Rank Chart Column -->
+        <!-- Scheme Rank Chart -->
         <div class="scheme-col">
           <div class="chart-header">🗂 योजना रँक विश्लेषण</div>
           <div class="chart-container"><canvas id="schemeRankChart"></canvas></div>
@@ -201,11 +87,9 @@
     </div>
 
     <div class="glass mb-3">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="mb-0 text-primary">📋 तालुक्यांची संपूर्ण माहिती व रँकिंग</h6>
-      </div>
-      <div class="table-responsive" style="max-height: 340px; overflow-y: auto;">
-        <table class="table table-bordered" id="dataTable">
+      <h6 class="mb-2 text-primary">📋 तालुक्यांची संपूर्ण माहिती व रँकिंग</h6>
+      <div class="table-responsive" style="max-height:340px;overflow-y:auto">
+        <table class="table" id="dataTable">
           <thead><tr id="tableHeader"></tr></thead>
           <tbody id="tableBody"></tbody>
         </table>
@@ -217,47 +101,40 @@
   </div>
 
   <script>
-    const CONFIG = {
-      apiKey: 'AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU',
-      spreadsheetId: '1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE',
-      range: 'Rank!B5:AJ20'
-    };
-    let rawData=[], headers=[], blocks=[], schemes=[];
-    let barChart, donutChart, schemeRankChart;
-    const selectedBlocks=new Set(), selectedSchemes=new Set();
+    const CONFIG={apiKey:'AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU',spreadsheetId:'1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE',range:'Rank!B5:AJ20'};
+    let rawData=[], headers=[], blocks=[], schemes=[];let barChart,donutChart,schemeRankChart;
+    const selectedBlocks=new Set(),selectedSchemes=new Set();
 
-    async function fetchSheet() {
-      const url=`https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${encodeURIComponent(CONFIG.range)}?majorDimension=ROWS&valueRenderOption=UNFORMATTED_VALUE&key=${CONFIG.apiKey}`;
-      const res=await fetch(url);
-      if(!res.ok) throw Error(res.statusText);
-      return (await res.json()).values;
+    async function fetchSheet(){
+      const url=`https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${encodeURIComponent(CONFIG.range)}?majorDimension=ROWS&key=${CONFIG.apiKey}`;
+      const res=await fetch(url);if(!res.ok)throw Error(res.statusText);
+      return(await res.json()).values;
     }
-    function parse(values) {
-      headers=values[0];
-      const idxBlock=headers.findIndex(h=>/तालुका/i.test(h));
-      blocks=values.slice(1).map(r=>{const o={};headers.forEach((h,i)=>o[h]=r[i]);o._block=r[idxBlock];return o;});
-      schemes=headers.filter((_,i)=>i!==idxBlock);
-      rawData=blocks;
+    function parse(vals){
+      headers=vals[0];
+      const idx=headers.findIndex(h=>/तालुका/i.test(h));
+      blocks=vals.slice(1).map(r=>{const o={};headers.forEach((h,i)=>o[h]=r[i]);o._block=r[idx];return o;});
+      schemes=headers.filter((_,i)=>i!==idx);rawData=blocks;
     }
     function renderControls(){
-      const sel=document.getElementById('schemeSelect');
-      sel.innerHTML=`<option value="__all__" style="font-weight:bold;">सर्व योजना</option>`+schemes.map(s=>`<option>${s}</option>`).join('');
-      sel.addEventListener('change',()=>{const v=Array.from(sel.selectedOptions).map(o=>o.value),all=v.includes('__all__');
-        if(all) for(let o of sel.options) if(o.value!=='__all__') o.selected=true;
-        const act=Array.from(sel.options).filter(o=>o.value!=='__all__'&&o.selected);
-        sel.querySelector('option[value="__all__"]').selected=(act.length===schemes.length);
+      const s=document.getElementById('schemeSelect');
+      s.innerHTML=`<option value="__all__" style="font-weight:bold;">सर्व योजना</option>`+schemes.map(v=>`<option>${v}</option>`).join('');
+      s.addEventListener('change',()=>{const v=Array.from(s.selectedOptions).map(o=>o.value),all=v.includes('__all__');if(all)for(let o of s.options)if(o.value!=='__all__')o.selected=true;
+        const act=Array.from(s.options).filter(o=>o.value!=='__all__'&&o.selected);
+        s.querySelector('option[value="__all__"]').selected=(act.length===schemes.length);
       });
-      const chips=document.getElementById('talukaChips');
-      chips.innerHTML=blocks.map(b=>`<span class="dept-chip" data-block="${b._block}">${b._block}</span>`).join('');
-      chips.querySelectorAll('.dept-chip').forEach(span=>{
-        span.onclick=()=>{const n=span.dataset.block;
-          if(selectedBlocks.has(n)){selectedBlocks.delete(n);span.classList.remove('selected');}
-          else{selectedBlocks.add(n);span.classList.add('selected');}
-          if(selectedBlocks.size===1) renderSchemeRankChart(Array.from(selectedBlocks)[0]);
+      const d=document.getElementById('talukaChips');
+      d.innerHTML=blocks.map(b=>`<span class="dept-chip" data-block="${b._block}">${b._block}</span>`).join('');
+      d.querySelectorAll('.dept-chip').forEach(el=>{
+        el.onclick=()=>{const n=el.dataset.block;
+          if(selectedBlocks.delete(n)) el.classList.remove('selected');
+          else{selectedBlocks.add(n);el.classList.add('selected');}
+          if(selectedBlocks.size===1)renderSchemeRankChart([...selectedBlocks][0]);
         };
       });
       document.getElementById('resetBtn').onclick=()=>{selectedBlocks.clear();selectedSchemes.clear();
-        chips.querySelectorAll('.dept-chip').forEach(s=>s.classList.remove('selected'));sel.selectedIndex=-1;clearDashboard();showAllDefault();};
+        d.querySelectorAll('.dept-chip').forEach(e=>e.classList.remove('selected'));
+        s.selectedIndex=-1;clearDashboard();showAllDefault();};
       document.getElementById('submitBtn').onclick=updateAll;
       document.getElementById('downloadBarBtn').onclick=()=>barChart&&downloadChart(barChart,'bar-chart.png');
       document.getElementById('downloadDonutBtn').onclick=()=>donutChart&&downloadChart(donutChart,'donut-chart.png');
@@ -267,71 +144,67 @@
     function downloadChart(c,f){const a=document.createElement('a');a.href=c.toBase64Image();a.download=f;a.click();}
     function collectSelections(){
       selectedBlocks.clear();selectedSchemes.clear();
-      document.querySelectorAll('.dept-chip.selected').forEach(el=>selectedBlocks.add(el.dataset.block));
-      Array.from(document.getElementById('schemeSelect').selectedOptions).forEach(o=>{
-        if(o.value==='__all__') schemes.forEach(s=>selectedSchemes.add(s));
-        else selectedSchemes.add(o.value);
-      });
+      document.querySelectorAll('.dept-chip.selected').forEach(e=>selectedBlocks.add(e.dataset.block));
+      Array.from(document.getElementById('schemeSelect').selectedOptions).forEach(o=>o.value==='__all__'?schemes.forEach(v=>selectedSchemes.add(v)):selectedSchemes.add(o.value));
+    }
+    function getRankOnes(){
+      const cnt={};schemes.forEach(s=>{let best=1e9,t=[];rawData.forEach(r=>{const rk=parseInt(r[s])||1e9;rk<best?(best=rk,t=[r._block]):rk===best&&t.push(r._block)});if(best===1)t.forEach(b=>cnt[b]=(cnt[b]||0)+1)});
+      return Object.entries(cnt).map(([b,c])=>({b,c})).sort((a,b)=>b.c-a.c);
     }
     function compute(){
       collectSelections();
-      const schemesArr=selectedSchemes.size?Array.from(selectedSchemes):schemes.slice();
-      const blocksArr=selectedBlocks.size?Array.from(selectedBlocks).map(b=>rawData.find(r=>r._block===b)).filter(Boolean):rawData.slice();
-      const rankOnes={}; schemes.forEach(s=>{
-        let best=Infinity,tops=[];
-        rawData.forEach(r=>{const rk=parseInt(r[s])||999; if(rk<best){best=rk;tops=[r._block];}else if(rk===best)tops.push(r._block);});
-        if(best===1)tops.forEach(t=>rankOnes[t]=(rankOnes[t]||0)+1);
-      });
-      const kpiData=blocksArr.map(r=>{const ro=rankOnes[r._block]||0; return{_block:r._block,val:parseInt(r[schemesArr[0]])||999,ones:ro};})
-        .sort((a,b)=>(b.ones-a.ones)||(a.val-b.val));
-      kpiData.forEach((d,i)=>d.rank=i+1);
-      return{blocksArr,kpiData,schemesArr,mainScheme:schemesArr[0]};
+      const sch=selectedSchemes.size?[...selectedSchemes]:schemes.slice(),bl=selectedBlocks.size?[...selectedBlocks].map(b=>rawData.find(r=>r._block===b)):rawData.slice();
+      const ro=getRankOnes();
+      const k=bl.map(r=>({b:r._block,ones:(ro.find(x=>x.b===r._block)||{c:0}).c,val:parseInt(r[sch[0]])||0}))
+        .sort((a,b)=>b.ones-a.ones||a.val-b.val).map((x,i)=>({...x,rank:i+1}));
+      return{blocksArr:bl,kpiData:k,schemesArr:sch};
     }
-    function renderKPI(d){
-      const col=document.getElementById('kpiCol'); col.innerHTML='';
-      if(!d||!d.kpiData.length)return;
-      [['top','🏆'],['mid','⚖️'],['bot','🚨']].forEach((c,i)=>{
-        const item=d.kpiData[i===0?0:i===1?Math.floor(d.kpiData.length/2):d.kpiData.length-1];
-        if(item)col.innerHTML+=`<div class="kpi-card ${c[0]}${i===0?' blink':''}" onclick="showTalukaAnalysis('${item._block}')">
-          <div class="kpi-emoji">${c[1]}</div><div class="kpi-name">${item._block}</div><div class="kpi-score">${item.ones} #1s</div>
+    function renderKPI(D){
+      const C=document.getElementById('kpiCol');C.innerHTML='';
+      if(!D||!D.kpiData.length)return;
+      [['top','fa-trophy'],['mid','fa-balance-scale'],['bot','fa-exclamation-circle']].forEach((c,i)=>{
+        const it=D.kpiData[i===0?0:i===1?Math.floor(D.kpiData.length/2):D.kpiData.length-1];
+        if(it)C.innerHTML+=`<div class="kpi-card ${c[0]}${i===0?' blink':''}" onclick="showTalukaAnalysis('${it.b}')">
+          <i class="fas ${c[1]} kpi-icon"></i>
+          <div class="kpi-name">${it.b}</div>
+          <div class="kpi-score">${i===0?it.ones+' #1s':it.val}</div>
         </div>`;
       });
     }
-    window.showTalukaAnalysis=function(name){
-      const asc=schemes.map(s=>({scheme:s,rank:parseInt(rawData.find(r=>r._block===name)[s])||999})).sort((a,b)=>a.rank-b.rank);
-      const tot=rawData.length;
-      const exc=asc.filter((_,i)=>i<3),need=asc.filter((_,i)=>i>=3&&i<Math.ceil(asc.length*0.7)),att=asc.filter((_,i)=>i>=Math.ceil(asc.length*0.7));
-      let rep=`तालुका: ${name}\n\n🏆 Top 3:\n`+exc.map(a=>`${a.scheme}: #${a.rank}/${tot}`).join('\n')+
-              `\n\n⚖️ मध्यम:\n`+need.map(a=>`${a.scheme}: #${a.rank}/${tot}`).join('\n')+
-              `\n\n🚨 तळ:\n`+att.map(a=>`${a.scheme}: #${a.rank}/${tot}`).join('\n');
-      alert(rep);
-      renderProgressCategories(exc,need,att);
+    window.showTalukaAnalysis=name=>{
+      const A=schemes.map(s=>({s,rank:parseInt(rawData.find(r=>r._block===name)[s])||999})).sort((a,b)=>a.rank-b.rank),T=rawData.length;
+      const exc=A.slice(0,3),need=A.slice(3,Math.ceil(A.length*0.7)),att=A.slice(Math.ceil(A.length*0.7));
+      let R=`तालुका: ${name}\n\n🏆 Top 3:\n${exc.map(a=>`${a.s}:#${a.rank}/${T}`).join('\n')}
+\n⚖️ मध्यम:\n${need.map(a=>`${a.s}:#${a.rank}/${T}`).join('\n')}
+\n🚨 तळ:\n${att.map(a=>`${a.s}:#${a.rank}/${T}`).join('\n')}`;
+      alert(R);
     };
-    function renderProgressCategories(e,n,a){
-      document.getElementById('progressExcellent')?.remove();
-      const sec=document.createElement('div');sec.className='glass';sec.innerHTML=
-        `<div class="progress-section progress-excellent"><strong>🏆 Top 3:</strong><br>${e.map(x=>x.scheme).join(', ')}</div>
-         <div class="progress-section progress-needs"><strong>⚖️ मध्यम:</strong><br>${n.map(x=>x.scheme).join(', ')}</div>
-         <div class="progress-section progress-attention"><strong>🚨 तळ:</strong><br>${a.map(x=>x.scheme).join(', ')}</div>`;
-      document.querySelector('.container-fluid').append(sec);
+    function renderBar(D){
+      const ctx=document.getElementById('barChart').getContext('2d');barChart&&barChart.destroy();
+      const pal=['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6','#818cf8','#f472b6','#2dd4bf'],bg=D.kpiData.map((_,i)=>pal[i%pal.length]);
+      barChart=new Chart(ctx,{type:'bar',data:{labels:D.kpiData.map(x=>x.b),datasets:[{data:D.kpiData.map(x=>x.ones),backgroundColor:bg,borderRadius:4}]},
+        options:{indexAxis:'y',plugins:{legend:{display:false},datalabels:{anchor:'end',align:'right',formatter:v=>v+' #1s'}},responsive:true,maintainAspectRatio:false},
+        plugins:[ChartDataLabels]});
     }
-    function renderBar(d){const ctx=document.getElementById('barChart').getContext('2d');barChart&&barChart.destroy();
-      barChart=new Chart(ctx,{type:'bar',data:{labels:d.kpiData.map(x=>x._block),datasets:[{data:d.kpiData.map(x=>x.ones),backgroundColor:'#6366f1'}]},options:{indexAxis:'y',plugins:{legend:{display:false},datalabels:{anchor:'end',align:'right',formatter:v=>v+' #1s',font:{size:10}}},responsive:true,maintainAspectRatio:false},plugins:[ChartDataLabels]});}
-    function renderDonut(d){const ctx=document.getElementById('donutChart').getContext('2d');donutChart&&donutChart.destroy();
-      donutChart=new Chart(ctx,{type:'doughnut',data:{labels:d.kpiData.map(x=>x._block),datasets:[{data:d.kpiData.map(x=>x.ones),backgroundColor:['#4f46e5','#10b981','#f59e0b','#ef4444','#3b82f6']}]},options:{plugins:{legend:{position:'bottom'},datalabels:{formatter:v=>v,font:{size:9}}},responsive:true,maintainAspectRatio:false},plugins:[ChartDataLabels]});}
+    function renderDonut(D){
+      const ctx=document.getElementById('donutChart').getContext('2d');donutChart&&donutChart.destroy();
+      const pal=['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6','#818cf8','#f472b6','#2dd4bf'];
+      donutChart=new Chart(ctx,{type:'doughnut',data:{labels:D.kpiData.map(x=>x.b),datasets:[{data:D.kpiData.map(x=>x.ones),backgroundColor:pal}]},
+        options:{plugins:{legend:{position:'bottom'},datalabels:{formatter:v=>v}},responsive:true,maintainAspectRatio:false},plugins:[ChartDataLabels]});
+    }
     function renderSchemeRankChart(name){
-      if(!name)return;const tal=rawData.find(r=>r._block===name);if(!tal)return;
-      const arr=schemes.map(s=>({scheme:s,rank:parseInt(tal[s])||999})).sort((a,b)=>a.rank-b.rank);
+      const tal=rawData.find(r=>r._block===name);if(!tal)return;const arr=schemes.map(s=>({s,rank:parseInt(tal[s])||999})).sort((a,b)=>a.rank-b.rank);
       const ctx=document.getElementById('schemeRankChart').getContext('2d');schemeRankChart&&schemeRankChart.destroy();
-      schemeRankChart=new Chart(ctx,{type:'bar',data:{labels:arr.map(a=>a.scheme),datasets:[{data:arr.map(a=>a.rank),backgroundColor:arr.map(a=>a.rank===1?'#10b981':a.rank<=3?'#f59e0b':'#ef4444')}]},options:{plugins:{legend:{display:false},datalabels:{anchor:'end',align:'top',formatter:v=>`#${v}`,font:{size:8}}},responsive:true,maintainAspectRatio:false,scales:{y:{reverse:true}}},plugins:[ChartDataLabels]});}
-    function renderTable(d){
+      schemeRankChart=new Chart(ctx,{type:'bar',data:{labels:arr.map(a=>a.s),datasets:[{data:arr.map(a=>a.rank),
+        backgroundColor:arr.map(a=>a.rank===1?'#10b981':a.rank<=3?'#f59e0b':'#ef4444'),borderRadius:4}]},options:{plugins:{legend:{display:false},datalabels:{anchor:'end',align:'top',formatter:v=>`#${v}`,font:{size:8}}},responsive:true,maintainAspectRatio:false,scales:{y:{reverse:true}}},plugins:[ChartDataLabels]});
+    }
+    function renderTable(D){
       const th='<th>रँक</th><th>#1s</th>'+headers.map(h=>`<th>${h}</th>`).join('');
       document.getElementById('tableHeader').innerHTML=th;
-      const n=d.kpiData.length,midStart=Math.floor((n-3)/2);
-      const rows=d.kpiData.map((r,i)=>{const cls=[i<3?'top5':'',i>=n-3?'bot5':'',(i>=midStart&&i<midStart+3)?'mid5':'',selectedBlocks.has(r._block)?'selected-block':''].filter(Boolean).join(' ');
-        const tal=rawData.find(x=>x._block===r._block);
-        return`<tr class="${cls}"><td>${r.rank}</td><td><b>${r.ones}</b></td>`+
-          headers.map(h=>`<td>${tal[h]||''}</td>`).join('')+'</tr>';}).join('');
+      const rows=D.kpiData.map((r,i)=>{const cls=[i<3?'top5':'',i>=D.kpiData.length-3?'bot5':'',selectedBlocks.has(r.b)?'selected-block':''].filter(Boolean).join(' ');
+        const tal=rawData.find(x=>x._block===r.b);
+        return `<tr class="${cls}"><td>${r.rank}</td><td><b>${r.ones}</b></td>`+headers.map(h=>`<td>${tal[h]||''}</td>`).join('')+`</tr>`;}).
+      join('');
       document.getElementById('tableBody').innerHTML=rows;
     }
     function clearDashboard(){
@@ -343,24 +216,24 @@
     function showAllDefault(){
       selectedSchemes.clear();schemes.forEach(s=>selectedSchemes.add(s));
       selectedBlocks.clear();blocks.forEach(b=>selectedBlocks.add(b._block));
-      document.querySelectorAll('.dept-chip').forEach(s=>s.classList.add('selected'));
+      document.querySelectorAll('.dept-chip').forEach(e=>e.classList.add('selected'));
       document.getElementById('schemeSelect').querySelectorAll('option').forEach(o=>o.selected=true);
       updateAll();
     }
     function updateAll(){
-      const d=compute();
-      if(!d||!d.kpiData.length){alert('कृपया योजना व तालुका निवडा.');return;}
-      renderKPI(d);renderBar(d);renderDonut(d);renderTable(d);
-      if(selectedBlocks.size===1) renderSchemeRankChart(Array.from(selectedBlocks)[0]);
+      const D=compute();
+      if(!D||!D.kpiData.length){alert('कृपया योजना व तालुका निवडा.');return;}
+      renderKPI(D);renderBar(D);renderDonut(D);renderTable(D);
+      if(selectedBlocks.size===1)renderSchemeRankChart([...selectedBlocks][0]);
     }
     function downloadCSV(){
-      const d=compute();if(!d)return;
+      const D=compute();if(!D)return;
       const hd=['रँक','#1s'].concat(headers);
-      let csv=hd.join(',')+'\n'+d.kpiData.map(r=>`${r.rank},${r.ones},`+headers.map(h=>`"${rawData.find(x=>x._block===r._block)[h]||''}"`).join(',')).join('\n');
+      let csv=hd.join(',')+'\n'+D.kpiData.map(r=>`${r.rank},${r.ones},`+headers.map(h=>`"${rawData.find(x=>x._block===r.b)[h]||''}"`).join(',')).join('\n');
       const blob=new Blob([csv],{type:'text/csv'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='taluka-data.csv';a.click();URL.revokeObjectURL(u);
     }
     (async()=>{
-      try{const vals=await fetchSheet();parse(vals);renderControls();showAllDefault();}
+      try{const v=await fetchSheet();parse(v);renderControls();showAllDefault();}
       catch(e){alert('डेटा लोड त्रुटी: '+e.message);}
     })();
   </script>
