@@ -2,7 +2,7 @@
 <html lang="mr">
 <head>
   <meta charset="UTF-8" />
-  <title>तालुका योजना तुलनात्मक डॅशबोर्ड - जळगाव जिल्हा</title>
+  <title>तालुका योजना तुलनात्मक डॅशबो – जळगाव जिल्हा</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -15,7 +15,7 @@
     body {
       font-family: 'Noto Sans Devanagari', sans-serif;
       background: #f0f4ff;
-      padding: 1.5rem;
+      margin: 0; padding: 1.5rem;
       color: #1f2937;
     }
     .glass {
@@ -26,26 +26,33 @@
     }
     .kpi {
       text-align: center;
-      padding: 1rem;
+      padding: 0.6rem;
       border-radius: 8px;
       font-weight: 600;
+      font-size: 0.95rem;
     }
-    .kpi.top   { background: #d1fae5; color: #065f46; }
-    .kpi.mid   { background: #fef3c7; color: #92400e; }
-    .kpi.bot   { background: #fee2e2; color: #991b1b; }
-    .kpi h4    { margin: .5rem 0; font-size: 1.1rem; }
-    .chart-container { height: 300px; }
+    .kpi.top { background: #d1fae5; color: #065f46; }
+    .kpi.mid { background: #fef3c7; color: #92400e; }
+    .kpi.bot { background: #fee2e2; color: #991b1b; }
+    .kpi h4 { margin: 0.4rem 0; font-size: 1rem; }
+    .chart-container {
+      position: relative;
+      height: 280px;
+      width: 100%;
+    }
     .table thead th {
       background: #6366f1;
       color: #fff;
       border: 1px solid #4f46e5;
-      text-align: center; vertical-align: middle;
+      text-align: center;
+      vertical-align: middle;
       font-weight: 600;
+      padding: 0.6rem;
     }
     .table tbody td {
       border: 1px solid #cbd5e1;
       vertical-align: middle;
-      padding: .6rem;
+      padding: 0.6rem;
       text-align: center;
     }
     .table tbody tr.top5  { background: #ecfdf5; }
@@ -55,19 +62,21 @@
       max-height: 120px;
       overflow-y: auto;
       background: #f1f5f9;
-      padding: .5rem;
+      padding: 0.5rem;
       border-radius: 6px;
     }
-    .checkbox-container label { white-space: nowrap; }
-    .btn-export { margin-left: .5rem; }
+    .checkbox-container label { white-space: nowrap; margin-right: 1rem; }
+    .btn-export { margin-left: 0.5rem; }
     .chart-area { display: none; }
     .chart-area.active { display: block; }
+    .dashboard-row { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+    .col-left { flex: 1 1 35%; }
+    .col-right { flex: 1 1 60%; }
   </style>
 </head>
 <body>
   <div class="container-fluid">
-    <h2 class="text-center mb-4">
-      📊 तालुका योजना तुलनात्मक डॅशबोर्ड<br>
+    <h2 class="text-center mb-4">📊 तालुका योजना तुलनात्मक डॅशबोर्ड<br>
       <small class="text-muted">(जळगाव जिल्हा)</small>
     </h2>
 
@@ -93,29 +102,29 @@
       </div>
     </div>
 
-    <!-- KPI Rows: Top5, Mid5, Bot5 each in its own full row -->
-    <div id="kpiRow1" class="row g-3 mb-2"></div>
-    <div id="kpiRow2" class="row g-3 mb-2"></div>
-    <div id="kpiRow3" class="row g-3 mb-4"></div>
-
-    <!-- Combined Charts Section -->
-    <div id="chartSection" class="chart-area">
-      <div class="row">
-        <div class="col-md-6 glass p-4 mb-4">
+    <!-- KPI & Charts -->
+    <div class="dashboard-row">
+      <!-- KPI Column -->
+      <div class="col-left">
+        <div id="kpiRow1" class="row g-2 mb-2"></div>
+        <div id="kpiRow2" class="row g-2 mb-2"></div>
+        <div id="kpiRow3" class="row g-2"></div>
+      </div>
+      <!-- Charts Column -->
+      <div class="col-right">
+        <div id="barWrapper" class="chart-area glass p-3 mb-4">
           <h5 class="mb-3 text-primary"><i class="fa fa-chart-bar me-2"></i>तालुका एकूण स्कोअर रँकिंग</h5>
-          <div class="chart-container"><canvas id="barChart"></canvas></div>
+          <canvas id="barChart"></canvas>
         </div>
-        <div class="col-md-6 glass p-4 mb-4">
+        <div id="donutWrapper" class="chart-area glass p-3 mb-4">
           <h5 class="mb-3 text-primary"><i class="fa fa-chart-pie me-2"></i>तालुक्यांचे वर्गीकरण (Donut)</h5>
-          <div class="chart-container"><canvas id="donutChart"></canvas></div>
+          <canvas id="donutChart"></canvas>
+        </div>
+        <div id="radarWrapper" class="chart-area glass p-3">
+          <h5 class="mb-3 text-primary"><i class="fa fa-chart-radar me-2"></i>तालुका × सर्व योजनांनिहाय रँकिंग</h5>
+          <canvas id="radarChart"></canvas>
         </div>
       </div>
-    </div>
-
-    <!-- Radar Chart -->
-    <div id="radarSection" class="chart-area glass p-4 mb-4">
-      <h5 class="mb-3 text-primary"><i class="fa fa-chart-radar me-2"></i>तालुका × सर्व योजनांनिहाय रँकिंग</h5>
-      <div class="chart-container"><canvas id="radarChart"></canvas></div>
     </div>
 
     <!-- Data Table -->
@@ -138,7 +147,7 @@
       spreadsheetId: '1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE',
       range: 'Rank!B5:AJ20'
     };
-    let rawData = [], headers = [], blocks = [], schemes = [];
+    let rawData=[], headers=[], blocks=[], schemes=[];
     let barChart, donutChart, radarChart;
     const selectedBlocks = new Set();
 
@@ -164,10 +173,7 @@
 
     function renderControls() {
       const sel = document.getElementById('schemeSelect');
-      sel.innerHTML = `<option value="">— निवडा —</option>` +
-        schemes.map(s => `<option>${s}</option>`).join('');
-      sel.value = '';
-
+      sel.innerHTML = `<option value="">— निवडा —</option>` + schemes.map(s => `<option>${s}</option>`).join('');
       const cbx = document.getElementById('talukaCheckboxes');
       cbx.innerHTML = blocks.map(b => `
         <div class="form-check form-check-inline">
@@ -175,7 +181,6 @@
           <label class="form-check-label" for="cb_${b._block}">${b._block}</label>
         </div>`).join('');
       blocks.forEach(b => selectedBlocks.add(b._block));
-
       document.getElementById('resetBtn').onclick = () => {
         selectedBlocks.clear();
         cbx.querySelectorAll('input').forEach(i => i.checked = false);
@@ -185,18 +190,17 @@
       document.getElementById('downloadChartBtn').onclick = () => {
         const a = document.createElement('a');
         a.href = barChart.toBase64Image();
-        a.download = 'taluka-bar-chart.png';
+        a.download = 'bar-chart.png';
         a.click();
       };
     }
 
     function compute() {
       const scheme = document.getElementById('schemeSelect').value;
-      // update selection set
       document.querySelectorAll('#talukaCheckboxes input').forEach(i => {
         i.checked ? selectedBlocks.add(i.value) : selectedBlocks.delete(i.value);
       });
-      let data = rawData.map(r => ({ _block: r._block, val: parseFloat(r[scheme])||0 }));
+      let data = rawData.map(r => ({ _block: r._block, val: parseFloat(r[scheme]) || 0 }));
       if (selectedBlocks.size) data = data.filter(d => selectedBlocks.has(d._block));
       data.sort((a,b) => b.val - a.val);
       data.forEach((d,i) => d.rank = i+1);
@@ -204,27 +208,21 @@
     }
 
     function renderKPIs(data) {
-      const top5 = data.slice(0,5),
-            mid5 = data.slice(Math.floor((data.length-5)/2), Math.floor((data.length-5)/2)+5),
-            bot5 = data.slice(-5);
-      const r1 = document.getElementById('kpiRow1'),
-            r2 = document.getElementById('kpiRow2'),
-            r3 = document.getElementById('kpiRow3');
-      r1.innerHTML = top5.map(d => `
-        <div class="col-md-4"><div class="kpi top">
-          <h4>🏆 ${d.rank}. ${d._block}</h4>
-          स्कोअर: ${d.val}
-        </div></div>`).join('');
-      r2.innerHTML = mid5.map(d => `
-        <div class="col-md-4"><div class="kpi mid">
-          <h4>⚖️ ${d.rank}. ${d._block}</h4>
-          स्कोअर: ${d.val}
-        </div></div>`).join('');
-      r3.innerHTML = bot5.map(d => `
-        <div class="col-md-4"><div class="kpi bot">
-          <h4>🚨 ${d.rank}. ${d._block}</h4>
-          स्कोअर: ${d.val}
-        </div></div>`).join('');
+      const rows = ['kpiRow1','kpiRow2','kpiRow3'];
+      const groups = [
+        data.slice(0,5),
+        data.slice(Math.floor((data.length-5)/2), Math.floor((data.length-5)/2)+5),
+        data.slice(-5)
+      ];
+      const classes = ['top','mid','bot'];
+      const emojis = ['🏆','⚖️','🚨'];
+      rows.forEach((rowId,i) => {
+        document.getElementById(rowId).innerHTML = groups[i].map(d => `
+          <div class="col-md-4"><div class="kpi ${classes[i]}">
+            <h4>${emojis[i]} ${d.rank}. ${d._block}</h4>
+            स्कोअर: ${d.val}
+          </div></div>`).join('');
+      });
     }
 
     function renderBar(data) {
@@ -235,13 +233,13 @@
         type: 'bar',
         data: {
           labels: data.map(d => d._block),
-          datasets: [{ label:'स्कोअर', data: data.map(d=>d.val), backgroundColor:'#6366f1', borderRadius:4 }]
+          datasets: [{ label: 'स्कोअर', data: data.map(d => d.val), backgroundColor: '#6366f1', borderRadius: 4 }]
         },
         options: {
-          indexAxis:'y',
-          plugins:{ legend:{display:false}, datalabels:{anchor:'end',align:'right',formatter:v=>v} }
+          indexAxis: 'y',
+          plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'right', formatter: v => v } }
         },
-        plugins:[ChartDataLabels]
+        plugins: [ChartDataLabels]
       });
     }
 
@@ -250,36 +248,41 @@
       const ctx = document.getElementById('donutChart').getContext('2d');
       donutChart?.destroy();
       donutChart = new Chart(ctx, {
-        type:'doughnut',
-        data:{ labels:data.map(d=>d._block), datasets:[{ data:data.map(d=>d.val), backgroundColor:['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6'] }]},
-        options:{ plugins:{ legend:{position:'bottom'} } }
+        type: 'doughnut',
+        data: {
+          labels: data.map(d => d._block),
+          datasets: [{ data: data.map(d => d.val), backgroundColor: ['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6'] }]
+        },
+        options: { plugins: { legend: { position: 'bottom' } } }
       });
     }
 
     function renderRadar() {
       document.getElementById('radarWrapper').classList.add('active');
       const params = schemes;
-      const datasets = rawData.map(r=>({
+      const datasets = rawData.map(r => ({
         label: r._block,
-        data: params.map(p=>parseFloat(r[p])||0),
-        fill:true, backgroundColor:'rgba(99,102,241,0.2)', borderColor:'#6366f1'
+        data: params.map(p => parseFloat(r[p]) || 0),
+        fill: true,
+        backgroundColor: 'rgba(99,102,241,0.2)',
+        borderColor: '#6366f1'
       }));
       const ctx = document.getElementById('radarChart').getContext('2d');
       radarChart?.destroy();
       radarChart = new Chart(ctx, {
-        type:'radar',
-        data:{ labels: params, datasets: datasets },
-        options:{ plugins:{ legend:{position:'right'} }, elements:{ line:{borderWidth:2} } }
+        type: 'radar',
+        data: { labels: params, datasets: datasets },
+        options: { plugins: { legend: { position: 'right' } }, elements: { line: { borderWidth: 2 } } }
       });
     }
 
     function renderTable(data) {
-      const th = `<th>रँक</th>` + headers.map(h=>`<th>${h}</th>`).join('');
+      const th = `<th>रँक</th>` + headers.map(h => `<th>${h}</th>`).join('');
       document.getElementById('tableHeader').innerHTML = th;
       const n = data.length, midStart = Math.floor((n-5)/2);
       const rows = data.map((r,i) => `
         <tr class="${i<5?'top5':i>=n-5?'bot5':(i>=midStart&&i<midStart+5?'mid5':'')}">
-          <td>${r.rank}</td>${headers.map(h=>`<td>${rawData.find(x=>x._block===r._block)[h]||''}</td>`).join('')}
+          <td>${r.rank}</td>${headers.map(h => `<td>${rawData.find(x=>x._block===r._block)[h]||''}</td>`).join('')}
         </tr>`).join('');
       document.getElementById('tableBody').innerHTML = rows;
       document.getElementById('tableSection').classList.add('active');
@@ -287,28 +290,34 @@
 
     function downloadCSV() {
       const data = compute();
-      let csv = 'रँक,'+headers.join(',')+'\n'+data.map(r=>`${r.rank},`+headers.map(h=>`"${rawData.find(x=>x._block===r._block)[h]||''}"`).join(',')).join('\n');
-      const blob = new Blob([csv],{type:'text/csv'}), url=URL.createObjectURL(blob);
-      const a=document.createElement('a');a.href=url;a.download='taluka-data.csv';a.click();URL.revokeObjectURL(url);
+      let csv = 'रँक,' + headers.join(',') + '\n' +
+        data.map(r => `${r.rank},` + headers.map(h => `"${rawData.find(x=>x._block===r._block)[h]||''}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'taluka-data.csv'; a.click();
+      URL.revokeObjectURL(url);
     }
 
     function updateAll() {
+      if (!document.getElementById('schemeSelect').value) {
+        return alert('कृपया योजना निवडा.');
+      }
       const data = compute();
       renderKPIs(data);
-      if (!document.getElementById('schemeSelect').value) return alert('कृपया योजना निवडा.');
       renderBar(data);
       renderDonut(data);
       renderRadar();
       renderTable(data);
     }
 
-    (async()=>{
+    (async () => {
       try {
         const vals = await fetchSheet();
         parse(vals);
         renderControls();
-      } catch(e){
-        alert('डेटा लोडमध्ये अडचण: '+e.message);
+      } catch (e) {
+        alert('डेटा लोडमध्ये अडचण: ' + e.message);
       }
     })();
   </script>
