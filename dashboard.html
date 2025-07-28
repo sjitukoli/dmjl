@@ -11,40 +11,68 @@
   <style>
     body { font-family:'Noto Sans Devanagari',sans-serif; background:#f8f9fa;}
     .header-gradient { background: linear-gradient(135deg,#667eea,#764ba2);}
-    .kpi-card { border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);}
-    .kpi-card i { font-size:2rem; margin-right:.65rem; }
-    .chart-container { position:relative; height:295px;}
-    .table-row-top5 { border-left:5px solid #28a745; background:rgba(40,167,69,0.13);}
-    .table-row-bottom5 { border-left:5px solid #dc3545; background:rgba(220,53,69,0.09);}
-    .table-row-middle { border-left:5px solid #ffc107; background:rgba(255,193,7,0.07);}
-    .small-space { max-width: 180px; min-width: 120px; width: auto; }
-    .form-select { padding-right: 20px; }
-    .loading-overlay { position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(255,255,255,.92);display:none;align-items:center;justify-content:center;}
-    .loading-spinner { width:3.5rem;height:3.5rem;border:4px solid #eee;border-top:4px solid #667eea;border-radius:50%;animation:spin 1s linear infinite;}
-    @keyframes spin { 100% { transform:rotate(360deg); } }
-    /* Summary Styles */
-    .sum-top { background:#e6fcef; }
-    .sum-bottom { background:#fde2e1; }
-    .sum-mid { background:#fcfcd9; }
-    .summary-taluka { background:#f0f0ff; font-weight:600;}
-    .sum-cell { text-align:center; padding:.3rem .36rem;}
-    .sum-head { background:#f3f3fc; font-weight:700; }
-    .summary-label { font-size: 0.92em; font-style: italic; color: #888;}
-    .multi-info { font-size: 0.89em; color: #444; margin-top: 2px;}
+    .kpi-glow {
+      border-radius:14px; position:relative; overflow:hidden;
+      background: #fff; box-shadow:0 4px 18px 2px rgba(110,77,181,0.09);
+    }
+    .kpi-glow:before {
+      content:""; position:absolute; z-index:0; top:-4px; left:-4px; right:-4px; bottom:-4px;
+      border-radius:19px; padding:0;
+      background:conic-gradient(from var(--glow-angle,0deg), #ff38c6 10%, #ffd539 35%, #5be384 66%, #47bded 85%, #ff38c6 100%);
+      animation: kpi-spin 4s linear infinite;
+      filter: blur(1.1px);
+    }
+    @keyframes kpi-spin { 100% { --glow-angle: 360deg; } }
+    .kpi-glow .card-body { position:relative; z-index:1; background:transparent; }
+    .kpi-glow-block { 
+      border-radius:14px; padding:14px 16px 12px 16px;
+      min-height: 110px;
+      box-shadow: 0 2px 24px 0 rgba(76,64,143,0.07);
+      font-size:1.09em;
+      display:flex; align-items:center; gap:10px;
+    }
+    .kpi-green   { background: rgba(40,167,69,0.11);}
+    .kpi-red     { background:rgba(220,53,69,0.12);}
+    .kpi-blue    { background:rgba(52,144,220,0.11);}
+    .kpi-icon-kpi{ font-size:2.3rem; margin-right:.8rem;}
+    .kpi-glow .card-body>div>h5 {margin-bottom:.45rem;}
+    /* Table/charts */
+    .chart-container{ position:relative; height:305px; }
+    .table-row-top5{ border-left:5px solid #28a745; background:rgba(40,167,69,0.14);}
+    .table-row-bottom5{ border-left:5px solid #dc3545; background:rgba(220,53,69,0.1);}
+    .table-row-middle{ border-left:5px solid #ffc107; background:rgba(251,193,7,0.07);}
+    .small-space{ max-width:162px; min-width:106px; }
+    /* ===== Summary Table Styling ===== */
+    .sum-table th, .sum-table td { vertical-align:middle; position:relative; border-radius:9px; font-size: 1rem;}
+    .sum-table thead th { padding:12px 7px; font-size:1.14rem; letter-spacing:.03em; background: linear-gradient(90deg,#e2e4fb,#d9f5f4);}
+    .sum-cell { text-align:center; font-weight:500; box-shadow:0 1px 6px 0 rgba(110,77,181,0.06);}
+    .sum-taluka { font-weight:600; background:linear-gradient(87deg,#e5e7ff,#f0fcfc);}
+    .sum-top { background:linear-gradient(90deg,#F8FFFE,#d0ffea 90%);}
+    .sum-bottom { background:linear-gradient(90deg,#fbecec,#fff6f6);}
+    .sum-mid { background:linear-gradient(90deg,#fefaef, #f3f9ea);}
+    .sum-cell { transition: box-shadow .25s; border-radius:7px;}
+    .sum-table tbody tr:hover>.sum-cell { box-shadow:0 0 14px #aecbff75;}
+    .sum-table-striped tbody tr:nth-child(even) > .sum-cell { background: rgba(187,220,255,0.09);}
+    .sum-table tfoot td { background:#e6f3fc;}
+    .sum-table .sum-cell { min-width:2.6em;}
+    .summary-label { font-size:0.95em; font-style:italic; color:#888;}
+    .multi-info { font-size: 0.89em; color:#444; margin-top: 2px;}
   </style>
 </head>
 <body>
-  <div id="loadingOverlay" class="loading-overlay"><div class="loading-spinner"></div></div>
+  <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+    <div class="loading-spinner"></div>
+  </div>
   <header class="header-gradient py-4 mb-3 text-white">
     <div class="container d-flex justify-content-between align-items-center">
-      <h1 class="mb-0"><i class="fas fa-chart-line me-2"></i>तालुका योजना रँकिंग डॅशबोर्ड</h1>
+      <h1 class="mb-0"><i class="fas fa-chart-line me-2"></i>तालुका योजना रँकिंग</h1>
       <button id="refreshBtn" class="btn btn-light btn-lg"><i class="fas fa-sync-alt me-2"></i>रिफ्रेश करा</button>
     </div>
   </header>
   <div class="container">
-    <!-- KPI Cards -->
+    <!-- KPI -->
     <div class="row mb-3" id="kpiCards"></div>
-    <!-- Chart Row -->
+    <!-- Charts -->
     <div class="row mb-3">
       <div class="col-md-6 mb-4"><div class="card">
         <div class="card-header bg-success text-white"><span><i class="fas fa-trophy me-2"></i>सर्वोत्कृष्ट ५ तालुके</span></div>
@@ -55,7 +83,7 @@
         <div class="card-body"><div class="chart-container"><canvas id="bottomChart"></canvas></div></div>
       </div></div>
     </div>
-    <!-- Controls: Scheme/Taluka/Buttons -->
+    <!-- Controls -->
     <div class="row mb-2 align-items-end">
       <div class="col-md-4">
         <label class="form-label h6 mb-1"><i class="fas fa-filter me-2"></i>योजना निवडा:</label>
@@ -79,7 +107,7 @@
         </div>
       </div>
     </div>
-    <!-- Main Ranking Table -->
+    <!-- Table -->
     <div class="card mb-4">
       <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fas fa-table me-2"></i>तालुका रँकिंग टेबल</h5></div>
       <div class="card-body p-0">
@@ -97,7 +125,7 @@
       </div>
     </div>
   </div>
-  <!-- Summary Modal -->
+  <!-- SUMMARY MODAL -->
   <div class="modal fade" id="summaryModal" tabindex="-1">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
@@ -105,8 +133,9 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
+          <span class="summary-label">रंग : <span style="color:#28a745;">1 (गडद रंग - टॉप)</span>, <span style="color:#ffc107;">2-3/11-12 (मध्यम)</span>, <span style="color:#dc3545;">13-15 (कमकुवत)</span></span>
           <div class="table-responsive">
-            <table id="summaryTable" class="table table-bordered text-center mb-0">
+            <table id="summaryTable" class="table sum-table table-bordered table-striped text-center mb-1 sum-table-striped">
               <thead><tr id="summaryHeader" class="sum-head"></tr></thead>
               <tbody id="summaryBody"></tbody>
             </table>
@@ -115,7 +144,6 @@
       </div>
     </div>
   </div>
-<!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const SHEET_ID='1aINSij-6mXtt4Gbocn0A1PHbuh7XMImHL0zFmdVKhVs',
@@ -123,7 +151,6 @@ const SHEET_ID='1aINSij-6mXtt4Gbocn0A1PHbuh7XMImHL0zFmdVKhVs',
       VAL_RANGE='Rank!B5:AI20',
       API_URL=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${VAL_RANGE}?key=${API_KEY}`,
       SUMMARY_URL=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Rank!B6:AI20?key=${API_KEY}`;
-
 let dashboard;
 class Dashboard {
   constructor(){
@@ -166,7 +193,6 @@ class Dashboard {
     });
   }
   fillSelectors(){
-    // Scheme select
     const ss=document.getElementById('schemeSelect'), ts=document.getElementById('talukaSelect');
     ss.innerHTML='<option value="all">सर्व योजना</option>' + this.schemes.map((s,j)=>`<option value="${j}">${s}</option>`).join('');
     ts.innerHTML='';
@@ -176,110 +202,85 @@ class Dashboard {
     ss.value='all';
   }
   updateAll(){
-    // Filters
     const sch=document.getElementById('schemeSelect').value,
           sel=document.getElementById('talukaSelect');
     let tarr=Array.from(sel.selectedOptions).map(o=>o.value);
     this.selectedScheme=sch; this.selectedTalukas=tarr;
-    // Build table sort: by count of 1s (descending), then name
-    let arr = (tarr.length>0)
-      ? this.processed.filter(x=>tarr.includes(x.t))
-      : this.processed;
-    // If scheme selected, count top only for that scheme
-    if(sch!=='all'){
-      const idx = +sch;
-      arr = arr.map(x => ({
-        t: x.t,
-        topCount: x.ranks[idx]===1 ? 1 : 0
-      }) );
-    }
-    // Sort: most topCount descending, then by name
-    arr = arr.slice().sort((a,b)=> b.topCount - a.topCount || a.t.localeCompare(b.t,'mr') );
+    // Process ordering: top1 count DESC
+    let arr=(tarr.length?this.processed.filter(x=>tarr.includes(x.t)):this.processed)
+      .map(x=>(sch==='all'?x:{t:x.t,topCount:(x.ranks[+sch]===1?1:0), ranks:x.ranks}))
+      .sort((a,b)=>b.topCount-a.topCount||a.t.localeCompare(b.t,'mr'));
     this.showKPIs();
     this.showTable(arr);
     this.showCharts(arr);
   }
   showKPIs(){
-    const base = this.processed.slice().sort((a,b)=> b.topCount-a.topCount || a.t.localeCompare(b.t,'mr'));
-    const best=base[0], worst=base[base.length-1], avg=Math.round(base.reduce((s,x)=>s+x.topCount,0)/base.length);
+    // KPIs always fixed for all data (not filtered)
+    let base = this.processed.slice().sort((a,b)=>b.topCount-a.topCount||a.t.localeCompare(b.t,'mr'));
+    let best=base[0],worst=base[base.length-1],avg=Math.round(base.reduce((s,x)=>s+x.topCount,0)/base.length);
     document.getElementById('kpiCards').innerHTML=`
       <div class="col-md-4 mb-3">
-        <div class="card kpi-card bg-success text-white h-100">
-          <div class="card-body d-flex align-items-center">
-            <i class="fas fa-star"></i>
-            <div>
-              <h5 class="mb-1">सर्वोत्तम तालुका</h5>
-              <div><strong>${best.t} ⭐️</strong></div>
-              <div>टॉप योजनांची संख्या: <b>${best.topCount}</b></div>
-            </div>
-          </div>
+        <div class="card kpi-card kpi-glow kpi-green h-100 text-dark">
+         <div class="card-body"><div class="kpi-glow-block"><i class="fas fa-star kpi-icon-kpi text-success"></i>
+           <div><h5>सर्वोत्तम तालुका</h5>
+             <div><b>${best.t} ⭐️</b></div>
+             <div>टॉप योजनांची संख्या: <b>${best.topCount}</b></div>
+           </div></div></div>
         </div>
       </div>
       <div class="col-md-4 mb-3">
-        <div class="card kpi-card bg-danger text-white h-100">
-          <div class="card-body d-flex align-items-center">
-            <i class="fas fa-times-circle"></i>
-            <div>
-              <h5 class="mb-1">सुधारणा आवश्यक</h5>
-              <div><strong>${worst.t} ❌</strong></div>
-              <div>टॉप योजनांची संख्या: <b>${worst.topCount}</b></div>
-            </div>
-          </div>
+        <div class="card kpi-card kpi-glow kpi-red h-100 text-dark">
+         <div class="card-body"><div class="kpi-glow-block"><i class="fas fa-times-circle kpi-icon-kpi text-danger"></i>
+           <div><h5>सुधारणा आवश्यक</h5>
+             <div><b>${worst.t} ❌</b></div>
+             <div>टॉप योजनांची संख्या: <b>${worst.topCount}</b></div>
+           </div></div></div>
         </div>
       </div>
       <div class="col-md-4 mb-3">
-        <div class="card kpi-card bg-primary text-white h-100">
-          <div class="card-body d-flex align-items-center">
-            <i class="fas fa-chart-bar"></i>
-            <div>
-              <h5 class="mb-1">जिल्हा सरासरी</h5>
-              <div>📊 <strong>${avg}</strong></div>
-            </div>
-          </div>
+        <div class="card kpi-card kpi-glow kpi-blue h-100 text-dark">
+         <div class="card-body"><div class="kpi-glow-block"><i class="fas fa-chart-bar kpi-icon-kpi text-primary"></i>
+           <div><h5>जिल्हा सरासरी</h5>
+             <div>📊 <b>${avg}</b></div>
+           </div></div></div>
         </div>
       </div>`;
   }
   showTable(arr){
     let tbody='';
     arr.forEach((x,i)=>{
-      let trclass = i<5 ? 'table-row-top5' : i>=arr.length-5 ? 'table-row-bottom5' : 'table-row-middle';
-      tbody += `<tr class="${trclass}">
+      let rowc=i<5?'table-row-top5':i>=arr.length-5?'table-row-bottom5':'table-row-middle';
+      tbody+=`<tr class="${rowc}">
         <td class="small-space">${x.t}</td>
         <td>${x.topCount}</td></tr>`;
     });
     document.querySelector('#rankingTable tbody').innerHTML=tbody;
   }
   showCharts(arr){
-    // bar– top 5, bottom 5 for all (sorted by current table order)
-    let bars = arr.length>0 ? arr : this.processed;
-    let ordered = bars.slice().sort((a,b)=>b.topCount - a.topCount || a.t.localeCompare(b.t,'mr'));
-    // Top 5
+    let bars=arr.length?arr.slice().sort((a,b)=>b.topCount-a.topCount||a.t.localeCompare(b.t,'mr')):this.processed;
     let ctx=document.getElementById('topChart').getContext('2d');
     if(this.charts['topChart']) this.charts['topChart'].destroy();
     this.charts['topChart']=new Chart(ctx,{
       type:'bar',
-      data:{labels: ordered.slice(0,5).map(x=>x.t),datasets:[{data: ordered.slice(0,5).map(x=>x.topCount), backgroundColor:'#28a745', borderRadius:5}]},
-      options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},title:{display:false}},scales:{x:{beginAtZero:true}}}
+      data:{labels: bars.slice(0,5).map(x=>x.t),datasets:[{data: bars.slice(0,5).map(x=>x.topCount), backgroundColor:'#28a745', borderRadius:5}]},
+      options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
     });
-    // Bottom 5
     ctx=document.getElementById('bottomChart').getContext('2d');
     if(this.charts['bottomChart']) this.charts['bottomChart'].destroy();
     this.charts['bottomChart']=new Chart(ctx,{
       type:'bar',
-      data:{labels: ordered.slice(-5).reverse().map(x=>x.t),datasets:[{data: ordered.slice(-5).reverse().map(x=>x.topCount), backgroundColor:'#dc3545', borderRadius:5}]},
-      options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},title:{display:false}},scales:{x:{beginAtZero:true}}}
+      data:{labels: bars.slice(-5).reverse().map(x=>x.t),datasets:[{data: bars.slice(-5).reverse().map(x=>x.topCount), backgroundColor:'#dc3545', borderRadius:5}]},
+      options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
     });
   }
   async showSummaryModal(){
     if(!this._summaryLoaded){
       let resp=await fetch(SUMMARY_URL), j=await resp.json(), v=j.values;
       this._summaryRows = v;
-      // get header (schemes) inline:
       let sch=dashboard.schemes;
       document.getElementById('summaryHeader').innerHTML=`<th>तालुका</th>${sch.map(s=>`<th>${s}</th>`).join('')}`;
       this._summaryLoaded=true;
     }
-    // body
     document.getElementById('summaryBody').innerHTML = this._summaryRows.map(row=>{
       let t=row[0], ranks=row.slice(1).map(v=>+v);
       let tr = `<th class="summary-taluka">${t}</th>`;
