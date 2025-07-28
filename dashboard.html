@@ -1,621 +1,203 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>तालुका योजना रँकिंग डॅशबोर्ड</title>
-    
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap" rel="stylesheet">
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    
-    <style>
-        body {
-            font-family: 'Noto Sans Devanagari', sans-serif;
-            background-color: #f8f9fa;
-        }
-        
-        .header-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .kpi-icon {
-            font-size: 3rem;
-            opacity: 0.8;
-        }
-        
-        .table-row-top5 {
-            border-left: 5px solid #28a745;
-            background-color: rgba(40, 167, 69, 0.1);
-        }
-        
-        .table-row-middle5 {
-            border-left: 5px solid #ffc107;
-            background-color: rgba(255, 193, 7, 0.1);
-        }
-        
-        .table-row-bottom5 {
-            border-left: 5px solid #dc3545;
-            background-color: rgba(220, 53, 69, 0.1);
-        }
-        
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            z-index: 9999;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .chart-container {
-            position: relative;
-            height: 400px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🔐 सुरक्षित तालुका डॅशबोर्ड</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    body { background: #f9fbff; font-family: 'Segoe UI', sans-serif; }
+    .card-glass { background: #fff; border-radius: 10px; box-shadow: 0 5px 10px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 20px; }
+    .form-select { min-height: 160px; }
+    canvas { max-height: 360px; }
+  </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="text-center">
-            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-            <p class="mt-3">डेटा लोड होत आहे...</p>
-        </div>
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>🏅 तालुका रँकिंग डॅशबोर्ड (सुरक्षित)</h3>
+    <a href="ai-insights.html" class="btn btn-outline-primary">🤖 AI Insights</a>
+  </div>
+
+  <div class="row text-center mb-3">
+    <div class="col-md-4">
+      <div class="card-glass bg-success text-white">
+        <h5>🏆 Top 5 Talukas</h5><div id="topTaluka"></div>
+      </div>
     </div>
-
-    <!-- Header -->
-    <header class="header-gradient py-4 mb-4">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1 class="text-white mb-2">
-                        <i class="fas fa-chart-line me-3"></i>
-                        तालुका योजना रँकिंग डॅशबोर्ड
-                    </h1>
-                    <p class="text-white-50 mb-0">जिल्हा जळगाव - योजना आधारित तालुका मूल्यांकन</p>
-                </div>
-                <div class="col-md-4 text-end">
-                    <button id="refreshBtn" class="btn btn-light btn-lg">
-                        <i class="fas fa-sync-alt me-2"></i>
-                        डेटा रिफ्रेश करा
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <div class="container">
-        <!-- KPI Cards -->
-        <div class="row mb-4">
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 bg-success text-white">
-                    <div class="card-body d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-trophy kpi-icon"></i>
-                        </div>
-                        <div>
-                            <h5 class="card-title">सर्वोत्तम तालुका</h5>
-                            <h2 class="mb-0" id="bestTaluka">भुसावळ</h2>
-                            <small id="bestRank">सरासरी रँक: 2.1</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 bg-danger text-white">
-                    <div class="card-body d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-exclamation-triangle kpi-icon"></i>
-                        </div>
-                        <div>
-                            <h5 class="card-title">सर्वात कमकुवत तालुका</h5>
-                            <h2 class="mb-0" id="worstTaluka">श्रीरामपूर</h2>
-                            <small id="worstRank">सरासरी रँक: 13.8</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4 mb-3">
-                <div class="card h-100 bg-primary text-white">
-                    <div class="card-body d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-chart-bar kpi-icon"></i>
-                        </div>
-                        <div>
-                            <h5 class="card-title">जिल्हा सरासरी रँक</h5>
-                            <h2 class="mb-0" id="districtAvg">8.0</h2>
-                            <small>15 तालुकांची सरासरी</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Scheme Selector -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <label for="schemeSelect" class="form-label">योजना निवडा:</label>
-                <select class="form-select" id="schemeSelect">
-                    <option value="all">सर्व योजना</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Ranking Table -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">तालुका रँकिंग टेबल</h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0" id="rankingTable">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>तालुका</th>
-                                        <th>सरासरी रँक</th>
-                                        <th>सर्वोत्तम योजना रँक</th>
-                                        <th>सर्वात कमी योजना रँक</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts -->
-        <div class="row mb-4">
-            <div class="col-md-6 mb-3">
-                <div class="card">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">टॉप 5 तालुका</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="topChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6 mb-3">
-                <div class="card">
-                    <div class="card-header bg-danger text-white">
-                        <h5 class="mb-0">बॉटम 5 तालुका</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="bottomChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="col-md-4">
+      <div class="card-glass bg-warning text-dark">
+        <h5>😐 Middle 5 Talukas</h5><div id="middleTaluka"></div>
+      </div>
     </div>
+    <div class="col-md-4">
+      <div class="card-glass bg-danger text-white">
+        <h5>⚠️ Bottom 5 Talukas</h5><div id="bottomTaluka"></div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <div class="card-glass">
+    <h5>📌 बहु योजना व बहु तालुका तुलना:</h5>
+    <div class="row">
+      <div class="col-md-6">
+        <label>✅ योजना निवडा (एकाधिक):</label>
+        <select multiple class="form-select" id="schemeSelect"></select>
+        <button class="btn btn-sm btn-outline-primary mt-2" onclick="selectAll('schemeSelect')">सर्व निवडा</button>
+      </div>
+      <div class="col-md-6">
+        <label>🏘️ तालुका निवडा (एकाधिक):</label>
+        <select multiple class="form-select" id="talukaSelect"></select>
+        <button class="btn btn-sm btn-outline-primary mt-2" onclick="selectAll('talukaSelect')">सर्व निवडा</button>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        // Sample data - working immediately
-        const sampleData = {
-            talukas: ["भुसावळ", "जळगाव", "धुळे", "शिर्डी", "अकलूज", "कोपरगाव", "राहुरी", "श्रिगोंदा", "नेवासा", "पाथर्डी", "करजत", "जामखेड", "घनसावंगी", "पारनेर", "श्रीरामपूर"],
-            schemes: ["महात्मा गांधी नरेगा", "स्वच्छ भारत अभियान", "प्रधानमंत्री आवास योजना", "आयुष्मान भारत", "जल जीवन मिशन", "मिशन इंद्रधनुष", "बेटी बचाओ बेटी पढाओ", "प्रधानमंत्री फसल बीमा", "मुद्रा योजना", "उज्ज्वला योजना", "दीन दयाल उपाध्याय ग्रामीण कौशल्य योजना", "राष्ट्रीय ग्रामीण आरोग्य मिशन", "सर्व शिक्षा अभियान", "मध्याह्न भोजन योजना", "इंदिरा गांधी मातृत्व सहयोग योजना"],
-            ranks: [
-                [1, 3, 2, 5, 4, 7, 6, 8, 9, 12, 10, 11, 13, 14, 15],
-                [2, 1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 15],
-                [3, 2, 1, 6, 5, 4, 9, 8, 7, 11, 10, 13, 12, 15, 14],
-                [1, 4, 2, 3, 7, 5, 6, 10, 8, 9, 13, 11, 12, 15, 14],
-                [2, 1, 5, 4, 3, 8, 6, 7, 11, 9, 10, 14, 12, 13, 15],
-                [4, 2, 1, 6, 3, 5, 9, 7, 8, 12, 10, 11, 15, 13, 14],
-                [1, 3, 4, 2, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 15],
-                [3, 1, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14],
-                [2, 4, 1, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 15],
-                [1, 2, 4, 3, 5, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14],
-                [3, 1, 2, 6, 4, 5, 9, 7, 8, 12, 10, 11, 15, 13, 14],
-                [2, 3, 1, 4, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 15],
-                [1, 2, 4, 3, 7, 5, 6, 9, 8, 11, 10, 13, 12, 15, 14],
-                [4, 1, 2, 5, 3, 6, 8, 7, 10, 9, 12, 11, 14, 13, 15],
-                [2, 3, 1, 4, 6, 5, 9, 7, 8, 12, 10, 11, 15, 13, 14]
-            ]
-        };
+  <div class="row mt-4">
+    <div class="col-md-6 card-glass">
+      <h6 class="text-center">📈 योजना आधारित तालुका रँकिंग</h6>
+      <canvas id="schemeChart"></canvas>
+    </div>
+    <div class="col-md-6 card-glass">
+      <h6 class="text-center">📊 तालुका आधारित योजना कामगिरी</h6>
+      <canvas id="talukaChart"></canvas>
+    </div>
+  </div>
+</div>
 
-        let processedData = [];
-        let topChart = null;
-        let bottomChart = null;
-        const SHEET_ID = '1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE';
+<script>
+const PROXY_URL = "https://yourworker.example.workers.dev"; // 🔁 REPLACE WITH YOUR CLOUDLFARE WORKER URL
 
-        // Initialize application
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-            setupEventListeners();
-        });
+async function fetchSheetData() {
+  const rangeData = await fetch(PROXY_URL, { headers: { "X-Range": "C6:AI20" } }).then(r => r.json());
+  const rangeHeader = await fetch(PROXY_URL, { headers: { "X-Range": "C5:AI5" } }).then(r => r.json());
+  const rangeTalukas = await fetch(PROXY_URL, { headers: { "X-Range": "B6:B20" } }).then(r => r.json());
 
-        function setupEventListeners() {
-            document.getElementById('refreshBtn').addEventListener('click', loadData);
-            document.getElementById('schemeSelect').addEventListener('change', updateDisplays);
-        }
+  return {
+    header: rangeHeader.values[0],
+    rows: rangeData.values,
+    talukas: rangeTalukas.values.flat()
+  };
+}
 
-        function showLoading() {
-            document.getElementById('loadingOverlay').style.display = 'flex';
-        }
+function selectAll(id) {
+  const select = document.getElementById(id);
+  for (let opt of select.options) opt.selected = true;
+  select.dispatchEvent(new Event('change'));
+}
 
-        function hideLoading() {
-            document.getElementById('loadingOverlay').style.display = 'none';
-        }
+function buildDropdowns(schemes, talukas) {
+  const sSelect = document.getElementById("schemeSelect");
+  const tSelect = document.getElementById("talukaSelect");
+  schemes.forEach(sc => {
+    const opt = document.createElement("option");
+    opt.text = sc; opt.value = sc;
+    sSelect.appendChild(opt);
+  });
+  talukas.forEach(t => {
+    const opt = document.createElement("option");
+    opt.text = t; opt.value = t;
+    tSelect.appendChild(opt);
+  });
+}
 
-        async function loadData() {
-            showLoading();
-            
-            try {
-                // Try to fetch from Google Sheets first
-                const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&range=B5:AI20`;
-                const response = await fetch(csvUrl);
-                
-                if (response.ok) {
-                    const csvText = await response.text();
-                    parseCSVData(csvText);
-                } else {
-                    throw new Error('Google Sheets fetch failed');
-                }
-            } catch (error) {
-                console.log('Using sample data due to:', error);
-                useSampleData();
-            }
-            
-            setTimeout(() => {
-                processData();
-                updateKPIs();
-                updateTable();
-                updateCharts();
-                populateSchemeSelector();
-                hideLoading();
-            }, 500);
-        }
+function renderKPI(dataMap) {
+  const rankCount = {};
+  for (let taluka in dataMap) {
+    let count1 = dataMap[taluka].filter(d => d.rank == 1).length;
+    rankCount[taluka] = count1;
+  }
+  const sorted = Object.entries(rankCount).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
+  const top = sorted.slice(0,5).map(t => "🥇 " + t).join("<br>");
+  const mid = sorted.slice(5,10).map(t => "😐 " + t).join("<br>");
+  const bot = sorted.slice(-5).map(t => "⚠️ " + t).join("<br>");
+  document.getElementById("topTaluka").innerHTML = top;
+  document.getElementById("middleTaluka").innerHTML = mid;
+  document.getElementById("bottomTaluka").innerHTML = bot;
+}
 
-        function parseCSVData(csvText) {
-            const lines = csvText.trim().split('\n');
-            const header = lines[0].split(',').slice(1); // Remove first column (taluka names)
-            
-            sampleData.schemes = header;
-            sampleData.talukas = [];
-            sampleData.ranks = [];
-            
-            for (let i = 1; i < lines.length; i++) {
-                const cols = lines[i].split(',');
-                sampleData.talukas.push(cols[0]);
-                sampleData.ranks.push(cols.slice(1).map(Number));
-            }
-        }
+function renderCharts(dataMap, selectedSchemes, selectedTalukas) {
+  let schemeCtx = document.getElementById("schemeChart").getContext("2d");
+  let talukaCtx = document.getElementById("talukaChart").getContext("2d");
 
-        function useSampleData() {
-            // Sample data is already loaded
-            console.log('Using predefined sample data');
-        }
+  if (window.schemeChart) window.schemeChart.destroy();
+  if (window.talukaChart) window.talukaChart.destroy();
 
-        function processData() {
-            processedData = sampleData.talukas.map((taluka, index) => {
-                const ranks = sampleData.ranks[index];
-                const avgRank = ranks.reduce((sum, rank) => sum + rank, 0) / ranks.length;
-                const bestRank = Math.min(...ranks);
-                const worstRank = Math.max(...ranks);
-                const bestScheme = sampleData.schemes[ranks.indexOf(bestRank)];
-                const worstScheme = sampleData.schemes[ranks.indexOf(worstRank)];
-                
-                return {
-                    taluka,
-                    avgRank: parseFloat(avgRank.toFixed(1)),
-                    bestRank,
-                    worstRank,
-                    bestScheme,
-                    worstScheme,
-                    ranks
-                };
-            });
-            
-            // Sort by average rank
-            processedData.sort((a, b) => a.avgRank - b.avgRank);
-        }
+  window.schemeChart = new Chart(schemeCtx, {
+    type: "bar",
+    data: {
+      labels: selectedTalukas,
+      datasets: selectedSchemes.map(s => ({
+        label: s,
+        data: selectedTalukas.map(t => {
+          const d = dataMap[t].find(e => e.scheme === s);
+          return d ? d.rank : null;
+        })
+      }))
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { reverse: true, ticks: { stepSize: 1, precision:0 } }
+      },
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
 
-        function updateKPIs() {
-            const best = processedData[0];
-            const worst = processedData[processedData.length - 1];
-            const districtAvg = processedData.reduce((sum, item) => sum + item.avgRank, 0) / processedData.length;
-            
-            document.getElementById('bestTaluka').textContent = best.taluka;
-            document.getElementById('bestRank').textContent = `सरासरी रँक: ${best.avgRank}`;
-            
-            document.getElementById('worstTaluka').textContent = worst.taluka;
-            document.getElementById('worstRank').textContent = `सरासरी रँक: ${worst.avgRank}`;
-            
-            document.getElementById('districtAvg').textContent = districtAvg.toFixed(1);
-        }
+  window.talukaChart = new Chart(talukaCtx, {
+    type: "bar",
+    data: {
+      labels: selectedSchemes,
+      datasets: selectedTalukas.map(t => ({
+        label: t,
+        data: selectedSchemes.map(s => {
+          const d = dataMap[t].find(e => e.scheme === s);
+          return d ? d.rank : null;
+        })
+      }))
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { reverse: true, ticks: { stepSize: 1, precision:0 } }
+      },
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
+}
 
-        function updateTable() {
-            const tbody = document.querySelector('#rankingTable tbody');
-            tbody.innerHTML = '';
-            
-            processedData.forEach((item, index) => {
-                const row = document.createElement('tr');
-                
-                // Color coding based on position
-                if (index < 5) {
-                    row.className = 'table-row-top5';
-                } else if (index >= processedData.length - 5) {
-                    row.className = 'table-row-bottom5';
-                } else {
-                    row.className = 'table-row-middle5';
-                }
-                
-                row.innerHTML = `
-                    <td><strong>${item.taluka}</strong></td>
-                    <td>${item.avgRank}</td>
-                    <td>${item.bestRank} (${item.bestScheme})</td>
-                    <td>${item.worstRank} (${item.worstScheme})</td>
-                `;
-                
-                tbody.appendChild(row);
-            });
-        }
+window.addEventListener("load", async () => {
+  const raw = await fetchSheetData();
+  const schemes = raw.header;
+  const talukas = raw.talukas;
 
-        function updateCharts() {
-            const top5 = processedData.slice(0, 5);
-            const bottom5 = processedData.slice(-5).reverse();
-            
-            // Top 5 Chart
-            const topCtx = document.getElementById('topChart').getContext('2d');
-            if (topChart) topChart.destroy();
-            
-            topChart = new Chart(topCtx, {
-                type: 'bar',
-                data: {
-                    labels: top5.map(item => item.taluka),
-                    datasets: [{
-                        label: 'सरासरी रँक',
-                        data: top5.map(item => item.avgRank),
-                        backgroundColor: '#28a745',
-                        borderColor: '#1e7e34',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            reverse: true, // Lower rank is better
-                            title: {
-                                display: true,
-                                text: 'रँक (कमी = चांगले)'
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Bottom 5 Chart
-            const bottomCtx = document.getElementById('bottomChart').getContext('2d');
-            if (bottomChart) bottomChart.destroy();
-            
-            bottomChart = new Chart(bottomCtx, {
-                type: 'bar',
-                data: {
-                    labels: bottom5.map(item => item.taluka),
-                    datasets: [{
-                        label: 'सरासरी रँक',
-                        data: bottom5.map(item => item.avgRank),
-                        backgroundColor: '#dc3545',
-                        borderColor: '#c82333',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            reverse: true,
-                            title: {
-                                display: true,
-                                text: 'रँक (कमी = चांगले)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
+  buildDropdowns(schemes, talukas);
 
-        function populateSchemeSelector() {
-            const select = document.getElementById('schemeSelect');
-            select.innerHTML = '<option value="all">सर्व योजना</option>';
-            
-            sampleData.schemes.forEach((scheme, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = scheme;
-                select.appendChild(option);
-            });
-        }
+  const dataMap = {};
+  talukas.forEach((t, idx) => {
+    dataMap[t] = schemes.map((s, i) => ({ scheme: s, rank: parseInt(raw.rows[idx][i]) }));
+  });
 
-        function updateDisplays() {
-            const selectedScheme = document.getElementById('schemeSelect').value;
-            
-            if (selectedScheme === 'all') {
-                updateTable();
-                updateCharts();
-            } else {
-                updateTableForScheme(parseInt(selectedScheme));
-                updateChartsForScheme(parseInt(selectedScheme));
-            }
-        }
+  renderKPI(dataMap);
 
-        function updateTableForScheme(schemeIndex) {
-            const tbody = document.querySelector('#rankingTable tbody');
-            tbody.innerHTML = '';
-            
-            // Create scheme-specific data
-            const schemeData = processedData.map(item => ({
-                taluka: item.taluka,
-                rank: item.ranks[schemeIndex]
-            })).sort((a, b) => a.rank - b.rank);
-            
-            // Update table header
-            const tableHeader = document.querySelector('#rankingTable thead tr');
-            tableHeader.innerHTML = `
-                <th>तालुका</th>
-                <th>${sampleData.schemes[schemeIndex]} रँक</th>
-                <th>पोझिशन</th>
-                <th>स्थिती</th>
-            `;
-            
-            schemeData.forEach((item, index) => {
-                const row = document.createElement('tr');
-                
-                if (index < 5) {
-                    row.className = 'table-row-top5';
-                } else if (index >= schemeData.length - 5) {
-                    row.className = 'table-row-bottom5';
-                } else {
-                    row.className = 'table-row-middle5';
-                }
-                
-                let status = index < 5 ? 'उत्कृष्ट' : index >= schemeData.length - 5 ? 'सुधारणा आवश्यक' : 'सरासरी';
-                
-                row.innerHTML = `
-                    <td><strong>${item.taluka}</strong></td>
-                    <td>${item.rank}</td>
-                    <td>${index + 1}</td>
-                    <td>${status}</td>
-                `;
-                
-                tbody.appendChild(row);
-            });
-        }
+  document.getElementById("schemeSelect").addEventListener("change", () => {
+    const s = Array.from(document.getElementById("schemeSelect").selectedOptions).map(o=>o.value);
+    const t = Array.from(document.getElementById("talukaSelect").selectedOptions).map(o=>o.value);
+    if (s.length && t.length) renderCharts(dataMap, s, t);
+  });
 
-        function updateChartsForScheme(schemeIndex) {
-            const schemeData = processedData.map(item => ({
-                taluka: item.taluka,
-                rank: item.ranks[schemeIndex]
-            })).sort((a, b) => a.rank - b.rank);
-            
-            const top5 = schemeData.slice(0, 5);
-            const bottom5 = schemeData.slice(-5).reverse();
-            
-            // Update Top 5 Chart
-            if (topChart) topChart.destroy();
-            const topCtx = document.getElementById('topChart').getContext('2d');
-            
-            topChart = new Chart(topCtx, {
-                type: 'bar',
-                data: {
-                    labels: top5.map(item => item.taluka),
-                    datasets: [{
-                        label: sampleData.schemes[schemeIndex],
-                        data: top5.map(item => item.rank),
-                        backgroundColor: '#28a745',
-                        borderColor: '#1e7e34',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            reverse: true,
-                            title: {
-                                display: true,
-                                text: 'रँक (कमी = चांगले)'
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Update Bottom 5 Chart
-            if (bottomChart) bottomChart.destroy();
-            const bottomCtx = document.getElementById('bottomChart').getContext('2d');
-            
-            bottomChart = new Chart(bottomCtx, {
-                type: 'bar',
-                data: {
-                    labels: bottom5.map(item => item.taluka),
-                    datasets: [{
-                        label: sampleData.schemes[schemeIndex],
-                        data: bottom5.map(item => item.rank),
-                        backgroundColor: '#dc3545',
-                        borderColor: '#c82333',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            reverse: true,
-                            title: {
-                                display: true,
-                                text: 'रँक (कमी = चांगले)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    </script>
+  document.getElementById("talukaSelect").addEventListener("change", () => {
+    const s = Array.from(document.getElementById("schemeSelect").selectedOptions).map(o=>o.value);
+    const t = Array.from(document.getElementById("talukaSelect").selectedOptions).map(o=>o.value);
+    if (s.length && t.length) renderCharts(dataMap, s, t);
+  });
+});
+</script>
 </body>
 </html>
