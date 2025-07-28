@@ -1,217 +1,355 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>तालुका योजना रँकिंग डॅशबोर्ड</title>
-    <!-- Google Font: Noto Sans Devanagari -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <style>
-        body { font-family: 'Noto Sans Devanagari', sans-serif; background: #f8f9fa; }
-        .header-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform .3s; }
-        .card:hover { transform: translateY(-5px); }
-        .kpi-icon { font-size: 3rem; opacity: .8; }
-        .table-row-top5 { border-left: 5px solid #28a745; background: rgba(40,167,69,0.1); }
-        .table-row-middle5 { border-left: 5px solid #ffc107; background: rgba(255,193,7,0.1); }
-        .table-row-bottom5 { border-left: 5px solid #dc3545; background: rgba(220,53,69,0.1); }
-        .loading-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
-        .loading-spinner { width:4rem; height:4rem; border:4px solid #f3f3f3; border-top:4px solid #667eea; border-radius:50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0%{transform:rotate(0)}100%{transform:rotate(360deg)} }
-        .chart-container { position:relative; height:300px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>तालुका योजना रँकिंग डॅशबोर्ड</title>
+
+  <!-- Google Font: Noto Sans Devanagari -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    body { font-family: 'Noto Sans Devanagari', sans-serif; background: #f8f9fa; }
+    .header-gradient { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); }
+    .card { border:none;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1);transition:transform .3s; }
+    .card:hover { transform: translateY(-5px); }
+    .kpi-icon { font-size:3rem;opacity:.8; }
+    .table-row-top5 { border-left:5px solid #28a745;background:rgba(40,167,69,0.1); }
+    .table-row-middle5 { border-left:5px solid #ffc107;background:rgba(255,193,7,0.1); }
+    .table-row-bottom5 { border-left:5px solid #dc3545;background:rgba(220,53,69,0.1); }
+    .loading-overlay { position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.9);display:none;align-items:center;justify-content:center;z-index:9999; }
+    .loading-spinner { width:4rem;height:4rem;border:4px solid #f3f3f3;border-top:4px solid #667eea;border-radius:50%;animation:spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .chart-container { position:relative;height:300px; }
+  </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="text-center">
-            <div class="loading-spinner"></div>
-            <p class="mt-3">डेटा लोड होत आहे...</p>
-        </div>
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="text-center">
+      <div class="loading-spinner"></div>
+      <p class="mt-3">डेटा लोड होत आहे...</p>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header-gradient py-4 mb-4 text-white">
+    <div class="container d-flex justify-content-between align-items-center">
+      <h1><i class="fas fa-chart-line me-2"></i>तालुका योजना रँकिंग डॅशबोर्ड</h1>
+      <button id="refreshBtn" class="btn btn-light btn-lg">
+        <i class="fas fa-sync-alt me-2"></i>डेटा रिफ्रेश करा
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Alerts -->
+    <div id="successAlert" class="alert alert-success d-none"><i class="fas fa-check-circle me-2"></i><span id="successMessage"></span></div>
+    <div id="errorAlert" class="alert alert-danger d-none"><i class="fas fa-exclamation-triangle me-2"></i><span id="errorMessage"></span></div>
+
+    <!-- KPI Cards -->
+    <div class="row mb-4" id="kpiCards"></div>
+
+    <!-- Controls -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <label for="schemeSelect" class="form-label h5"><i class="fas fa-filter me-2"></i>योजना निवडा:</label>
+        <select id="schemeSelect" class="form-select"><option value="all">सर्व योजना</option></select>
+      </div>
+      <div class="col-md-4">
+        <label for="talukaSelect" class="form-label h5"><i class="fas fa-map-marker-alt me-2"></i>तालुका निवडा:</label>
+        <select id="talukaSelect" class="form-select"><option value="none">सर्व तालुका</option></select>
+      </div>
+      <div class="col-md-4 text-center">
+        <button id="submitBtn" class="btn btn-primary me-2">Submit</button>
+        <button id="resetBtn" class="btn btn-secondary me-2">Reset</button>
+        <button id="downloadBtn" class="btn btn-success">Download CSV</button>
+      </div>
     </div>
 
-    <!-- Header -->
-    <header class="header-gradient py-4 mb-4">
-        <div class="container d-flex justify-content-between align-items-center text-white">
-            <div>
-                <h1><i class="fas fa-chart-line me-2"></i>तालुका योजना रँकिंग डॅशबोर्ड</h1>
-                <small>जिल्हा जळगाव — योजना आधारित मूल्यांकन</small>
-            </div>
-            <button id="refreshBtn" class="btn btn-light btn-lg">
-                <i class="fas fa-sync-alt me-2"></i>डेटा पुन्हा लोड करा
-            </button>
+    <!-- Ranking Table -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-table me-2"></i>तालुका रँकिंग टेबल</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table id="rankingTable" class="table table-hover mb-0">
+            <thead><tr id="tableHeader"><th>तालुका</th><th>सरासरी रँक</th><th>सर्वोत्तम योजना</th><th>सर्वात कमी योजना</th></tr></thead>
+            <tbody></tbody>
+          </table>
         </div>
-    </header>
-
-    <div class="container">
-        <!-- Success/Error Alerts -->
-        <div id="successAlert" class="alert alert-success d-none"><i class="fas fa-check-circle me-2"></i><span id="successMessage"></span></div>
-        <div id="errorAlert" class="alert alert-danger d-none"><i class="fas fa-exclamation-triangle me-2"></i><span id="errorMessage"></span></div>
-
-        <!-- KPI Cards -->
-        <div class="row mb-4" id="kpiCards"></div>
-
-        <!-- Controls -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <label for="schemeSelect" class="form-label h5"><i class="fas fa-filter me-2"></i>योजना निवडा:</label>
-                <select id="schemeSelect" class="form-select"><option value="all">सर्व योजना</option></select>
-            </div>
-            <div class="col-md-4">
-                <label for="talukaSelect" class="form-label h5"><i class="fas fa-map-marker-alt me-2"></i>तालुका निवडा:</label>
-                <select id="talukaSelect" class="form-select"><option value="none">सर्व तालुका</option></select>
-            </div>
-            <div class="col-md-4 text-center">
-                <button id="submitBtn" class="btn btn-primary me-2">Submit</button>
-                <button id="resetBtn" class="btn btn-secondary me-2">Reset</button>
-                <button id="downloadBtn" class="btn btn-success">Download CSV</button>
-            </div>
-        </div>
-
-        <!-- Ranking Table -->
-        <div class="card mb-4">
-            <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fas fa-table me-2"></i>तालुका रँकिंग टेबल</h5></div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table id="rankingTable" class="table table-hover mb-0">
-                        <thead><tr id="tableHeader"><th>तालुका</th><th>सरासरी रँक</th><th>सर्वोत्तम योजना</th><th>सर्वात कमी योजना</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts -->
-        <div class="row mb-5">
-            <div class="col-lg-6 mb-4" id="topChartContainer"><div class="card"><div class="card-header bg-success text-white"><h6 class="mb-0"><i class="fas fa-trophy me-2"></i><span id="topChartTitle"></span></h6></div><div class="card-body"><div class="chart-container"><canvas id="topChart"></canvas></div></div></div></div>
-            <div class="col-lg-6 mb-4" id="bottomChartContainer"><div class="card"><div class="card-header bg-danger text-white"><h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i><span id="bottomChartTitle"></span></h6></div><div class="card-body"><div class="chart-container"><canvas id="bottomChart"></canvas></div></div></div></div>
-        </div>
+      </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-    class TalukaRankingDashboard {
-        constructor() {
-            this.SHEET_ID = '1aINSij-6mXtt4Gbocn0A1PHbuh7XMImHL0zFmdVKhVs';
-            this.API_KEY  = 'AIzaSyBSGGIDfZbLKeIiiHfPfm9xCgm3cTVH7HM';
-            this.RANGE    = 'Rank!B5:AI20';
-            this.CSV_URL  = `https://docs.google.com/spreadsheets/d/${this.SHEET_ID}/export?format=csv&gid=0`;
-            this.API_URL  = `https://sheets.googleapis.com/v4/spreadsheets/${this.SHEET_ID}/values/${this.RANGE}?key=${this.API_KEY}`;
-            this.data     = { talukas: [], schemes: [], rankings: [], processed: [] };
-            this.currentScheme = 'all';
-            this.currentTaluka = 'none';
-            this.charts = {};
-            this.init();
-        }
-        init() {
-            document.getElementById('refreshBtn').onclick    = () => this.loadData();
-            document.getElementById('schemeSelect').onchange = e => this.currentScheme = e.target.value;
-            document.getElementById('talukaSelect').onchange = e => this.currentTaluka = e.target.value;
-            document.getElementById('submitBtn').onclick     = () => this.updateDisplay();
-            document.getElementById('resetBtn').onclick      = () => { this.currentScheme='all'; this.currentTaluka='none'; document.getElementById('schemeSelect').value='all'; document.getElementById('talukaSelect').value='none'; this.loadData(); };
-            document.getElementById('downloadBtn').onclick   = () => this.downloadCSV();
-            this.loadData();
-        }
-        showLoading() { document.getElementById('loadingOverlay').style.display='flex'; }
-        hideLoading() { document.getElementById('loadingOverlay').style.display='none'; }
-        showSuccess(msg) { let a=document.getElementById('successAlert'); document.getElementById('successMessage').textContent=msg; a.classList.remove('d-none'); setTimeout(()=>a.classList.add('d-none'),3000); }
-        showError(msg) { let a=document.getElementById('errorAlert'); document.getElementById('errorMessage').textContent=msg; a.classList.remove('d-none'); setTimeout(()=>a.classList.add('d-none'),5000); }
-        async loadData() {
-            this.showLoading();
-            let loaded=false;
-            for (let fn of [()=>this.fetchAPI(), ()=>this.fetchCSV(this.CSV_URL)]) {
-                try { await fn(); this.showSuccess('डेटा यशस्वीरीत्या लोड झाला!'); loaded=true; break; } catch{}
-            }
-            if(!loaded){ this.useSample(); this.showError('Google Sheets डेटा मिळाला नाही, सॅम्पल वापरत आहोत.'); }
-            this.processData(); this.populateSelectors(); this.updateDisplay(); this.hideLoading();
-        }
-        async fetchAPI() {
-            let r=await fetch(this.API_URL); if(!r.ok) throw '';
-            let j=await r.json(), v=j.values; if(!v||v.length<2) throw '';
-            this.data.schemes=v[0].slice(1); this.data.talukas=[]; this.data.rankings=[];
-            for(let i=1;i<v.length;i++){ this.data.talukas.push(v[i][0]); this.data.rankings.push(v[i].slice(1).map(x=>+x)); }
-        }
-        async fetchCSV(url) {
-            let r=await fetch(url); if(!r.ok) throw '';
-            let t=await r.text(), lines=t.trim().split('\n');
-            this.data.schemes=lines[0].split(',').slice(1); this.data.talukas=[]; this.data.rankings=[];
-            for(let i=1;i<lines.length;i++){ let c=lines[i].split(','); this.data.talukas.push(c[0]); this.data.rankings.push(c.slice(1).map(x=>+x)); }
-        }
-        useSample() {
-            let s=this.sampleData={ talukas:["भुसावळ","जळगाव","धरणगाव","यावल","चोपडा","पारोळा","अमळनेर","एरंडोल","रावेर","चाळीसगाव","जामनेर","मुक्ताईनगर","पाचोरा","बोदवड","श्रीरामपूर"], schemes:["मग्नरेगा","स्वच्छ भारत","आवास योज.","आयुष्मान","जल जीवन","इंद्रधनुष","बेटी बचाओ","फसल बीमा","मुद्रा","उज्ज्वला","कौशल्य","आरोग्य","शिक्षण","मध्यान्ह","मातृत्व"], rankings:[] };
-            this.data.talukas=s.talukas; this.data.schemes=s.schemes; this.data.rankings=s.talukas.map(_=>s.schemes.map(()=>Math.ceil(Math.random()*15)));
-        }
-        processData() {
-            this.data.processed=this.data.talukas.map((t,i)=>{let r=this.data.rankings[i],avg=r.reduce((a,b)=>a+b)/r.length,best=Math.min(...r),worst=Math.max(...r);return{taluka:t,ranks:r,avgRank:+avg.toFixed(1),bestRank:best,worstRank:worst,bestScheme:this.data.schemes[r.indexOf(best)],worstScheme:this.data.schemes[r.indexOf(worst)]};}).sort((a,b)=>a.avgRank-b.avgRank);
-        }
-        populateSelectors() {
-            let ss=document.getElementById('schemeSelect'), ts=document.getElementById('talukaSelect');
-            ss.innerHTML='<option value="all">सर्व योजना</option>'; ts.innerHTML='<option value="none">सर्व तालुका</option>';
-            this.data.schemes.forEach((s,i)=>ss.add(new Option(s,i)));
-            this.data.talukas.forEach(t=>ts.add(new Option(t,t)));
-        }
-        updateDisplay() { this.updateKPICards(); this.updateTable(); this.updateCharts(); }
-        updateKPICards() {
-            let p=this.data.processed, best=p[0], worst=p.at(-1), avg=((p.reduce((a,x)=>a+x.avgRank,0))/p.length).toFixed(1);
-            document.getElementById('kpiCards').innerHTML=`
-            <div class="col-md-4 mb-3"><div class="card bg-success text-white h-100"><div class="card-body d-flex align-items-center"><i class="fas fa-trophy kpi-icon me-3"></i><div><h5>सर्वोत्तम तालुका</h5><h2>${best.taluka}</h2><small>रँक: ${best.avgRank}</small></div></div></div></div>
-            <div class="col-md-4 mb-3"><div class="card bg-danger text-white h-100"><div class="card-body d-flex align-items-center"><i class="fas fa-exclamation-triangle kpi-icon me-3"></i><div><h5>सुधारणा आवश्यक</h5><h2>${worst.taluka}</h2><small>रँक: ${worst.avgRank}</small></div></div></div></div>
-            <div class="col-md-4 mb-3"><div class="card bg-primary text-white h-100"><div class="card-body d-flex align-items-center"><i class="fas fa-chart-bar kpi-icon me-3"></i><div><h5>जिल्हा सरासरी</h5><h2>${avg}</h2><small>${p.length} तालुका</small></div></div></div></div>`;
-        }
-        updateTable() {
-            let cs=this.currentScheme, ct=this.currentTaluka, hdr=document.getElementById('tableHeader'), body=document.querySelector('#rankingTable tbody');
-            if(cs==='all'&&ct==='none'){
-                hdr.innerHTML=`<th>तालुका</th><th>सरासरी रँक</th><th>सर्वोत्तम योजना</th><th>सर्वात कमी योजना</th>`;
-                body.innerHTML=this.data.processed.map((x,i)=>`<tr class="${i<5?'table-row-top5':i>=this.data.processed.length-5?'table-row-bottom5':'table-row-middle5'}"><td>${x.taluka}</td><td>${x.avgRank}</td><td>${x.bestRank}(${x.bestScheme})</td><td>${x.worstRank}(${x.worstScheme})</td></tr>`).join('');
-            } else if(cs!=='all'&&ct==='none'){
-                let idx=+cs; hdr.innerHTML=`<th>तालुका</th><th>${this.data.schemes[idx]} रँक</th><th>स्थिती</th><th>पोझिशन</th>`;
-                let arr=this.data.processed.map(x=>({t:x.taluka,v:x.ranks[idx]})).sort((a,b)=>a.v-b.v);
-                body.innerHTML=arr.map((x,i)=>`<tr class="${i<5?'table-row-top5':i>=arr.length-5?'table-row-bottom5':'table-row-middle5'}"><td>${x.t}</td><td>${x.v}</td><td>${i<5?'उत्कृष्ट':i>=arr.length-5?'सुधारणा आवश्यक':'सरासरी'}</td><td>${i+1}/${arr.length}</td></tr>`).join('');
-            } else if(ct!=='none'&&cs==='all'){
-                let p=this.data.processed.find(x=>x.taluka===ct);
-                hdr.innerHTML=`<th>तालुका</th><th>सरासरी रँक</th><th>सर्वोत्तम योजना</th><th>सर्वात कमी योजना</th>`;
-                body.innerHTML=`<tr><td>${p.taluka}</td><td>${p.avgRank}</td><td>${p.bestRank}(${p.bestScheme})</td><td>${p.worstRank}(${p.worstScheme})</td></tr>`;
-            } else {
-                let idx=+cs, p=this.data.processed.find(x=>x.taluka===ct), r=p.ranks[idx];
-                hdr.innerHTML=`<th>तालुका</th><th>${this.data.schemes[idx]} रँक</th>`;
-                body.innerHTML=`<tr><td>${p.taluka}</td><td>${r}</td></tr>`;
-            }
-        }
-        updateCharts() {
-            let mode=document.getElementById('comparisonMode')?document.getElementById('comparisonMode').value:'topbottom';
-            if(mode==='all'&&this.currentScheme!=='all'){ this.showAll(); } else { this.showTopBottom(); }
-        }
-        showTopBottom() {
-            document.getElementById('topChartContainer').classList.remove('d-none');
-            document.getElementById('bottomChartContainer').classList.remove('d-none');
-            let cs=this.currentScheme, data;
-            if(cs==='all'){ data=this.data.processed.map(x=>({t:x.taluka,v:x.avgRank})); document.getElementById('topChartTitle').textContent='टॉप 5 (सरासरी रँक)'; document.getElementById('bottomChartTitle').textContent='बॉटम 5'; }
-            else { let idx=+cs; data=this.data.processed.map(x=>({t:x.taluka,v:x.ranks[idx]})).sort((a,b)=>a.v-b.v); document.getElementById('topChartTitle').textContent=`टॉप 5 (${this.data.schemes[idx]})`; document.getElementById('bottomChartTitle').textContent=`बॉटम 5 (${this.data.schemes[idx]})`; }
-            data.sort((a,b)=>a.v-b.v);
-            this.draw('topChart',data.slice(0,5),'#28a745');
-            this.draw('bottomChart',data.slice(-5).reverse(),'#dc3545');
-        }
-        showAll() {
-            // Not used here
-        }
-        draw(id,data,color){
-            let ctx=document.getElementById(id).getContext('2d');
-            if(this.charts[id]) this.charts[id].destroy();
-            this.charts[id]=new Chart(ctx,{type:'bar',data:{labels:data.map(x=>x.t),datasets:[{data:data.map(x=>x.v),backgroundColor:color,borderRadius:5}]},options:{indexAxis:'y',responsive:true,scales:{x:{beginAtZero:true,reverse:true}},plugins:{legend:{display:false}},animation:{duration:800,easing:'easeOutQuart'}}});
-        }
-        downloadCSV(){
-            let rows=[...document.querySelectorAll('#rankingTable tr')].map(r=>[...r.cells].map(c=>`"${c.textContent.trim()}"`).join(',')).join('\n');
-            let blob=new Blob([rows],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='taluka_ranking.csv';a.click();URL.revokeObjectURL(url);
-        }
+    <!-- Charts -->
+    <div class="row mb-5">
+      <div class="col-lg-6 mb-4" id="topChartContainer">
+        <div class="card">
+          <div class="card-header bg-success text-white"><h6 class="mb-0"><i class="fas fa-trophy me-2"></i><span id="topChartTitle"></span></h6></div>
+          <div class="card-body"><div class="chart-container"><canvas id="topChart"></canvas></div></div>
+        </div>
+      </div>
+      <div class="col-lg-6 mb-4" id="bottomChartContainer">
+        <div class="card">
+          <div class="card-header bg-danger text-white"><h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i><span id="bottomChartTitle"></span></h6></div>
+          <div class="card-body"><div class="chart-container"><canvas id="bottomChart"></canvas></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  class TalukaRankingDashboard {
+    constructor() {
+      // Google Sheets API configuration
+      this.SHEET_ID = '1aINSij-6mXtt4Gbocn0A1PHbuh7XMImHL0zFmdVKhVs';
+      this.API_KEY  = 'AIzaSyBSGGIDfZbLKeIiiHfPfm9xCgm3cTVH7HM';
+      this.RANGE    = 'Rank!B5:AI20';
+      this.API_URL  = `https://sheets.googleapis.com/v4/spreadsheets/${this.SHEET_ID}/values/${this.RANGE}?key=${this.API_KEY}`;
+
+      this.data = { talukas: [], schemes: [], rankings: [], processed: [] };
+      this.currentScheme = 'all';
+      this.currentTaluka = 'none';
+      this.charts = {};
+
+      this.init();
     }
-    document.addEventListener('DOMContentLoaded',()=>new TalukaRankingDashboard());
-    </script>
+
+    init() {
+      document.getElementById('refreshBtn').onclick    = () => this.loadData();
+      document.getElementById('schemeSelect').onchange = e => this.currentScheme = e.target.value;
+      document.getElementById('talukaSelect').onchange = e => this.currentTaluka = e.target.value;
+      document.getElementById('submitBtn').onclick     = () => this.updateDisplay();
+      document.getElementById('resetBtn').onclick      = () => {
+        this.currentScheme = 'all';
+        this.currentTaluka = 'none';
+        document.getElementById('schemeSelect').value = 'all';
+        document.getElementById('talukaSelect').value = 'none';
+        this.loadData();
+      };
+      document.getElementById('downloadBtn').onclick   = () => this.downloadCSV();
+
+      this.loadData();
+    }
+
+    showLoading() { document.getElementById('loadingOverlay').style.display = 'flex'; }
+    hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
+    showSuccess(msg) {
+      const a = document.getElementById('successAlert');
+      document.getElementById('successMessage').textContent = msg;
+      a.classList.remove('d-none');
+      setTimeout(() => a.classList.add('d-none'), 3000);
+    }
+    showError(msg) {
+      const a = document.getElementById('errorAlert');
+      document.getElementById('errorMessage').textContent = msg;
+      a.classList.remove('d-none');
+      setTimeout(() => a.classList.add('d-none'), 5000);
+    }
+
+    async loadData() {
+      this.showLoading();
+      let success = false;
+      try {
+        const resp = await fetch(this.API_URL);
+        if (!resp.ok) throw new Error('API error');
+        const json = await resp.json();
+        const vals = json.values;
+        if (!vals || vals.length < 2) throw new Error('No data');
+        // Header row: C5:AI5
+        this.data.schemes = vals[0].slice(1);
+        this.data.talukas = [];
+        this.data.rankings = [];
+        for (let i = 1; i < vals.length; i++) {
+          this.data.talukas.push(vals[i][0]);
+          this.data.rankings.push(vals[i].slice(1).map(x => parseInt(x) || 0));
+        }
+        this.showSuccess('डेटा यशस्वीरीत्या लोड झाला!');
+        success = true;
+      } catch (e) {
+        this.showError('डेटा लोड करता आला नाही. कृपया Sheet access तपासा.');
+      }
+
+      if (!success) {
+        // no fallback sample: you may implement if desired
+      }
+
+      this.processData();
+      this.populateSelectors();
+      this.updateDisplay();
+      this.hideLoading();
+    }
+
+    processData() {
+      this.data.processed = this.data.talukas.map((t, i) => {
+        const r = this.data.rankings[i];
+        const avg = r.reduce((a, b) => a + b, 0) / r.length;
+        const best = Math.min(...r), worst = Math.max(...r);
+        return {
+          taluka: t,
+          ranks: r,
+          avgRank: +avg.toFixed(1),
+          bestRank: best,
+          worstRank: worst,
+          bestScheme: this.data.schemes[r.indexOf(best)],
+          worstScheme: this.data.schemes[r.indexOf(worst)]
+        };
+      }).sort((a, b) => a.avgRank - b.avgRank);
+    }
+
+    populateSelectors() {
+      const ss = document.getElementById('schemeSelect');
+      const ts = document.getElementById('talukaSelect');
+      ss.innerHTML = '<option value="all">सर्व योजना</option>';
+      ts.innerHTML = '<option value="none">सर्व तालुका</option>';
+      this.data.schemes.forEach((s, i) => ss.add(new Option(s, i)));
+      this.data.talukas.forEach(t => ts.add(new Option(t, t)));
+    }
+
+    updateDisplay() {
+      this.updateKPICards();
+      this.updateTable();
+      this.updateCharts();
+    }
+
+    updateKPICards() {
+      const p = this.data.processed;
+      const best = p[0], worst = p.at(-1);
+      const distAvg = (p.reduce((s, x) => s + x.avgRank, 0) / p.length).toFixed(1);
+      document.getElementById('kpiCards').innerHTML = `
+        <div class="col-md-4 mb-3">
+          <div class="card bg-success text-white h-100">
+            <div class="card-body d-flex align-items-center">
+              <i class="fas fa-trophy kpi-icon me-3"></i>
+              <div><h5>सर्वोत्तम तालुका</h5><h2>${best.taluka}</h2><small>रँक: ${best.avgRank}</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card bg-danger text-white h-100">
+            <div class="card-body d-flex align-items-center">
+              <i class="fas fa-exclamation-triangle kpi-icon me-3"></i>
+              <div><h5>सुधारणा आवश्यक</h5><h2>${worst.taluka}</h2><small>रँक: ${worst.avgRank}</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card bg-primary text-white h-100">
+            <div class="card-body d-flex align-items-center">
+              <i class="fas fa-chart-bar kpi-icon me-3"></i>
+              <div><h5>जिल्हा सरासरी</h5><h2>${distAvg}</h2><small>${p.length} तालुका</small></div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    updateTable() {
+      const cs = this.currentScheme, ct = this.currentTaluka;
+      const hdr = document.getElementById('tableHeader');
+      const body = document.querySelector('#rankingTable tbody');
+      if (cs === 'all' && ct === 'none') {
+        hdr.innerHTML = `<th>तालुका</th><th>सरासरी रँक</th><th>सर्वोत्तम योजना</th><th>सर्वात कमी योजना</th>`;
+        body.innerHTML = this.data.processed.map((x,i) => 
+          `<tr class="${i<5?'table-row-top5':i>=this.data.processed.length-5?'table-row-bottom5':'table-row-middle5'}">
+            <td>${x.taluka}</td><td>${x.avgRank}</td>
+            <td>${x.bestRank} (${x.bestScheme})</td>
+            <td>${x.worstRank} (${x.worstScheme})</td>
+          </tr>`).join('');
+      } else if (cs !== 'all' && ct === 'none') {
+        const idx = +cs;
+        hdr.innerHTML = `<th>तालुका</th><th>${this.data.schemes[idx]} रँक</th><th>स्थिती</th><th>पोझिशन</th>`;
+        const arr = this.data.processed.map(x => ({ t: x.taluka, v: x.ranks[idx] }))
+                        .sort((a,b)=>a.v-b.v);
+        body.innerHTML = arr.map((x,i) => 
+          `<tr class="${i<5?'table-row-top5':i>=arr.length-5?'table-row-bottom5':'table-row-middle5'}">
+            <td>${x.t}</td><td>${x.v}</td>
+            <td>${i<5?'उत्कृष्ट':i>=arr.length-5?'सुधारणा आवश्यक':'सरासरी'}</td>
+            <td>${i+1}/${arr.length}</td>
+          </tr>`).join('');
+      } else if (ct !== 'none' && cs === 'all') {
+        const p = this.data.processed.find(x => x.taluka === ct);
+        hdr.innerHTML = `<th>तालुका</th><th>सरासरी रँक</th><th>सर्वोत्तम योजना</th><th>सर्वात कमी योजना</th>`;
+        body.innerHTML = `
+          <tr>
+            <td>${p.taluka}</td><td>${p.avgRank}</td>
+            <td>${p.bestRank} (${p.bestScheme})</td>
+            <td>${p.worstRank} (${p.worstScheme})</td>
+          </tr>`;
+      } else {
+        const idx = +cs;
+        const p = this.data.processed.find(x => x.taluka === ct);
+        const r = p.ranks[idx];
+        hdr.innerHTML = `<th>तालुका</th><th>${this.data.schemes[idx]} रँक</th>`;
+        body.innerHTML = `<tr><td>${p.taluka}</td><td>${r}</td></tr>`;
+      }
+    }
+
+    updateCharts() {
+      const cs = this.currentScheme;
+      let data, titleTop, titleBot;
+      if (cs === 'all') {
+        data = this.data.processed.map(x=>({t:x.taluka,v:x.avgRank}));
+        titleTop = 'टॉप 5 (सरासरी रँक)';
+        titleBot = 'बॉटम 5 (सरासरी रँक)';
+      } else {
+        const idx = +cs;
+        data = this.data.processed.map(x=>({t:x.taluka,v:x.ranks[idx]}))
+                                   .sort((a,b)=>a.v-b.v);
+        titleTop = `टॉप 5 (${this.data.schemes[idx]})`;
+        titleBot = `बॉटम 5 (${this.data.schemes[idx]})`;
+      }
+      document.getElementById('topChartTitle').textContent = titleTop;
+      document.getElementById('bottomChartTitle').textContent = titleBot;
+      const top5 = data.slice(0,5), bot5 = data.slice(-5).reverse();
+      this.drawChart('topChart', top5, '#28a745');
+      this.drawChart('bottomChart', bot5, '#dc3545');
+    }
+
+    drawChart(id, arr, color) {
+      const ctx = document.getElementById(id).getContext('2d');
+      if (this.charts[id]) this.charts[id].destroy();
+      this.charts[id] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: arr.map(x=>x.t),
+          datasets: [{ data: arr.map(x=>x.v), backgroundColor: color, borderRadius: 5 }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          scales: { x:{ beginAtZero:true, reverse:true } },
+          plugins: { legend:{ display:false } },
+          animation: { duration:800, easing:'easeOutQuart' }
+        }
+      });
+    }
+
+    downloadCSV() {
+      const rows = Array.from(document.querySelectorAll('#rankingTable tr'))
+        .map(r => Array.from(r.cells).map(c=>`"${c.textContent.trim()}"`).join(','))
+        .join('\n');
+      const blob = new Blob([rows],{type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'taluka_ranking.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', ()=>new TalukaRankingDashboard());
+  </script>
 </body>
 </html>
