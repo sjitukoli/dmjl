@@ -9,15 +9,21 @@
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
     rel="stylesheet"
-    integrity="sha384-YSaXbzfYTrlQq8QGn8a+qK3tjk0B1XSk/gT6vfuBZ8ybB3y0fXHmIwZr2Oz3V9OM"
+    integrity="sha384-52KyqF8j+Kx6N6G+TS7zP8+AaV8xw3rYMG4kCkZ0++h0aJ3q8z+Qe+YxPXfqQGL7"
     crossorigin="anonymous"
   />
 
   <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
 
   <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap"
+    rel="stylesheet"
+  />
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.1.2/dist/chart.umd.min.js"></script>
@@ -43,9 +49,10 @@
       margin-right: 0.25rem;
       vertical-align: middle;
     }
-    .border-left-top5 { border-left: 4px solid #66BB6A !important; }
+    .border-left-top5    { border-left: 4px solid #66BB6A !important; }
     .border-left-middle5 { border-left: 4px solid #FFA726 !important; }
     .border-left-bottom5 { border-left: 4px solid #EF5350 !important; }
+    thead.position-sticky { top: 0; z-index: 1; }
   </style>
 </head>
 <body>
@@ -56,7 +63,6 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
       <select id="schemeSelect" class="form-select w-auto mb-2">
         <option value="all" selected>Show All Schemes</option>
-        <!-- Populated in JS -->
       </select>
       <button id="refreshBtn" class="btn btn-primary btn-icon mb-2">
         <i class="bi bi-arrow-clockwise"></i> Refresh Data
@@ -64,16 +70,14 @@
     </div>
 
     <!-- KPI Cards -->
-    <div class="row g-3 mb-4" id="kpiCards">
-      <!-- Populated in JS -->
-    </div>
+    <div class="row g-3 mb-4" id="kpiCards"></div>
 
     <!-- Overall Table -->
     <div class="card mb-4">
       <div class="card-body p-0">
         <div class="table-responsive">
           <table id="rankingTable" class="table table-striped table-hover mb-0">
-            <thead class="table-primary position-sticky top-0">
+            <thead class="table-primary position-sticky">
               <tr>
                 <th>Taluka</th>
                 <th>Average Rank</th>
@@ -81,7 +85,7 @@
                 <th>Worst Scheme Rank</th>
               </tr>
             </thead>
-            <tbody><!-- Populated in JS --></tbody>
+            <tbody></tbody>
           </table>
         </div>
       </div>
@@ -105,184 +109,136 @@
   <!-- Bootstrap JS Bundle -->
   <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-Yo4pmT+q1reldXN7vg5E8cMAk7Pm2ax+XBe12dnm29lHx9J5ZFqH5fPb58FlxUIF"
+    integrity="sha384-Zlix+ybt6+NHa21hTZtDpFQ5u8E7lVn5I6DV7+JkFj6lQ3vvXvEIHm+Rl7bQdpLl"
     crossorigin="anonymous"
   ></script>
 
   <script>
-    // CONFIG: Replace with your own
+    // CONFIG: Replace with your spreadsheet info
     const SPREADSHEET_ID = '1aINSij-6mXtt4Gbocn0A1PHbuh7XMImHL0zFmdVKhVs';
-    const API_KEY = 'AIzaSyBSGGIDfZbLKeIiiHfPfm9xCgm3cTVH7HM';
     const CSV_RANGE = 'Rank!B5:AI20';
-    const DATA_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(
-      CSV_RANGE
-    )}?alt=csv&key=${API_KEY}`;
+    const DATA_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&range=${encodeURIComponent(CSV_RANGE)}`;
 
     let rawData = [], metrics = [], schemes = [];
 
     async function fetchData() {
-      const resp = await fetch(DATA_URL);
-      const text = await resp.text();
-      const lines = text.trim().split('\n');
-      const header = lines[0].split(',').slice(1);
-      schemes = header;
-      populateSchemeSelect();
-      rawData = lines.slice(1).map(line => {
-        const cols = line.split(',');
-        return {
-          taluka: cols[0],
-          ranks: cols.slice(1).map(Number)
-        };
-      });
-      computeMetrics();
-      populateKPICards();
-      populateTable();
-      renderAllCharts();
+      try {
+        const resp = await fetch(DATA_URL);
+        if (!resp.ok) throw new Error('Failed to fetch CSV');
+        const text = await resp.text();
+        const lines = text.trim().split('\n');
+        // Header row -> scheme names
+        schemes = lines[0].split(',').slice(1);
+        populateSchemeSelect();
+        rawData = lines.slice(1).map(line => {
+          const cols = line.split(',');
+          return {
+            taluka: cols[0],
+            ranks: cols.slice(1).map(Number)
+          };
+        });
+        computeMetrics();
+        populateKPICards();
+        populateTable();
+        renderAllCharts();
+      } catch (e) {
+        alert('Error loading data: ' + e.message);
+      }
     }
 
     function populateSchemeSelect() {
-      const select = document.getElementById('schemeSelect');
-      select.innerHTML = '<option value="all">Show All Schemes</option>';
+      const sel = document.getElementById('schemeSelect');
+      sel.innerHTML = '<option value="all">Show All Schemes</option>';
       schemes.forEach((s, i) => {
         const opt = document.createElement('option');
         opt.value = i;
         opt.textContent = s;
-        select.append(opt);
+        sel.append(opt);
       });
     }
 
     function computeMetrics() {
       metrics = rawData.map(d => {
-        const avg = (d.ranks.reduce((a, b) => a + b, 0) / d.ranks.length).toFixed(2);
-        const best = Math.min(...d.ranks);
-        const worst = Math.max(...d.ranks);
-        const bestIdx = d.ranks.indexOf(best);
-        const worstIdx = d.ranks.indexOf(worst);
-        return {
-          taluka: d.taluka,
-          avg: +avg,
-          best, bestScheme: schemes[bestIdx],
-          worst, worstScheme: schemes[worstIdx],
-          ranks: d.ranks
-        };
-      }).sort((a, b) => a.avg - b.avg);
+        const avg = d.ranks.reduce((a,b)=>a+b,0)/d.ranks.length;
+        const best = Math.min(...d.ranks), worst = Math.max(...d.ranks);
+        const bestSch = schemes[d.ranks.indexOf(best)];
+        const worstSch = schemes[d.ranks.indexOf(worst)];
+        return { taluka: d.taluka, avg, best, worst, bestSch, worstSch, ranks: d.ranks };
+      }).sort((a,b)=>a.avg-b.avg);
     }
 
     function populateKPICards() {
-      const container = document.getElementById('kpiCards');
-      const districtAvg = (metrics.reduce((sum, m) => sum + m.avg, 0) / metrics.length).toFixed(2);
+      const c = document.getElementById('kpiCards');
+      const distMean = (metrics.reduce((s,m)=>s+m.avg,0)/metrics.length).toFixed(2);
       const bestAvg = metrics[0].avg.toFixed(2);
-      const worstAvg = metrics[metrics.length - 1].avg.toFixed(2);
-      container.innerHTML = `
-        <div class="col-md-4">
-          <div class="card text-white bg-success h-100">
-            <div class="card-body d-flex align-items-center">
-              <i class="bi bi-trophy-fill fs-1 me-3"></i>
-              <div>
-                <h5 class="card-title">Best Avg Rank</h5>
-                <p class="card-text fs-2">${bestAvg}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card text-white bg-danger h-100">
-            <div class="card-body d-flex align-items-center">
-              <i class="bi bi-exclamation-triangle-fill fs-1 me-3"></i>
-              <div>
-                <h5 class="card-title">Worst Avg Rank</h5>
-                <p class="card-text fs-2">${worstAvg}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card text-white bg-primary h-100">
-            <div class="card-body d-flex align-items-center">
-              <i class="bi bi-building-fill fs-1 me-3"></i>
-              <div>
-                <h5 class="card-title">District Mean Rank</h5>
-                <p class="card-text fs-2">${districtAvg}</p>
-              </div>
-            </div>
-          </div>
-        </div>`;
+      const worstAvg = metrics[metrics.length-1].avg.toFixed(2);
+      c.innerHTML = `
+        <div class="col-md-4"><div class="card text-white bg-success h-100">
+          <div class="card-body d-flex align-items-center">
+            <i class="bi bi-trophy-fill fs-1 me-3"></i>
+            <div><h5>Best Avg Rank</h5><p class="fs-2">${bestAvg}</p></div>
+          </div></div></div>
+        <div class="col-md-4"><div class="card text-white bg-danger h-100">
+          <div class="card-body d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill fs-1 me-3"></i>
+            <div><h5>Worst Avg Rank</h5><p class="fs-2">${worstAvg}</p></div>
+          </div></div></div>
+        <div class="col-md-4"><div class="card text-white bg-primary h-100">
+          <div class="card-body d-flex align-items-center">
+            <i class="bi bi-building-fill fs-1 me-3"></i>
+            <div><h5>District Mean</h5><p class="fs-2">${distMean}</p></div>
+          </div></div></div>`;
     }
 
-    function populateTable(filterIdx = null) {
-      const tbody = document.querySelector('#rankingTable tbody');
-      tbody.innerHTML = metrics.map((m, i) => {
-        // assign performance tier class
-        const tier = i < 5 ? 'border-left-top5'
-                   : i >= metrics.length - 5 ? 'border-left-bottom5'
-                   : 'border-left-middle5';
-        let cells = `
-          <td>${m.taluka}</td>
-          <td>${m.avg}</td>
-          <td>${m.best} (${m.bestScheme})</td>
-          <td>${m.worst} (${m.worstScheme})</td>`;
-        if (filterIdx !== null) {
-          const rank = m.ranks[filterIdx];
-          cells = `<td>${m.taluka}</td><td>${rank}</td>`;
-        }
-        return `<tr class="${tier}">${cells}</tr>`;
-      }).join('');
-      // adjust header columns
-      const thead = document.querySelector('#rankingTable thead tr');
-      if (filterIdx === null) {
-        thead.innerHTML = '<th>Taluka</th><th>Average Rank</th><th>Best Scheme Rank</th><th>Worst Scheme Rank</th>';
+    function populateTable(idx = null) {
+      const tb = document.querySelector('#rankingTable tbody');
+      const hdr = document.querySelector('#rankingTable thead tr');
+      if (idx === null) {
+        hdr.innerHTML = '<th>Taluka</th><th>Average Rank</th><th>Best Scheme Rank</th><th>Worst Scheme Rank</th>';
       } else {
-        thead.innerHTML = `<th>Taluka</th><th>${schemes[filterIdx]} Rank</th>`;
+        hdr.innerHTML = `<th>Taluka</th><th>${schemes[idx]} Rank</th>`;
       }
+      tb.innerHTML = metrics.map((m,i)=>{
+        const cls = i<5?'border-left-top5':i>=metrics.length-5?'border-left-bottom5':'border-left-middle5';
+        if (idx===null) {
+          return `<tr class="${cls}"><td>${m.taluka}</td><td>${m.avg.toFixed(2)}</td>
+            <td>${m.best} (${m.bestSch})</td><td>${m.worst} (${m.worstSch})</td></tr>`;
+        }
+        return `<tr class="${cls}"><td>${m.taluka}</td><td>${m.ranks[idx]}</td></tr>`;
+      }).join('');
     }
 
-    function renderBarChart(ctxId, labels, values, title, color) {
-      const ctx = document.getElementById(ctxId);
+    function renderBarChart(id, labels, data, title, color) {
+      const ctx = document.getElementById(id);
       if (ctx.chart) ctx.chart.destroy();
       ctx.chart = new Chart(ctx, {
         type: 'bar',
-        data: { labels, datasets: [{ label: title, data: values, backgroundColor: color }] },
+        data: { labels, datasets: [{ label: title, data, backgroundColor: color }] },
         options: {
           indexAxis: 'y',
           scales: { x: { beginAtZero: true } },
-          plugins: {
-            legend: { display: false },
-            title: { display: true, text: title, font: { size: 18 } }
-          },
-          animation: { duration: 1200, easing: 'easeOutQuart' }
+          plugins: { title: { display: true, text: title } },
+          animation: { duration: 800, easing: 'easeOutQuart' }
         }
       });
     }
 
-    function renderAllCharts(filterIdx = null) {
-      let data = metrics;
-      let titleSuffix = '';
-      if (filterIdx !== null) {
-        titleSuffix = ` – ${schemes[filterIdx]}`;
-        data = metrics.map(m => ({ taluka: m.taluka, avg: m.ranks[filterIdx] }));
-      }
-      const sorted = [...data].sort((a, b) => a.avg - b.avg);
-      const top5 = sorted.slice(0, 5);
-      const bottom5 = sorted.slice(-5).reverse();
-      renderBarChart('barChartTop5',
-        top5.map(m => m.taluka), top5.map(m => m.avg),
-        `Top 5${titleSuffix}`, '#66BB6A'
-      );
-      renderBarChart('barChartBottom5',
-        bottom5.map(m => m.taluka), bottom5.map(m => m.avg),
-        `Bottom 5${titleSuffix}`, '#EF5350'
-      );
+    function renderAllCharts(idx = null) {
+      let arr = metrics.map(m => ({ t: m.taluka, v: idx===null?m.avg:m.ranks[idx] }));
+      arr.sort((a,b)=>a.v-b.v);
+      const top = arr.slice(0,5), bot = arr.slice(-5).reverse();
+      renderBarChart('barChartTop5', top.map(x=>x.t), top.map(x=>x.v), 'Top 5', '#66BB6A');
+      renderBarChart('barChartBottom5', bot.map(x=>x.t), bot.map(x=>x.v), 'Bottom 5', '#EF5350');
     }
 
-    // Event listeners
     document.getElementById('refreshBtn').addEventListener('click', () => {
       document.getElementById('schemeSelect').value = 'all';
       fetchData();
     });
     document.getElementById('schemeSelect').addEventListener('change', e => {
-      const idx = e.target.value === 'all' ? null : +e.target.value;
-      populateTable(idx);
-      renderAllCharts(idx);
+      const i = e.target.value === 'all' ? null : +e.target.value;
+      populateTable(i);
+      renderAllCharts(i);
     });
 
     // Initial load
