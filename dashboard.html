@@ -2,10 +2,10 @@
 <html lang="mr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>तालुका योजना रँकिंग डॅशबोर्ड</title>
 
-  <!-- Google Font -->
+  <!-- Noto Sans Devanagari -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap" rel="stylesheet">
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,19 +17,18 @@
   <style>
     body { font-family:'Noto Sans Devanagari',sans-serif; background:#f8f9fa; }
     .header-gradient { background: linear-gradient(135deg,#667eea,#764ba2); }
-    .card { border:none; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); transition:transform .3s;}
+    .card { border:none; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); transition:transform .3s; }
     .card:hover { transform:translateY(-5px); }
-    .kpi-icon { font-size:3rem; opacity:.8; }
-    .blink { animation: blink 1s step-start 0s infinite; }
-    @keyframes blink { 50% { opacity:0; } }
+    .kpi-icon { width:2.5rem; height:2.5rem; vertical-align:middle; margin-right:.5rem; }
     .table-row-top3 { border-left:5px solid #28a745; background:rgba(40,167,69,0.1); }
     .table-row-mid5 { border-left:5px solid #ffc107; background:rgba(255,193,7,0.1); }
     .table-row-bottom5 { border-left:5px solid #dc3545; background:rgba(220,53,69,0.1); }
-    .loading-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); display:none; align-items:center; justify-content:center; z-index:9999;}
-    .loading-spinner { width:4rem; height:4rem; border:4px solid #f3f3f3; border-top:4px solid #667eea; border-radius:50%; animation:spin 1s linear infinite;}
-    @keyframes spin { to{transform:rotate(360deg);} }
-    .chart-container { position:relative; height:300px; }
-    .btn-primary { background:linear-gradient(135deg,#667eea,#764ba2); border:none; }
+    .loading-overlay { position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.9);display:none;align-items:center;justify-content:center;z-index:9999; }
+    .loading-spinner { width:4rem;height:4rem;border:4px solid #f3f3f3;border-top:4px solid #667eea;border-radius:50%;animation:spin 1s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .chart-container { position:relative;height:300px; }
+    .btn-primary { background: linear-gradient(135deg,#667eea,#764ba2); border:none; }
+    svg.kpi-svg { width:2rem; height:2rem; vertical-align:middle; margin-right:.5rem; }
   </style>
 </head>
 <body>
@@ -46,26 +45,24 @@
     <div class="row mb-4" id="kpiCards"></div>
 
     <div class="row mb-4">
-      <div class="col-md-4">
+      <div class="col-md-6">
         <label class="form-label h5"><i class="fas fa-filter me-2"></i>योजना निवडा:</label>
         <select id="schemeSelect" class="form-select"><option value="all">सर्व योजना</option></select>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-6">
         <label class="form-label h5"><i class="fas fa-map-marker-alt me-2"></i>तालुका निवडा:</label>
         <select id="talukaSelect" class="form-select"><option value="none">सर्व तालुका</option></select>
-      </div>
-      <div class="col-md-4 text-center">
-        <button id="submitBtn" class="btn btn-primary me-2">Submit</button>
-        <button id="resetBtn" class="btn btn-secondary">Reset</button>
       </div>
     </div>
 
     <div class="card mb-4">
-      <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fas fa-table me-2"></i>तालुका रँकिंग टेबल</h5></div>
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-table me-2"></i>तालुका रँकिंग टेबल</h5>
+      </div>
       <div class="card-body p-0">
         <div class="table-responsive">
           <table id="rankingTable" class="table table-hover mb-0">
-            <thead><tr id="tableHeader"><th>तालुका</th><th>सरासरी रँक</th><th>टॉप स्कीम मिटर</th></tr></thead>
+            <thead><tr id="tableHeader"><th>तालुका</th><th>सरासरी रँक</th><th>टॉप योजनांची संख्या</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -73,14 +70,26 @@
     </div>
 
     <div class="row mb-5">
-      <div class="col-lg-6 mb-4" id="topChartContainer"><div class="card">
-        <div class="card-header bg-success text-white"><h6 class="mb-0"><i class="fas fa-trophy me-2"></i><span id="topChartTitle"></span></h6></div>
-        <div class="card-body"><div class="chart-container"><canvas id="topChart"></canvas></div></div>
-      </div></div>
-      <div class="col-lg-6 mb-4" id="bottomChartContainer"><div class="card">
-        <div class="card-header bg-danger text-white"><h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i><span id="bottomChartTitle"></span></h6></div>
-        <div class="card-body"><div class="chart-container"><canvas id="bottomChart"></canvas></div></div>
-      </div></div>
+      <div class="col-lg-6 mb-4" id="topChartContainer">
+        <div class="card">
+          <div class="card-header bg-success text-white">
+            <h6 class="mb-0"><i class="fas fa-trophy me-2"></i><span id="topChartTitle"></span></h6>
+          </div>
+          <div class="card-body">
+            <div class="chart-container"><canvas id="topChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 mb-4" id="bottomChartContainer">
+        <div class="card">
+          <div class="card-header bg-danger text-white">
+            <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i><span id="bottomChartTitle"></span></h6>
+          </div>
+          <div class="card-body">
+            <div class="chart-container"><canvas id="bottomChart"></canvas></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -88,82 +97,92 @@
   <script>
     class Dashboard {
       constructor() {
-        this.SHEET_ID='1aINSij-6mXtt4Gbocn0A1PHbuh7XMImHL0zFmdVKhVs';
-        this.API_KEY='AIzaSyBmci6WRXJCilTloJnQ1F6gc2qg1aJ96o0';
-        this.RANGE='Rank!B5:AI20';
-        this.URL=`https://sheets.googleapis.com/v4/spreadsheets/${this.SHEET_ID}/values/${this.RANGE}?key=${this.API_KEY}`;
-        this.data={talukas:[],schemes:[],rankings:[],processed:[]};
-        this.currentScheme='all'; this.currentTaluka='none';
-        this.charts={};
+        this.SHEET_ID    = '1aINSij-6mXtt4Gbocn0A1PHbuh7XMImHL0zFmdVKhVs';
+        this.API_KEY     = 'AIzaSyBmci6WRXJCilTloJnQ1F6gc2qg1aJ96o0';
+        this.RANGE       = 'Rank!B5:AI20';
+        this.API_URL     = `https://sheets.googleapis.com/v4/spreadsheets/${this.SHEET_ID}/values/${this.RANGE}?key=${this.API_KEY}`;
+        this.data        = { talukas: [], schemes: [], rankings: [], processed: [] };
+        this.currentScheme = 'all';
+        this.currentTaluka = 'none';
+        this.charts = {};
         this.init();
       }
       init() {
-        document.getElementById('refreshBtn').onclick=()=>this.load();
-        document.getElementById('schemeSelect').onchange=e=>this.currentScheme=e.target.value;
-        document.getElementById('talukaSelect').onchange=e=>this.currentTaluka=e.target.value;
-        document.getElementById('submitBtn').onclick=()=>this.updateAll();
-        document.getElementById('resetBtn').onclick=()=>{this.currentScheme='all';this.currentTaluka='none';document.getElementById('schemeSelect').value='all';document.getElementById('talukaSelect').value='none';this.load();};
+        document.getElementById('refreshBtn').onclick    = () => this.load();
+        document.getElementById('schemeSelect').onchange = e => this.currentScheme = e.target.value;
+        document.getElementById('talukaSelect').onchange = e => this.currentTaluka = e.target.value;
         this.load();
       }
-      showLoad(){document.getElementById('loadingOverlay').style.display='flex';}
-      hideLoad(){document.getElementById('loadingOverlay').style.display='none';}
+      showLoad(){ document.getElementById('loadingOverlay').style.display='flex'; }
+      hideLoad(){ document.getElementById('loadingOverlay').style.display='none'; }
       async load(){
         this.showLoad();
-        try{
-          let r=await fetch(this.URL),j=await r.json(),v=j.values;
-          this.data.schemes=v[0].slice(1);
-          this.data.talukas=[];this.data.rankings=[];
-          for(let i=1;i<v.length;i++){this.data.talukas.push(v[i][0]);this.data.rankings.push(v[i].slice(1).map(x=>+x));}
-        }catch{
+        try {
+          const resp = await fetch(this.API_URL);
+          if (!resp.ok) throw '';
+          const j = await resp.json(), v = j.values;
+          this.data.schemes = v[0].slice(1);
+          this.data.talukas = []; this.data.rankings = [];
+          for (let i=1;i<v.length;i++){
+            this.data.talukas.push(v[i][0]);
+            this.data.rankings.push(v[i].slice(1).map(x=>+x));
+          }
+        } catch {
           alert('डेटा लोड अयशस्वी');
         }
-        this.proc();this.fillSelectors();this.updateAll();this.hideLoad();
+        this.proc(); this.fillSel(); this.updateAll(); this.hideLoad();
       }
       proc(){
-        this.data.processed=this.data.talukas.map((t,i)=>{
-          let r=this.data.rankings[i]; let avg=r.reduce((s,v)=>s+v)/r.length;
-          let sorted=[...r].sort((a,b)=>a-b);
-          let top3=sorted.slice(0,3),mid5=sorted.slice(3,8),bot5=sorted.slice(-5);
-          let topCount=r.filter(v=>v<=sorted[0]).length;
-          return {t,avg:+avg.toFixed(1),r,topCount,top3,mid5,bot5};
+        this.data.processed = this.data.talukas.map((t,i)=>{
+          let r=this.data.rankings[i];
+          let avg=r.reduce((a,b)=>a+b)/r.length;
+          let topCount=r.filter(x=>x===1).length;
+          return { t, avg:+avg.toFixed(1), topCount, r };
         }).sort((a,b)=>a.avg-b.avg);
       }
-      fillSelectors(){
-        let ss=document.getElementById('schemeSelect'),ts=document.getElementById('talukaSelect');
+      fillSel(){
+        let ss=document.getElementById('schemeSelect'), ts=document.getElementById('talukaSelect');
         ss.innerHTML='<option value="all">सर्व योजना</option>';
         ts.innerHTML='<option value="none">सर्व तालुका</option>';
         this.data.schemes.forEach((s,i)=>ss.add(new Option(s,i)));
         this.data.talukas.forEach(t=>ts.add(new Option(t,t)));
       }
       updateAll(){
-        this.updateKPIs();this.updateTable();this.updateCharts();
+        this.updateKPIs(); this.updateTable(); this.updateCharts();
       }
       updateKPIs(){
-        let p=this.data.processed,top=p[0],bot=p.at(-1);
-        document.getElementById('kpiCards').innerHTML=
-          `<div class="col-md-4 mb-3 blink"><div class="card bg-success text-white h-100"><div class="card-body d-flex"><i class="fas fa-trophy kpi-icon me-3"></i><div><h5>सर्वोत्तम तालुका</h5><h2>${top.t}</h2><small>टॉप स्कीम्स: ${top.topCount}</small></div></div></div></div>`+
-          `<div class="col-md-4 mb-3"><div class="card bg-danger text-white h-100"><div class="card-body d-flex"><i class="fas fa-exclamation-triangle kpi-icon me-3"></i><div><h5>सुधारणा आवश्यक</h5><h2>${bot.t}</h2><small>टॉप स्कीम्स: ${bot.topCount}</small></div></div></div></div>`+
-          `<div class="col-md-4 mb-3"><div class="card bg-primary text-white h-100"><div class="card-body d-flex"><i class="fas fa-chart-bar kpi-icon me-3"></i><div><h5>जिल्हा सरासरी</h5><h2>${(p.reduce((s,x)=>s+x.avg,0)/p.length).toFixed(1)}</h2><small>${p.length} तालुका</small></div></div></div></div>`;
+        let p=this.data.processed, top=p[0], bot=p[p.length-1];
+        document.getElementById('kpiCards').innerHTML =
+        `<div class="col-md-4 mb-3"><div class="card bg-success text-white h-100"><div class="card-body d-flex"><svg class="kpi-svg" fill="white"><use xlink:href="#star"/></svg><div><h5>सर्वोत्तम तालुका</h5><h2>${top.t}</h2><small>टॉप योजनांची संख्या: ${top.topCount}</small></div></div></div></div>`+
+        `<div class="col-md-4 mb-3"><div class="card bg-danger text-white h-100"><div class="card-body d-flex"><svg class="kpi-svg" fill="white"><use xlink:href="#alert"/></svg><div><h5>सुधारणा आवश्यक</h5><h2>${bot.t}</h2><small>टॉप योजनांची संख्या: ${bot.topCount}</small></div></div></div></div>`+
+        `<div class="col-md-4 mb-3"><div class="card bg-primary text-white h-100"><div class="card-body d-flex"><svg class="kpi-svg" fill="white"><use xlink:href="#chart"/></svg><div><h5>जिल्हा सरासरी</h5><h2>${(p.reduce((s,x)=>s+x.avg,0)/p.length).toFixed(1)}</h2><small>${p.length} तालुका</small></div></div></div></div>`;
       }
       updateTable(){
-        let cs=this.currentScheme,ct=this.currentTaluka; let hdr=document.getElementById('tableHeader'),bd=document.querySelector('#rankingTable tbody');
-        let arr=this.data.processed;
-        hdr.innerHTML='<th>तालुका</th><th>सरासरी रँक</th><th>टॉप स्कीम्स</th>';
+        let arr=this.data.processed, hdr=document.getElementById('tableHeader'), bd=document.querySelector('#rankingTable tbody');
+        hdr.innerHTML=`<th>तालुका</th><th>सरासरी रँक</th><th>टॉप योजनांची संख्या</th>`;
         bd.innerHTML=arr.map((x,i)=>`<tr class="${i<3?'table-row-top3':i<8?'table-row-mid5':'table-row-bottom5'}"><td>${x.t}</td><td>${x.avg}</td><td>${x.topCount}</td></tr>`).join('');
       }
       updateCharts(){
-        let data=this.data.processed;
-        let top3=data.slice(0,3),mid5=data.slice(3,8),bot5=data.slice(-5);
-        this.draw('topChart',top3,'#28a745','Top 3 Talukas');
-        this.draw('bottomChart',bot5,'#dc3545','Bottom 5 Talukas');
+        let arr=this.data.processed.sort((a,b)=>a.avg-b.avg);
+        this.draw('topChart', arr.slice(0,3),'#28a745','Top 3 Talukas');
+        this.draw('bottomChart', arr.slice(-5).reverse(),'#dc3545','Bottom 5 Talukas');
       }
-      draw(id,arr,color,title){
+      draw(id,arr,color,label){
         let ctx=document.getElementById(id).getContext('2d');
         if(this.charts[id])this.charts[id].destroy();
-        this.charts[id]=new Chart(ctx,{type:'bar',data:{labels:arr.map(x=>x.t),datasets:[{label:title,data:arr.map(x=>x.topCount),backgroundColor:color,borderRadius:5}]},options:{indexAxis:'y',responsive:true,scales:{x:{beginAtZero:true}}}});
+        this.charts[id]=new Chart(ctx,{type:'bar',data:{labels:arr.map(x=>x.t),datasets:[{label,data:arr.map(x=>x.topCount),backgroundColor:color,borderRadius:5}]},options:{indexAxis:'y',responsive:true,scales:{x:{beginAtZero:true}},plugins:{legend:{display:true,position:'top'}}}});
       }
     }
+
     document.addEventListener('DOMContentLoaded',()=>new Dashboard());
+
   </script>
+
+  <!-- SVG symbols -->
+  <svg style="display:none">
+    <symbol id="star" viewBox="0 0 16 16"><path d="M8 12l3-6-3-6-3 6 3 6z"/></symbol>
+    <symbol id="alert" viewBox="0 0 16 16"><path d="M8 1l7 14H1L8 1z"/></symbol>
+    <symbol id="chart" viewBox="0 0 16 16"><path d="M0 10h2v6H0v-6zm4-4h2v10H4V6zm4-6h2v16H8V0z"/></symbol>
+  </svg>
 </body>
 </html>
