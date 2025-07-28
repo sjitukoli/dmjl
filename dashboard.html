@@ -1,167 +1,300 @@
-
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>तालुका योजना रँकिंग डॅशबोर्ड</title>
-
-    <!-- Google Font for Marathi (Noto Sans Devanagari) -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap" rel="stylesheet" />
-
-    <!-- Bootstrap 5 (utility grid only) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-
-    <!-- Font Awesome Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
-
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Google Font: Noto Sans Devanagari -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="style.css" />
+    <style>
+        body {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .header-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform .3s; }
+        .card:hover { transform: translateY(-5px); }
+        .kpi-icon { font-size: 3rem; opacity: .8; }
+        .table-row-top5 { border-left: 5px solid #28a745; background: rgba(40,167,69,0.1); }
+        .table-row-middle5 { border-left: 5px solid #ffc107; background: rgba(255,193,7,0.1); }
+        .table-row-bottom5 { border-left: 5px solid #dc3545; background: rgba(220,53,69,0.1); }
+        .loading-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(255,255,255,0.9); z-index:9999; display:none;
+            align-items:center; justify-content:center;
+        }
+        .chart-container { position: relative; height:300px; }
+    </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="text-center">
+            <div class="spinner-border text-primary" style="width:3rem;height:3rem;"></div>
+            <p class="mt-3">डेटा लोड होत आहे...</p>
+        </div>
+    </div>
+
     <!-- Header -->
-    <header class="app-header py-16">
-        <div class="container flex flex-col lg:flex-row items-center justify-between gap-16">
-            <div class="flex items-center gap-8">
-                <i class="fas fa-chart-line text-white fs-3"></i>
-                <div>
-                    <h1 class="text-white">तालुका योजना रँकिंग डॅशबोर्ड</h1>
-                    <p class="text-white opacity-75 m-0">जिल्हा जळगाव – योजना आधारित तालुका मूल्यांकन</p>
-                </div>
+    <header class="header-gradient py-4 mb-4">
+        <div class="container d-flex justify-content-between align-items-center text-white">
+            <div>
+                <h1><i class="fas fa-chart-line me-2"></i>तालुका योजना रँकिंग डॅशबोर्ड</h1>
+                <small>जिल्हा जळगाव — योजना आधारीत मूल्यांकन</small>
             </div>
-            <button id="refreshBtn" class="btn btn--outline text-white border-white">
-                <i class="fas fa-arrow-rotate-right me-2"></i> डेटा पुन्हा लोड करा
+            <button id="refreshBtn" class="btn btn-light btn-lg">
+                <i class="fas fa-sync-alt me-2"></i>डेटा रिफ्रेश करा
             </button>
         </div>
     </header>
 
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay hidden">
-        <div class="loading-content text-center">
-            <div class="spinner-border text-primary" role="status"></div>
-            <p class="mt-8 m-0">डेटा लोड होत आहे… कृपया थांबा</p>
-        </div>
-    </div>
-
-    <!-- Error Alert -->
-    <div id="errorAlert" class="alert alert-danger hidden container my-8" role="alert">
-        <span id="errorMessage"></span>
-    </div>
-
-    <main class="container py-16">
+    <div class="container">
         <!-- KPI Cards -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-4">
-                <div class="card kpi-card border-success">
-                    <div class="kpi-icon bg-success bg-opacity-15 text-success"><i class="fas fa-trophy"></i></div>
-                    <div>
-                        <h3 id="bestTaluka" class="m-0">-</h3>
-                        <p class="m-0 text-muted">सर्वोत्तम तालुका</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card kpi-card border-info">
-                    <div class="kpi-icon bg-info bg-opacity-15 text-info"><i class="fas fa-chart-bar"></i></div>
-                    <div>
-                        <h3 id="districtAvg" class="m-0">-</h3>
-                        <p class="m-0 text-muted">जिल्हा सरासरी रँक</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card kpi-card border-danger">
-                    <div class="kpi-icon bg-danger bg-opacity-15 text-danger"><i class="fas fa-circle-exclamation"></i></div>
-                    <div>
-                        <h3 id="worstTaluka" class="m-0">-</h3>
-                        <p class="m-0 text-muted">सर्वात कमकुवत तालुका</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="row mb-4" id="kpiCards"></div>
 
-        <!-- Filters -->
-        <div class="row g-4 align-items-end mb-4">
+        <!-- Controls -->
+        <div class="row mb-3 align-items-end">
             <div class="col-md-6">
-                <label for="schemeSelect" class="form-label">योजना निवडा</label>
-                <select id="schemeSelect" class="form-control">
+                <label for="schemeSelect" class="form-label">योजना निवडा:</label>
+                <select id="schemeSelect" class="form-select">
                     <option value="all">सर्व योजना</option>
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="talukaSelect" class="form-label">तालुका तुलना करा</label>
-                <select id="talukaSelect" class="form-control" multiple size="4" style="display:none;"></select>
+                <label for="compareSelect" class="form-label">तालुका तुलना करा:</label>
+                <select id="compareSelect" class="form-select">
+                    <option value="none">कोणतीही नाही</option>
+                </select>
             </div>
         </div>
 
-        <!-- Data Table & Charts -->
-        <div class="row g-4">
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card__header flex items-center gap-8 bg-primary text-white">
-                        <i class="fas fa-list-ol"></i>
-                        <h6 class="m-0">रँकिंग तक्ता</h6>
-                    </div>
-                    <div class="card__body p-0">
-                        <div class="table-responsive">
-                            <table id="rankingTable" class="table m-0">
-                                <thead></thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+        <!-- Ranking Table -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">तालुका रँकिंग टेबल</h5>
             </div>
-            <div class="col-lg-4 flex flex-col gap-16">
-                <div class="card">
-                    <div class="card__header flex items-center gap-8 bg-success text-white">
-                        <i class="fas fa-star"></i>
-                        <h6 class="m-0">टॉप ५</h6>
-                    </div>
-                    <div class="card__body">
-                        <div class="chart-container" style="position:relative;height:240px;">
-                            <canvas id="topChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card__header flex items-center gap-8 bg-danger text-white">
-                        <i class="fas fa-triangle-exclamation"></i>
-                        <h6 class="m-0">बॉटम ५</h6>
-                    </div>
-                    <div class="card__body">
-                        <div class="chart-container" style="position:relative;height:240px;">
-                            <canvas id="bottomChart"></canvas>
-                        </div>
-                    </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table id="rankingTable" class="table table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr id="tableHeader">
+                                <th>तालुका</th>
+                                <th>सरासरी रँक</th>
+                                <th>सर्वोत्तम योजना रँक</th>
+                                <th>सर्वात कमी योजना रँक</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- Comparison Chart -->
-        <div id="comparisonCard" class="card mt-4 hidden">
-            <div class="card__header flex items-center gap-8 bg-secondary">
-                <i class="fas fa-sliders-h"></i>
-                <h6 class="m-0">तुलना चार्ट</h6>
+        <!-- Charts -->
+        <div class="row mb-5">
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header bg-success text-white"><h6 class="mb-0">टॉप 5 तालुका</h6></div>
+                    <div class="card-body chart-container"><canvas id="topChart"></canvas></div>
+                </div>
             </div>
-            <div class="card__body">
-                <div class="chart-container" style="position:relative;height:320px;">
-                    <canvas id="comparisonChart"></canvas>
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header bg-danger text-white"><h6 class="mb-0">बॉटम 5 तालुका</h6></div>
+                    <div class="card-body chart-container"><canvas id="bottomChart"></canvas></div>
                 </div>
             </div>
         </div>
+    </div>
 
-    </main>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Config
+    const SHEET_ID = '1aINSij-6mXtt4Gbocn0A1PHbuh7XMImHL0zFmdVKhVs';
+    const RANGE = 'Rank!B5:AI20';
+    const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&range=${encodeURIComponent(RANGE)}`;
 
-    <!-- Footer -->
-    <footer class="py-16 bg-charcoal text-center text-white mt-24">
-        © २०२५ तालुका योजना रँकिंग डॅशबोर्ड – जिल्हा जळगाव
-    </footer>
+    let rawTalukas = [], schemes = [], dataMatrix = [];
+    let processed = [], topChart, bottomChart;
 
-    <!-- Custom JS -->
-    <script src="app.js"></script>
+    // Sample fallback
+    const sample = {
+        talukas: ["भुसावळ","जळगाव","धुळे","शिर्डी","अकलूज","कोपरगाव","राहुरी","श्रिगोंदा","नेवासा","पाथर्डी","करजत","जामखेड","घनसावंगी","पारनेर","श्रीरामपूर"],
+        schemes: ["मग्नरेगा","स्वच्छ भारत","आवास योजना","आयुष्मान","जल जीवन","इंद्रधनुष","बेटी बचाओ","फसल बीमा","मुद्रा","उज्ज्वला","कौशल्य","आरोग्य","शिक्षण","मध्यान्ह","मातृत्व"],
+        ranks: Array(15).fill().map(()=>[...Array(15)].map((_,i)=>Math.ceil(Math.random()*15)))
+    };
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    function init(){
+        document.getElementById('refreshBtn').onclick = load;
+        document.getElementById('schemeSelect').onchange = onFilterChange;
+        document.getElementById('compareSelect').onchange = onFilterChange;
+        load();
+    }
+
+    async function load(){
+        showLoading();
+        try {
+            const res = await fetch(CSV_URL);
+            if(!res.ok) throw '';
+            const txt = await res.text();
+            parseCSV(txt);
+        } catch {
+            console.warn('Using sample data');
+            ({talukas: rawTalukas, schemes, ranks: dataMatrix} = sample);
+        }
+        processData();
+        renderAll();
+        hideLoading();
+    }
+
+    function parseCSV(txt){
+        const lines = txt.trim().split('\n');
+        schemes = lines[0].split(',').slice(1);
+        rawTalukas = []; dataMatrix = [];
+        for(let i=1;i<lines.length;i++){
+            const cols = lines[i].split(',');
+            rawTalukas.push(cols[0]);
+            dataMatrix.push(cols.slice(1).map(Number));
+        }
+    }
+
+    function processData(){
+        processed = rawTalukas.map((t,i)=>{
+            const ranks = dataMatrix[i];
+            const avg = +(ranks.reduce((a,b)=>a+b)/ranks.length).toFixed(1);
+            const best = Math.min(...ranks), worst = Math.max(...ranks);
+            return { taluka:t, ranks, avg, best, worst,
+                     bestSch:schemes[ranks.indexOf(best)],
+                     worstSch:schemes[ranks.indexOf(worst)] };
+        }).sort((a,b)=>a.avg-b.avg);
+        populateSelectors();
+    }
+
+    function populateSelectors(){
+        const ssel=document.getElementById('schemeSelect'),
+              csel=document.getElementById('compareSelect');
+        ssel.innerHTML='<option value="all">सर्व योजना</option>';
+        csel.innerHTML='<option value="none">कोणतीही नाही</option>';
+        schemes.forEach((s,i)=>{
+            ssel.add(new Option(s,i));
+            csel.add(new Option(s,i));
+        });
+    }
+
+    function renderAll(){
+        updateKPIs();
+        updateTable();
+        updateCharts();
+    }
+
+    function updateKPIs(){
+        const best=processed[0], worst=processed.at(-1);
+        const avgDist = +(processed.reduce((s,p)=>s+p.avg,0)/processed.length).toFixed(1);
+        document.getElementById('kpiCards').innerHTML=`
+        <div class="col-md-4 mb-3">
+          <div class="card bg-success text-white h-100">
+            <div class="card-body d-flex align-items-center">
+              <i class="fas fa-trophy kpi-icon me-3"></i>
+              <div>
+                <h5>सर्वोत्तम तालुका</h5>
+                <h2>${best.taluka}</h2>
+                <small>रँक: ${best.avg}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card bg-danger text-white h-100">
+            <div class="card-body d-flex align-items-center">
+              <i class="fas fa-exclamation-triangle kpi-icon me-3"></i>
+              <div>
+                <h5>कमकुवत तालुका</h5>
+                <h2>${worst.taluka}</h2>
+                <small>रँक: ${worst.avg}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card bg-primary text-white h-100">
+            <div class="card-body d-flex align-items-center">
+              <i class="fas fa-chart-bar kpi-icon me-3"></i>
+              <div>
+                <h5>जिल्हा सरासरी</h5>
+                <h2>${avgDist}</h2>
+                <small>(${processed.length} तालुका)</small>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function updateTable(){
+        const th=document.getElementById('tableHeader');
+        const body=document.querySelector('#rankingTable tbody');
+        const f = document.getElementById('schemeSelect').value;
+        if(f==='all'){
+            th.innerHTML=`<th>तालुका</th><th>सरासरी रँक</th>
+                          <th>सर्वोत्तम योजना रँक</th><th>सर्वात कमी योजना रँक</th>`;
+            body.innerHTML = processed.map((p,i)=>`
+            <tr class="${i<5?'table-row-top5':i>=processed.length-5?'table-row-bottom5':'table-row-middle5'}">
+              <td>${p.taluka}</td><td>${p.avg}</td>
+              <td>${p.best}(${p.bestSch})</td><td>${p.worst}(${p.worstSch})</td>
+            </tr>`).join('');
+        } else {
+            const idx=+f;
+            th.innerHTML=`<th>तालुका</th><th>${schemes[idx]} रँक</th>`;
+            const arr=processed.map(p=>({t:p.taluka,v:p.ranks[idx]}))
+                                .sort((a,b)=>a.v-b.v);
+            body.innerHTML = arr.map((x,i)=>`
+            <tr class="${i<5?'table-row-top5':i>=arr.length-5?'table-row-bottom5':'table-row-middle5'}">
+              <td>${x.t}</td><td>${x.v}</td>
+            </tr>`).join('');
+        }
+    }
+
+    function updateCharts(){
+        const f=document.getElementById('schemeSelect').value;
+        let arr = processed.map(p=>({t:p.taluka,v:p.avg}));
+        let label='सरासरी रँक';
+        if(f!=='all'){
+            const idx=+f;
+            arr = processed.map(p=>({t:p.taluka,v:p.ranks[idx]}));
+            label=schemes[idx]+' रँक';
+        }
+        arr.sort((a,b)=>a.v-b.v);
+        const top5=arr.slice(0,5), bot5=arr.slice(-5).reverse();
+        drawChart('topChart', top5, label, '#28a745');
+        drawChart('bottomChart', bot5, label, '#dc3545');
+    }
+
+    function drawChart(id, data, label, color){
+        const ctx=document.getElementById(id).getContext('2d');
+        if(window[id]) window[id].destroy();
+        window[id]=new Chart(ctx,{
+            type:'bar',
+            data:{labels:data.map(d=>d.t),datasets:[{label,data:data.map(d=>d.v),backgroundColor:color}]},
+            options:{indexAxis:'y',responsive:true,scales:{x:{beginAtZero:true,reverse:true}}}
+        });
+    }
+
+    function onFilterChange(){
+        updateTable(); updateCharts();
+    }
+
+    function showLoading(){document.getElementById('loadingOverlay').style.display='flex';}
+    function hideLoading(){document.getElementById('loadingOverlay').style.display='none';}
+    </script>
 </body>
 </html>
