@@ -28,21 +28,21 @@
       background:linear-gradient(91deg,#facc15 25%,#fbbf24 100%);
       color:#262626; border-color:#f59e0b; transform:scale(1.08); z-index:2;
     }
-    .chart-container { height: 180px; min-height: 110px; }
+    .chart-container { height: 180px; min-height: 110px; border: 1px solid #e0e7ff; border-radius: 8px; padding: 5px; /* Added border and reduced padding */ }
     .dashboard-3col .chart-container { background:#fff; border-radius:10px; padding:.25rem;}
     .form-label { font-weight: 600;}
-    .btn-export { margin-left:0.5rem;}
+    .btn-export { margin-left:0.5rem; border-radius: 20px; padding: 8px 15px; font-weight: bold; /* Made buttons more attractive */ }
     .table thead th {
-      background: #6366f1; color: #fff; border: 1px solid #6366f1; text-align: center;vertical-align: middle; font-size:1.01em;padding:.48em;}
-    .table tbody td { border: 1px solid #e6e6ed; vertical-align: middle; padding: .37rem .2rem; text-align:center; font-size:.95em;}
-    .table tbody tr.selected-block td { background: #c7d2fe!important; font-weight:700; color:#1816a0;}
-    .table tbody tr.top5  td { background: #bbf7d0 !important;}
-    .table tbody tr.mid5  td { background: #feeaa4 !important;}
-    .table tbody tr.bot5  td { background: #ffdada !important;}
+      background: #4f46e5; /* Darker blue */ color: #fff; border: 1px solid #4f46e5; text-align: center;vertical-align: middle; font-size:1.01em;padding:.48em;}
+    .table tbody td { border: 1px solid #c7d2fe; vertical-align: middle; padding: .37rem .2rem; text-align:center; font-size:.95em;}
+    .table tbody tr.selected-block td { background: #9fa8da!important; font-weight:700; color:#fff;} /* Darker selection */
+    .table tbody tr.top5  td { background: #a7f3d0 !important;} /* Slightly darker green */
+    .table tbody tr.mid5  td { background: #fcd34d !important;} /* Slightly darker yellow */
+    .table tbody tr.bot5  td { background: #fca5a5 !important;} /* Slightly darker red */
     @media (max-width: 950px) {.dashboard-3col{flex-direction:column;gap:.8rem;}
       .dashboard-3col>div{min-width:0;}
     }
-    .info-badge {background: #f1f5fa;color: #344e74;font-size:.97em; padding:7px 12px; border-radius:8px;margin-bottom:1rem; border-left:4px solid #6366f1;}
+    .info-badge {background: #e0e7ff;color: #2d3d80;font-size:.97em; padding:7px 12px; border-radius:8px;margin-bottom:1rem; border-left:4px solid #6366f1;}
     .nav-pills .nav-link { font-weight:600; }
     .nav-pills .nav-link.active { background: #6366f1; }
   </style>
@@ -123,15 +123,15 @@
       <span class="chip">⚖️ मध्यम</span>पाचोरा<div>8</div></div><div class="kpi-card bot selected" onclick="selfAssessment(&#39;जामनेर&#39;)">
       <span class="chip">🚨 तळ</span>जामनेर<div>1</div></div></div>
       </div>
-      <div>
+      <div class="d-flex flex-column">
         <div class="text-primary mb-2" style="font-weight:700;font-size:.98em;">Bar Chart</div>
-        <div id="barArea" class="chart-container"><canvas id="barChart" width="430" height="215" style="display: block; box-sizing: border-box; height: 172px; width: 344px;"></canvas></div>
-        <button id="downloadBarBtn" class="btn btn-success btn-sm btn-export mt-1">⬇️ Bar Chart</button>
+        <div id="barArea" class="chart-container flex-grow-1"><canvas id="barChart" width="430" height="215" style="display: block; box-sizing: border-box; height: 172px; width: 344px;"></canvas></div>
+        <button id="downloadBarBtn" class="btn btn-success btn-sm btn-export mt-1 align-self-start">⬇️ Bar Chart</button>
       </div>
-      <div>
+      <div class="d-flex flex-column">
         <div class="text-primary mb-2" style="font-weight:700;font-size:.98em;">Donut Chart</div>
-        <div id="donutArea" class="chart-container"><canvas id="donutChart" width="215" height="215" style="display: block; box-sizing: border-box; height: 172px; width: 172px;"></canvas></div>
-        <button id="downloadDonutBtn" class="btn btn-warning btn-sm btn-export mt-1">⬇️ Donut Chart</button>
+        <div id="donutArea" class="chart-container flex-grow-1"><canvas id="donutChart" width="215" height="215" style="display: block; box-sizing: border-box; height: 172px; width: 172px;"></canvas></div>
+        <button id="downloadDonutBtn" class="btn btn-warning btn-sm btn-export mt-1 align-self-start">⬇️ Donut Chart</button>
       </div>
     </div>
   </div>
@@ -302,7 +302,7 @@ function collectSelections() {
   // निवडलेल्या तालुका चिप्स गोळा करा
   selectedBlocks.clear();
   document.querySelectorAll('#talukaChips .dept-chip.selected').forEach(el=>selectedBlocks.add(el.getAttribute('data-block')));
-  // निवडलेल्या योजना ड्रॉपडाउनमधून गोळा करा
+  // multi select schemes
   selectedSchemes.clear();
   Array.from(document.getElementById('schemeSelect').selectedOptions).forEach(opt => {
     if(opt.value === "__all__") {
@@ -401,6 +401,7 @@ function renderBar(data) {
         datalabels:{anchor:'end',align:'right',formatter:v=>v} // डेटा लेबलसाठी सेटिंग्ज
       },
       responsive:true, // प्रतिसाद देणारा चार्ट
+      maintainAspectRatio: false, // हे चार्टला त्याच्या कंटेनरमध्ये अधिक चांगल्या प्रकारे बसण्यास मदत करते
       scales: {
         x: {
           beginAtZero: true,
@@ -428,11 +429,29 @@ function renderDonut(data) {
       }]
     },
     options:{ 
+      responsive:true, // प्रतिसाद देणारा चार्ट
+      maintainAspectRatio: false, // हे चार्टला त्याच्या कंटेनरमध्ये अधिक चांगल्या प्रकारे बसण्यास मदत करते
       plugins:{ 
-        legend:{position:'bottom'}, // लेजेंड खाली दाखवा
-        datalabels:{anchor:'end',align:'end',formatter:v=>v} // डेटा लेबलसाठी सेटिंग्ज
-      }, 
-      responsive:true // प्रतिसाद देणारा चार्ट
+        legend:{
+          position:'right', // लेजेंड उजवीकडे दाखवा
+          align: 'center', // लेजेंड मध्यभागी अलाइन करा
+          labels: {
+            boxWidth: 20, // लेजेंड बॉक्सची रुंदी
+            padding: 10 // लेबल्समधील पॅडिंग
+          }
+        }, 
+        datalabels:{
+          formatter: (value, ctx) => { // डेटा लेबलसाठी फॉरमॅटर
+            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+            const percentage = total > 0 ? ((value / total) * 100).toFixed(0) + '%' : '';
+            return ctx.chart.data.labels[ctx.dataIndex] + '\n' + percentage; // तालुका नाव आणि टक्केवारी दाखवा
+          },
+          color: '#fff', // मजकूर रंग पांढरा
+          textShadowBlur: 4, // मजकूर सावली
+          textShadowColor: 'rgba(0, 0, 0, 0.6)', // मजकूर सावलीचा रंग
+          display: true // डेटा लेबल्स दाखवा
+        }
+      }
     },
     plugins:[ChartDataLabels] // डेटा लेबल्स प्लगइन वापरा
   });
