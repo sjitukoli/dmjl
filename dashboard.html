@@ -178,9 +178,8 @@ function downloadChart(chart, filename){
   a.href = chart.toBase64Image(); a.download = filename; a.click();
 }
 
-// सुधारित compute फंक्शन
+// compute based on first scheme value
 function compute() {
-  // selections
   selectedBlocks.clear();
   document.querySelectorAll('#talukaChips .dept-chip.selected').forEach(el=> selectedBlocks.add(el.getAttribute('data-block')));
   selectedSchemes.clear();
@@ -205,7 +204,25 @@ function compute() {
   return { ranked, headers, firstScheme };
 }
 
-// सुधारित renderTable फंक्शन
+// CSV डाउनलोडसाठी फंक्शन
+function downloadCSV() {
+  const data = compute();
+  if (!data) return;
+  let csv = 'रँक,' + headers.join(',') + '\n' +
+    data.ranked.map(r =>
+      `${r.rank},` +
+      headers.map(h => `"${r.rowData[h] || ''}"`).join(',')
+    ).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'taluka-data.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// render table with new ranking
 function renderTable(data) {
   const th = `<th>रँक</th>` + data.headers.map(h=>`<th>${h}</th>`).join('');
   document.getElementById('tableHeader').innerHTML = th;
@@ -224,11 +241,11 @@ function renderTable(data) {
   document.getElementById('tableBody').innerHTML = rowsHtml;
 }
 
-// इतर मूळ फंक्शन्स (renderKPI, renderBar, renderDonut इ.) तसेच आहेत, त्यामुळे इथे पुन्हा नमूद करत नाही.
+// existing renderKPI, renderBar, renderDonut unchanged…
 
 function updateAll() {
   const data = compute();
-  renderKPI({ kpiData: [], kpiScheme: data.firstScheme }); // KPI रेंडरिंग जर आवश्यक असेल तर
+  renderKPI({ kpiData: [], kpiScheme: data.firstScheme });
   renderBar({ kpiData: data.ranked.map(r=>({ _block:r._block, val:r.firstVal })), kpiScheme: data.firstScheme });
   renderDonut({ kpiData: data.ranked.map(r=>({ _block:r._block, val:r.firstVal })), kpiScheme: data.firstScheme });
   renderTable(data);
