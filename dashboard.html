@@ -12,7 +12,7 @@
     body { font-family: 'Noto Sans Devanagari', sans-serif; background: #f7fafc; color: #23263a; }
     .glass { background: #fff; border-radius: 14px; box-shadow: 0 2px 10px #bac2f2bb; margin-bottom: 1.2rem; padding:1.1rem; }
     .dashboard-3col { display: flex; flex-wrap: wrap; gap: 1.1rem; }
-    .dashboard-3col > div { background: #f4f6fa; border-radius: 10px; padding: 0.7rem; flex: 1 1 30%; }
+    .dashboard-3col > div { background: #f4f6fa; border-radius: 10px; padding: 0.7rem; flex: 1 1 20%; } /* Changed flex to 20% for smaller KPI width */
     .kpi-card { border-radius: 10px; text-align: center; padding: .55em .6em .4em .6em; font-size:0.99em; font-weight: 700; margin:.15em 0; box-shadow:0 2px 6px #dbeafe20;}
     .kpi-card span.chip { font-size:1em; display:block; font-weight:600;}
     .kpi-card.top  { background:linear-gradient(90deg,#bbf7d0 70%,#6ee7b7);}
@@ -64,8 +64,7 @@
 प्रलंबित">राज्य सेवा हमी आयोग अपिल स्तर 2
 प्रलंबित</option><option value="नॉन क्रिमीलेअर प्रमाणपत्र पडताळणी प्रलंबित प्रकरणे">नॉन क्रिमीलेअर प्रमाणपत्र पडताळणी प्रलंबित प्रकरणे</option><option value="शिधापत्रिका Approved ekyc %">शिधापत्रिका Approved ekyc %</option><option value="शिधापत्रिकेतील मयत व विवाहीत लाभार्थी वगळणे प्रलंबित एकुण लाभार्थी">शिधापत्रिकेतील मयत व विवाहीत लाभार्थी वगळणे प्रलंबित एकुण लाभार्थी</option><option value="शिधापत्रिका प्रलंबित आधार सिडींग">शिधापत्रिका प्रलंबित आधार सिडींग</option><option value="रोहयो अपूर्ण कामे ">रोहयो अपूर्ण कामे </option><option value="तहसिलदार यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे">तहसिलदार यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे</option><option value="मंडळ अधिकारी यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे">मंडळ अधिकारी यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे</option><option value="भूमिहीन लाभार्थ्यांना जागा वितरण टक्केवारी">भूमिहीन लाभार्थ्यांना जागा वितरण टक्केवारी</option><option value="PMAY-G अंतर्गत भूमिहीन लाभार्थ्यांचे तहसील कार्यालय स्तरावर प्रलंबित प्रस्ताव">PMAY-G अंतर्गत भूमिहीन लाभार्थ्यांचे तहसील कार्यालय स्तरावर प्रलंबित प्रस्ताव</option><option value="महाराजस्व वितरीत प्रमाणपत्र">महाराजस्व वितरीत प्रमाणपत्र</option><option value="शेतसुलभ योजना तुकडा नोंद कमी केलेले ७/१२ %">शेतसुलभ योजना तुकडा नोंद कमी केलेले ७/१२ %</option><option value="मामलतदार अधिनियम कलम 143 प्रलंबित प्रस्ताव">मामलतदार अधिनियम कलम 143 प्रलंबित प्रस्ताव</option><option value="कलम १५५ प्रलंबित प्रस्ताव">कलम १५५ प्रलंबित प्रस्ताव</option><option value="36,36अ च्या नोंदी घेण्यात आलेल्या 7/12 %">36,36अ च्या नोंदी घेण्यात आलेल्या 7/12 %</option></select>
       </div>
-      <div class="col-md-6 col-lg-5">
-        <label class="form-label">तालुका निवडा:</label>
+      <div class="col-md-6 col-lg-6"> <label class="form-label">तालुका निवडा:</label>
         <div id="talukaChips" class="mb-2">
     <span class="dept-chip" tabindex="0" data-block="जळगाव">जळगाव</span>
   
@@ -98,8 +97,7 @@
     <span class="dept-chip" tabindex="0" data-block="चाळीसगाव">चाळीसगाव</span>
   </div>
       </div>
-      <div class="col-md-12 col-lg-2 text-end mt-2 mt-lg-0">
-        <button id="resetBtn" class="btn btn-outline-danger btn-sm">Reset</button>
+      <div class="col-md-12 col-lg-1 text-end mt-2 mt-lg-0"> <button id="resetBtn" class="btn btn-outline-danger btn-sm">Reset</button>
         <button id="submitBtn" class="btn btn-primary btn-sm ms-2">Submit</button>
       </div>
     </div>
