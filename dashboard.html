@@ -1,18 +1,22 @@
 <!DOCTYPE html>
-<html lang="mr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
   <title>तालुका योजना तुलनात्मक डॅशबोर्ड – जळगाव जिल्हा</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="./ggg_files/bootstrap.min.css" rel="stylesheet">
-  <link href="./ggg_files/css2" rel="stylesheet">
-  <link rel="stylesheet" href="./ggg_files/all.min.css">
-  <script src="./ggg_files/chart.js@4"></script>
-  <script src="./ggg_files/chartjs-plugin-datalabels@2"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Font (Devanagari & Icons) -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <!-- Chart.js & DataLabels -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <style>
     body { font-family: 'Noto Sans Devanagari', sans-serif; background: #f7fafc; color: #23263a; }
     .glass { background: #fff; border-radius: 14px; box-shadow: 0 2px 10px #bac2f2bb; margin-bottom: 1.2rem; padding:1.1rem; }
     .dashboard-3col { display: flex; flex-wrap: wrap; gap: 1.1rem; }
-    .dashboard-3col > div { background: #f4f6fa; border-radius: 10px; padding: 0.7rem; flex: 1 1 20%; } /* Changed flex to 20% for smaller KPI width */
+    .dashboard-3col > div { background: #f4f6fa; border-radius: 10px; padding: 0.7rem; flex: 1 1 30%; }
     .kpi-card { border-radius: 10px; text-align: center; padding: .55em .6em .4em .6em; font-size:0.99em; font-weight: 700; margin:.15em 0; box-shadow:0 2px 6px #dbeafe20;}
     .kpi-card span.chip { font-size:1em; display:block; font-weight:600;}
     .kpi-card.top  { background:linear-gradient(90deg,#bbf7d0 70%,#6ee7b7);}
@@ -28,21 +32,21 @@
       background:linear-gradient(91deg,#facc15 25%,#fbbf24 100%);
       color:#262626; border-color:#f59e0b; transform:scale(1.08); z-index:2;
     }
-    .chart-container { height: 180px; min-height: 110px; border: 1px solid #e0e7ff; border-radius: 8px; padding: 5px; /* Added border and reduced padding */ }
+    .chart-container { height: 180px; min-height: 110px; }
     .dashboard-3col .chart-container { background:#fff; border-radius:10px; padding:.25rem;}
     .form-label { font-weight: 600;}
-    .btn-export { margin-left:0.5rem; border-radius: 20px; padding: 8px 15px; font-weight: bold; /* Made buttons more attractive */ }
+    .btn-export { margin-left:0.5rem;}
     .table thead th {
-      background: #4f46e5; /* Darker blue */ color: #fff; border: 1px solid #4f46e5; text-align: center;vertical-align: middle; font-size:1.01em;padding:.48em;}
-    .table tbody td { border: 1px solid #c7d2fe; vertical-align: middle; padding: .37rem .2rem; text-align:center; font-size:.95em;}
-    .table tbody tr.selected-block td { background: #9fa8da!important; font-weight:700; color:#fff;} /* Darker selection */
-    .table tbody tr.top5  td { background: #a7f3d0 !important;} /* Slightly darker green */
-    .table tbody tr.mid5  td { background: #fcd34d !important;} /* Slightly darker yellow */
-    .table tbody tr.bot5  td { background: #fca5a5 !important;} /* Slightly darker red */
+      background: #6366f1; color: #fff; border: 1px solid #6366f1; text-align: center;vertical-align: middle; font-size:1.01em;padding:.48em;}
+    .table tbody td { border: 1px solid #e6e6ed; vertical-align: middle; padding: .37rem .2rem; text-align:center; font-size:.95em;}
+    .table tbody tr.selected-block td { background: #c7d2fe!important; font-weight:700; color:#1816a0;}
+    .table tbody tr.top5  td { background: #bbf7d0 !important;}
+    .table tbody tr.mid5  td { background: #feeaa4 !important;}
+    .table tbody tr.bot5  td { background: #ffdada !important;}
     @media (max-width: 950px) {.dashboard-3col{flex-direction:column;gap:.8rem;}
       .dashboard-3col>div{min-width:0;}
     }
-    .info-badge {background: #e0e7ff;color: #2d3d80;font-size:.97em; padding:7px 12px; border-radius:8px;margin-bottom:1rem; border-left:4px solid #6366f1;}
+    .info-badge {background: #f1f5fa;color: #344e74;font-size:.97em; padding:7px 12px; border-radius:8px;margin-bottom:1rem; border-left:4px solid #6366f1;}
     .nav-pills .nav-link { font-weight:600; }
     .nav-pills .nav-link.active { background: #6366f1; }
   </style>
@@ -56,48 +60,14 @@
     <div class="row g-2 align-items-center">
       <div class="col-md-6 col-lg-5">
         <label class="form-label">योजना निवडा (Multiple):</label>
-        <select id="schemeSelect" multiple="" class="form-select form-select-sm" size="7"><option value="__all__" style="font-weight:bold;">सर्व योजना</option><option value="जमीन महसूल व गौणखनिज वसुली टक्केवारी">जमीन महसूल व गौणखनिज वसुली टक्केवारी</option><option value="घरकूलांना मोफत वाळू">घरकूलांना मोफत वाळू</option><option value="अनधिकृत गौणखनिज वसुली टक्केवारी">अनधिकृत गौणखनिज वसुली टक्केवारी</option><option value="शेतीपिक नुकसान EKYC ">शेतीपिक नुकसान EKYC </option><option value="शेतकरी आत्महत्या प्रलंबित प्रकरणे">शेतकरी आत्महत्या प्रलंबित प्रकरणे</option><option value="ई-चावडी 100% वसुली झालेल्या गावांची टक्केवारी">ई-चावडी 100% वसुली झालेल्या गावांची टक्केवारी</option><option value="डिजिटल क्रॉप सर्वे पीक पाहणी नोंदिलेल्या owner’s प्लॉटची %">डिजिटल क्रॉप सर्वे पीक पाहणी नोंदिलेल्या owner’s प्लॉटची %</option><option value="फेरफार नोंदी निर्गती
-नोटीस तयार करणे">फेरफार नोंदी निर्गती
-नोटीस तयार करणे</option><option value="फेरफार नोंदी निर्गती
-नोटीस बजावणे ">फेरफार नोंदी निर्गती
-नोटीस बजावणे </option><option value="नोंदणीकृत नोंदी-UnDisputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस">नोंदणीकृत नोंदी-UnDisputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</option><option value="नोंदणीकृत नोंदी-Disputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस">नोंदणीकृत नोंदी-Disputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</option><option value="अनोंदणीकृत नोंदी-UnDisputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस">अनोंदणीकृत नोंदी-UnDisputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</option><option value="अनोंदणीकृत नोंदी-Disputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस">अनोंदणीकृत नोंदी-Disputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</option><option value="ई-हक्क प्रणाली ग्राम महसूल अधिकाऱ्याकडे प्रलंबित अर्ज">ई-हक्क प्रणाली ग्राम महसूल अधिकाऱ्याकडे प्रलंबित अर्ज</option><option value="जिवंत सातबारा टप्पा 1 प्रलंबित वारसनोंद अर्ज">जिवंत सातबारा टप्पा 1 प्रलंबित वारसनोंद अर्ज</option><option value="जिवंत सातबारा टप्पा 2 एकुण साध्य %">जिवंत सातबारा टप्पा 2 एकुण साध्य %</option><option value="ॲग्रीस्टॅक PM किसान लाभार्थीशी नोंदणीची टक्केवारी  ">ॲग्रीस्टॅक PM किसान लाभार्थीशी नोंदणीची टक्केवारी  </option><option value="सेवा हमी कायदा वेळेत सेवा दिल्याची टक्केवारी">सेवा हमी कायदा वेळेत सेवा दिल्याची टक्केवारी</option><option value="राज्य सेवा हमी आयोग अपिल स्तर 2
-प्रलंबित">राज्य सेवा हमी आयोग अपिल स्तर 2
-प्रलंबित</option><option value="नॉन क्रिमीलेअर प्रमाणपत्र पडताळणी प्रलंबित प्रकरणे">नॉन क्रिमीलेअर प्रमाणपत्र पडताळणी प्रलंबित प्रकरणे</option><option value="शिधापत्रिका Approved ekyc %">शिधापत्रिका Approved ekyc %</option><option value="शिधापत्रिकेतील मयत व विवाहीत लाभार्थी वगळणे प्रलंबित एकुण लाभार्थी">शिधापत्रिकेतील मयत व विवाहीत लाभार्थी वगळणे प्रलंबित एकुण लाभार्थी</option><option value="शिधापत्रिका प्रलंबित आधार सिडींग">शिधापत्रिका प्रलंबित आधार सिडींग</option><option value="रोहयो अपूर्ण कामे ">रोहयो अपूर्ण कामे </option><option value="तहसिलदार यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे">तहसिलदार यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे</option><option value="मंडळ अधिकारी यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे">मंडळ अधिकारी यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे</option><option value="भूमिहीन लाभार्थ्यांना जागा वितरण टक्केवारी">भूमिहीन लाभार्थ्यांना जागा वितरण टक्केवारी</option><option value="PMAY-G अंतर्गत भूमिहीन लाभार्थ्यांचे तहसील कार्यालय स्तरावर प्रलंबित प्रस्ताव">PMAY-G अंतर्गत भूमिहीन लाभार्थ्यांचे तहसील कार्यालय स्तरावर प्रलंबित प्रस्ताव</option><option value="महाराजस्व वितरीत प्रमाणपत्र">महाराजस्व वितरीत प्रमाणपत्र</option><option value="शेतसुलभ योजना तुकडा नोंद कमी केलेले ७/१२ %">शेतसुलभ योजना तुकडा नोंद कमी केलेले ७/१२ %</option><option value="मामलतदार अधिनियम कलम 143 प्रलंबित प्रस्ताव">मामलतदार अधिनियम कलम 143 प्रलंबित प्रस्ताव</option><option value="कलम १५५ प्रलंबित प्रस्ताव">कलम १५५ प्रलंबित प्रस्ताव</option><option value="36,36अ च्या नोंदी घेण्यात आलेल्या 7/12 %">36,36अ च्या नोंदी घेण्यात आलेल्या 7/12 %</option></select>
+        <select id="schemeSelect" multiple class="form-select form-select-sm" size="7"></select>
       </div>
-      <div class="col-md-6 col-lg-6"> <label class="form-label">तालुका निवडा:</label>
-        <div id="talukaChips" class="mb-2">
-    <span class="dept-chip" tabindex="0" data-block="जळगाव">जळगाव</span>
-  
-    <span class="dept-chip" tabindex="0" data-block="जामनेर">जामनेर</span>
-  
-    <span class="dept-chip" tabindex="0" data-block="भुसावळ">भुसावळ</span>
-  
-    <span class="dept-chip" tabindex="0" data-block="बोदवड">बोदवड</span>
-  
-    <span class="dept-chip" tabindex="0" data-block="मुक्ताईनगर">मुक्ताईनगर</span>
-  
-    <span class="dept-chip" tabindex="0" data-block="रावेर">रावेर</span>
-  
-    <span class="dept-chip" tabindex="0" data-block="यावल">यावल</span>
-  
-    <span class="dept-chip" tabindex="0" data-block="अमळनेर">अमळनेर</span>
-  
-    <span class="dept-chip" tabindex="0" data-block="चोपडा">चोपडा</span>
-  
-    <span class="dept-chip" tabindex="0" data-block="एरंडोल">एरंडोल</span>
-  
-    <span class="dept-chip" tabindex="0" data-block="धरणगाव">धरणगाव</span>
-  
-    <span class="dept-chip" tabindex="0" data-block="पारोळा">पारोळा</span>
-  
-    <span class="dept-chip" tabindex="0" data-block="पाचोरा">पाचोरा</span>
-  
-    <span class="dept-chip" tabindex="0" data-block="भडगाव">भडगाव</span>
-  
-    <span class="dept-chip" tabindex="0" data-block="चाळीसगाव">चाळीसगाव</span>
-  </div>
+      <div class="col-md-6 col-lg-5">
+        <label class="form-label">तालुका निवडा:</label>
+        <div id="talukaChips" class="mb-2"></div>
       </div>
-      <div class="col-md-12 col-lg-1 text-end mt-2 mt-lg-0"> <button id="resetBtn" class="btn btn-outline-danger btn-sm">Reset</button>
+      <div class="col-md-12 col-lg-2 text-end mt-2 mt-lg-0">
+        <button id="resetBtn" class="btn btn-outline-danger btn-sm">Reset</button>
         <button id="submitBtn" class="btn btn-primary btn-sm ms-2">Submit</button>
       </div>
     </div>
@@ -114,22 +84,17 @@
   <div class="glass">
     <div class="dashboard-3col">
       <div>
-        <div id="kpiCol">
-    <div class="kpi-card top selected" onclick="selfAssessment(&#39;यावल&#39;)">
-      <span class="chip">🏆 Top</span>यावल<div>15</div>
-    </div><div class="kpi-card mid selected" onclick="selfAssessment(&#39;पाचोरा&#39;)">
-      <span class="chip">⚖️ मध्यम</span>पाचोरा<div>8</div></div><div class="kpi-card bot selected" onclick="selfAssessment(&#39;जामनेर&#39;)">
-      <span class="chip">🚨 तळ</span>जामनेर<div>1</div></div></div>
+        <div id="kpiCol"></div>
       </div>
-      <div class="d-flex flex-column">
+      <div>
         <div class="text-primary mb-2" style="font-weight:700;font-size:.98em;">Bar Chart</div>
-        <div id="barArea" class="chart-container flex-grow-1"><canvas id="barChart" width="430" height="215" style="display: block; box-sizing: border-box; height: 172px; width: 344px;"></canvas></div>
-        <button id="downloadBarBtn" class="btn btn-success btn-sm btn-export mt-1 align-self-start">⬇️ Bar Chart</button>
+        <div id="barArea" class="chart-container"><canvas id="barChart"></canvas></div>
+        <button id="downloadBarBtn" class="btn btn-success btn-sm btn-export mt-1">⬇️ Bar Chart</button>
       </div>
-      <div class="d-flex flex-column">
+      <div>
         <div class="text-primary mb-2" style="font-weight:700;font-size:.98em;">Donut Chart</div>
-        <div id="donutArea" class="chart-container flex-grow-1"><canvas id="donutChart" width="215" height="215" style="display: block; box-sizing: border-box; height: 172px; width: 172px;"></canvas></div>
-        <button id="downloadDonutBtn" class="btn btn-warning btn-sm btn-export mt-1 align-self-start">⬇️ Donut Chart</button>
+        <div id="donutArea" class="chart-container"><canvas id="donutChart"></canvas></div>
+        <button id="downloadDonutBtn" class="btn btn-warning btn-sm btn-export mt-1">⬇️ Donut Chart</button>
       </div>
     </div>
   </div>
@@ -140,127 +105,61 @@
     </h5>
     <div class="table-responsive">
       <table class="table table-bordered mb-0" id="dataTable">
-        <thead><tr id="tableHeader"><th>रँक</th><th>तालुका</th><th>जमीन महसूल व गौणखनिज वसुली टक्केवारी</th><th>घरकूलांना मोफत वाळू</th><th>अनधिकृत गौणखनिज वसुली टक्केवारी</th><th>शेतीपिक नुकसान EKYC </th><th>शेतकरी आत्महत्या प्रलंबित प्रकरणे</th><th>ई-चावडी 100% वसुली झालेल्या गावांची टक्केवारी</th><th>डिजिटल क्रॉप सर्वे पीक पाहणी नोंदिलेल्या owner’s प्लॉटची %</th><th>फेरफार नोंदी निर्गती
-नोटीस तयार करणे</th><th>फेरफार नोंदी निर्गती
-नोटीस बजावणे </th><th>नोंदणीकृत नोंदी-UnDisputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</th><th>नोंदणीकृत नोंदी-Disputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</th><th>अनोंदणीकृत नोंदी-UnDisputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</th><th>अनोंदणीकृत नोंदी-Disputed फेरफार निर्गत करण्यासाठी लागणारे सरासरी दिवस</th><th>ई-हक्क प्रणाली ग्राम महसूल अधिकाऱ्याकडे प्रलंबित अर्ज</th><th>जिवंत सातबारा टप्पा 1 प्रलंबित वारसनोंद अर्ज</th><th>जिवंत सातबारा टप्पा 2 एकुण साध्य %</th><th>ॲग्रीस्टॅक PM किसान लाभार्थीशी नोंदणीची टक्केवारी  </th><th>सेवा हमी कायदा वेळेत सेवा दिल्याची टक्केवारी</th><th>राज्य सेवा हमी आयोग अपिल स्तर 2
-प्रलंबित</th><th>नॉन क्रिमीलेअर प्रमाणपत्र पडताळणी प्रलंबित प्रकरणे</th><th>शिधापत्रिका Approved ekyc %</th><th>शिधापत्रिकेतील मयत व विवाहीत लाभार्थी वगळणे प्रलंबित एकुण लाभार्थी</th><th>शिधापत्रिका प्रलंबित आधार सिडींग</th><th>रोहयो अपूर्ण कामे </th><th>तहसिलदार यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे</th><th>मंडळ अधिकारी यांचेकडील अर्धन्यायिक प्रकरणे 2 वर्षांपेक्षा जास्त प्रलंबित प्रकरणे</th><th>भूमिहीन लाभार्थ्यांना जागा वितरण टक्केवारी</th><th>PMAY-G अंतर्गत भूमिहीन लाभार्थ्यांचे तहसील कार्यालय स्तरावर प्रलंबित प्रस्ताव</th><th>महाराजस्व वितरीत प्रमाणपत्र</th><th>शेतसुलभ योजना तुकडा नोंद कमी केलेले ७/१२ %</th><th>मामलतदार अधिनियम कलम 143 प्रलंबित प्रस्ताव</th><th>कलम १५५ प्रलंबित प्रस्ताव</th><th>36,36अ च्या नोंदी घेण्यात आलेल्या 7/12 %</th></tr></thead>
-        <tbody id="tableBody">
-      <tr class="top5">
-        <td>1</td><td>यावल</td><td>15</td><td>11</td><td>3</td><td>10</td><td>9</td><td>7</td><td>2</td><td>1</td><td>1</td><td>5</td><td>3</td><td>11</td><td>5</td><td>3</td><td>1</td><td>8</td><td>14</td><td>1</td><td>1</td><td>1</td><td>10</td><td>8</td><td>8</td><td>7</td><td>1</td><td>1</td><td>13</td><td>15</td><td>3</td><td>2</td><td>6</td><td>5</td><td>5</td>
-      </tr>
-      <tr class="top5">
-        <td>2</td><td>जळगाव</td><td>14</td><td>13</td><td>8</td><td>1</td><td>1</td><td>1</td><td>5</td><td>1</td><td>1</td><td>5</td><td>13</td><td>8</td><td>12</td><td>1</td><td>5</td><td>1</td><td>15</td><td>3</td><td>1</td><td>1</td><td>5</td><td>4</td><td>13</td><td>6</td><td>1</td><td>1</td><td>2</td><td>1</td><td>1</td><td>1</td><td>3</td><td>3</td><td>8</td>
-      </tr>
-      <tr class="top5">
-        <td>3</td><td>चाळीसगाव</td><td>13</td><td>6</td><td>9</td><td>7</td><td>11</td><td>10</td><td>8</td><td>1</td><td>1</td><td>9</td><td>7</td><td>2</td><td>10</td><td>15</td><td>9</td><td>5</td><td>8</td><td>9</td><td>11</td><td>1</td><td>6</td><td>1</td><td>10</td><td>13</td><td>14</td><td>14</td><td>2</td><td>1</td><td>9</td><td>1</td><td>12</td><td>1</td><td>12</td>
-      </tr>
-      <tr class="top5">
-        <td>4</td><td>धरणगाव</td><td>12</td><td>11</td><td>1</td><td>2</td><td>14</td><td>3</td><td>11</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>2</td><td>8</td><td>7</td><td>3</td><td>4</td><td>11</td><td>1</td><td>14</td><td>4</td><td>14</td><td>15</td><td>2</td><td>1</td><td>1</td><td>9</td><td>1</td><td>6</td><td>1</td><td>4</td><td>5</td><td>3</td>
-      </tr>
-      <tr class="top5">
-        <td>5</td><td>भुसावळ</td><td>11</td><td>10</td><td>11</td><td>5</td><td>1</td><td>14</td><td>7</td><td>1</td><td>1</td><td>1</td><td>2</td><td>3</td><td>1</td><td>4</td><td>1</td><td>4</td><td>1</td><td>14</td><td>1</td><td>1</td><td>8</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>4</td><td>1</td><td>1</td><td>1</td><td>1</td>
-      </tr>
-      <tr class="mid5">
-        <td>6</td><td>एरंडोल</td><td>10</td><td>7</td><td>12</td><td>3</td><td>11</td><td>5</td><td>12</td><td>1</td><td>1</td><td>4</td><td>4</td><td>3</td><td>5</td><td>2</td><td>11</td><td>12</td><td>9</td><td>11</td><td>1</td><td>1</td><td>2</td><td>6</td><td>3</td><td>3</td><td>1</td><td>1</td><td>8</td><td>1</td><td>10</td><td>10</td><td>6</td><td>12</td><td>10</td>
-      </tr>
-      <tr class="mid5">
-        <td>7</td><td>रावेर</td><td>9</td><td>9</td><td>6</td><td>11</td><td>15</td><td>11</td><td>1</td><td>1</td><td>1</td><td>5</td><td>7</td><td>15</td><td>4</td><td>6</td><td>10</td><td>2</td><td>3</td><td>15</td><td>13</td><td>1</td><td>11</td><td>9</td><td>3</td><td>4</td><td>1</td><td>1</td><td>12</td><td>1</td><td>11</td><td>11</td><td>1</td><td>13</td><td>6</td>
-      </tr>
-      <tr class="mid5">
-        <td>8</td><td>पाचोरा</td><td>8</td><td>4</td><td>4</td><td>9</td><td>1</td><td>9</td><td>9</td><td>1</td><td>1</td><td>9</td><td>7</td><td>3</td><td>8</td><td>6</td><td>6</td><td>10</td><td>5</td><td>2</td><td>1</td><td>1</td><td>15</td><td>10</td><td>12</td><td>9</td><td>1</td><td>1</td><td>15</td><td>1</td><td>7</td><td>8</td><td>13</td><td>8</td><td>14</td>
-      </tr>
-      <tr class="mid5">
-        <td>9</td><td>चोपडा</td><td>7</td><td>2</td><td>10</td><td>8</td><td>1</td><td>2</td><td>4</td><td>1</td><td>1</td><td>1</td><td>5</td><td>3</td><td>11</td><td>11</td><td>1</td><td>7</td><td>7</td><td>11</td><td>1</td><td>1</td><td>14</td><td>7</td><td>8</td><td>10</td><td>12</td><td>1</td><td>6</td><td>1</td><td>8</td><td>13</td><td>8</td><td>3</td><td>1</td>
-      </tr>
-      <tr class="mid5">
-        <td>10</td><td>भडगाव</td><td>6</td><td>3</td><td>13</td><td>12</td><td>1</td><td>6</td><td>10</td><td>1</td><td>1</td><td>12</td><td>12</td><td>11</td><td>5</td><td>5</td><td>8</td><td>11</td><td>10</td><td>3</td><td>1</td><td>1</td><td>9</td><td>5</td><td>3</td><td>8</td><td>11</td><td>1</td><td>11</td><td>1</td><td>5</td><td>9</td><td>15</td><td></td>
-      </tr>
-      <tr class="bot5">
-        <td>11</td><td>अमळनेर</td><td>5</td><td>5</td><td>7</td><td>14</td><td>1</td><td>4</td><td>13</td><td>1</td><td>1</td><td>5</td><td>6</td><td>8</td><td>13</td><td>12</td><td>1</td><td>9</td><td>11</td><td>5</td><td>1</td><td>1</td><td>3</td><td>11</td><td>13</td><td>11</td><td>1</td><td>1</td><td>14</td><td>14</td><td>5</td><td>1</td><td>11</td><td>5</td><td>7</td>
-      </tr>
-      <tr class="bot5">
-        <td>12</td><td>बोदवड</td><td>4</td><td>15</td><td>15</td><td>15</td><td>1</td><td>15</td><td>15</td><td>1</td><td>1</td><td>9</td><td>15</td><td>3</td><td>9</td><td>13</td><td>15</td><td>15</td><td>12</td><td>6</td><td>1</td><td>1</td><td>12</td><td>15</td><td>1</td><td>5</td><td>13</td><td>1</td><td>10</td><td>1</td><td>15</td><td>14</td><td>15</td><td>9</td><td>13</td>
-      </tr>
-      <tr class="bot5">
-        <td>13</td><td>पारोळा</td><td>3</td><td>14</td><td>1</td><td>4</td><td>11</td><td>12</td><td>14</td><td>1</td><td>1</td><td>12</td><td>10</td><td>8</td><td>3</td><td>14</td><td>13</td><td>13</td><td>13</td><td>8</td><td>15</td><td>15</td><td>7</td><td>1</td><td>7</td><td>14</td><td>15</td><td>15</td><td>2</td><td>1</td><td>14</td><td>7</td><td>10</td><td>9</td><td>9</td>
-      </tr>
-      <tr class="bot5">
-        <td>14</td><td>मुक्ताईनगर</td><td>2</td><td>8</td><td>14</td><td>13</td><td>1</td><td>13</td><td>6</td><td>1</td><td>1</td><td>12</td><td>14</td><td>11</td><td>15</td><td>10</td><td>12</td><td>6</td><td>6</td><td>9</td><td>11</td><td>1</td><td>1</td><td>12</td><td>3</td><td>12</td><td>1</td><td>1</td><td>2</td><td>1</td><td>12</td><td>12</td><td>9</td><td>14</td><td>11</td>
-      </tr>
-      <tr class="bot5">
-        <td>15</td><td>जामनेर</td><td>1</td><td>1</td><td>5</td><td>6</td><td>9</td><td>8</td><td>3</td><td>1</td><td>1</td><td>15</td><td>11</td><td>11</td><td>13</td><td>9</td><td>14</td><td>14</td><td>2</td><td>6</td><td>14</td><td>1</td><td>13</td><td>13</td><td>11</td><td>15</td><td>1</td><td>1</td><td>7</td><td>1</td><td>2</td><td>15</td><td>14</td><td>15</td><td>4</td>
-      </tr></tbody>
+        <thead><tr id="tableHeader"></tr></thead>
+        <tbody id="tableBody"></tbody>
       </table>
     </div>
   </div>
 </div>
 
-<script src="./ggg_files/chart.js@4"></script>
-<script src="./ggg_files/chartjs-plugin-datalabels@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script>
-// कॉन्फिगेशन ऑब्जेक्ट: API की, स्प्रेडशीट आयडी आणि डेटा रेंज
 const CONFIG = {
-  apiKey: "AIzaSyBmci6WRXJCilTloJnQ1F6gc2qg1aJ96o0",
-  spreadsheetId: "1aINSij-6mXtt4Gbocn0A1PHbuh7XMImHL0zFmdVKhVs",
-  range: "Rank!B5:AJ20" // स्प्रेडशीटमधील डेटाची रेंज
+  apiKey: "AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU",
+  spreadsheetId: "1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE",
+  range: "Rank!B5:AJ20"
 };
-
-// ग्लोबल व्हेरिएबल्स
 let rawData=[], headers=[], blocks=[], schemes=[];
 let barChart, donutChart;
 const selectedBlocks = new Set(), selectedSchemes = new Set();
 
-// Google Sheets मधून डेटा आणण्यासाठी फंक्शन
+// Data fetch and initialization
 async function fetchSheet() {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${encodeURIComponent(CONFIG.range)}?majorDimension=ROWS&valueRenderOption=UNFORMATTED_VALUE&key=${CONFIG.apiKey}`;
   const res = await fetch(url);
   if (!res.ok) throw Error(res.statusText);
   return (await res.json()).values;
 }
-
-// आलेला डेटा पार्स करण्यासाठी फंक्शन
 function parse(values) {
-  headers = values[0]; // पहिली ओळ हेडर्स म्हणून
-  const idxBlock=headers.findIndex(h=>/तालुका/i.test(h)); // 'तालुका' नावाच्या स्तंभाचा इंडेक्स शोधा
-  // डेटाच्या प्रत्येक ओळीला ऑब्जेक्टमध्ये रूपांतरित करा
-  blocks = values.slice(1).map(r => {
-    const obj={}; 
-    headers.forEach((h,i)=>obj[h]=r[i]); 
-    obj._block=r[idxBlock]; // तालुक्याचे नाव _block मध्ये साठवा
-    return obj;
-  });
-  // 'तालुका' वगळता सर्व हेडर्स योजना (schemes) म्हणून सेट करा
+  headers = values[0];
+  const idxBlock=headers.findIndex(h=>/तालुका/i.test(h));
+  blocks = values.slice(1).map(r => {const obj={}; headers.forEach((h,i)=>obj[h]=r[i]); obj._block=r[idxBlock]; return obj;});
   schemes = headers.filter((_,i) => i!==idxBlock);
-  rawData = blocks; // पार्स केलेला डेटा rawData मध्ये साठवा
+  rawData = blocks;
 }
-
-// नियंत्रण घटक (ड्रॉपडाउन, चिप्स, बटणे) रेंडर करण्यासाठी फंक्शन
 function renderControls() {
   const schemeSel=document.getElementById('schemeSelect');
-  // योजना निवड ड्रॉपडाउनमध्ये पर्याय जोडा
   schemeSel.innerHTML = `<option value="__all__" style="font-weight:bold;">सर्व योजना</option>` 
         + schemes.map(s=>`<option value="${s}">${s}</option>`).join('');
-  // ड्रॉपडाउनमधील बदलांवर लक्ष ठेवण्यासाठी इव्हेंट लिसनर
   schemeSel.addEventListener('change',()=>{
     const val = Array.from(schemeSel.selectedOptions).map(o=>o.value);
     const allSelected = val.includes('__all__');
     if(allSelected) {
       for (let option of schemeSel.options) if (option.value !== '__all__') option.selected=true;
     }
-    // जर 'सर्व योजना' निवडले नसेल तर ते अनचेक करा
+    // Uncheck __all__ if not all schemes is selected
     const allActual = Array.from(schemeSel.options).filter(o=>o.value!=="__all__" && o.selected);
     if(allActual.length===schemes.length)
       schemeSel.querySelector('option[value="__all__"]').selected=true;
     else
       schemeSel.querySelector('option[value="__all__"]').selected=false;
   });
-
-  // तालुका चिप्स रेंडर करा
+  // Department/Taluka chips (not selected by default)
   const talukaDiv=document.getElementById('talukaChips');
   talukaDiv.innerHTML=blocks.map(b=>`
     <span class="dept-chip" tabindex="0" data-block="${b._block}">${b._block}</span>
   `).join('');
-  // तालुका चिप्सच्या क्लिक इव्हेंटसाठी लिसनर
   talukaDiv.querySelectorAll('.dept-chip').forEach(span=>{
     span.onclick=()=>{
       const name=span.getAttribute('data-block');
@@ -268,36 +167,25 @@ function renderControls() {
       else {selectedBlocks.add(name); span.classList.add('selected');}
     };
   });
-
-  // रीसेट बटणाच्या क्लिक इव्हेंटसाठी लिसनर
   document.getElementById('resetBtn').onclick = () => {
-    selectedBlocks.clear(); 
-    selectedSchemes.clear();
+    selectedBlocks.clear(); selectedSchemes.clear();
     talukaDiv.querySelectorAll('.dept-chip').forEach(span=>span.classList.remove('selected'));
-    schemeSel.selectedIndex=-1; // ड्रॉपडाउन रीसेट करा
-    clearDashboard(); // डॅशबोर्ड साफ करा
-    showAllDefault(); // डीफॉल्टनुसार सर्व डेटा दाखवा
+    schemeSel.selectedIndex=-1;
+    clearDashboard();
+    showAllDefault();
   };
-  // सबमिट बटणाच्या क्लिक इव्हेंटसाठी लिसनर
   document.getElementById('submitBtn').onclick = updateAll;
-  // चार्ट डाउनलोड बटणांच्या क्लिक इव्हेंटसाठी लिसनर
   document.getElementById('downloadBarBtn').onclick=()=>barChart && downloadChart(barChart,"bar-chart.png");
   document.getElementById('downloadDonutBtn').onclick=()=>donutChart && downloadChart(donutChart,"donut-chart.png");
-  // CSV डाउनलोड बटणाच्या क्लिक इव्हेंटसाठी लिसनर
   document.getElementById('downloadCsvBtn').onclick = downloadCSV;
 }
-
-// चार्ट डाउनलोड करण्यासाठी सहायक फंक्शन
+// Chart/Export helpers
 function downloadChart(chart,filename){
   const a=document.createElement('a');
-  a.href=chart.toBase64Image(); 
-  a.download=filename; 
-  a.click();
+  a.href=chart.toBase64Image(); a.download=filename; a.click();
 }
-
-// निवडलेल्या योजना आणि तालुके गोळा करण्यासाठी फंक्शन
 function collectSelections() {
-  // निवडलेल्या तालुका चिप्स गोळा करा
+  // block chips
   selectedBlocks.clear();
   document.querySelectorAll('#talukaChips .dept-chip.selected').forEach(el=>selectedBlocks.add(el.getAttribute('data-block')));
   // multi select schemes
@@ -310,44 +198,27 @@ function collectSelections() {
     }
   });
 }
-
-// मुख्य डेटा गणना फंक्शन
+// Main compute: treat empty as all
 function compute() {
-  collectSelections(); // सध्याच्या निवडी गोळा करा
-  const schemesArr = selectedSchemes.size ? Array.from(selectedSchemes) : schemes.slice(); // निवडलेल्या योजना, नसल्यास सर्व
-  const blocksArr = selectedBlocks.size ? Array.from(selectedBlocks).map(b=>rawData.find(r=>r._block===b)).filter(Boolean) : rawData.slice(); // निवडलेले तालुके, नसल्यास सर्व
-
-  // प्रत्येक तालुक्यासाठी '1' च्या मूल्यांची संख्या मोजा आणि रँkingसाठी डेटा तयार करा
-  const kpiData = blocksArr.map(block => {
-    let oneCount = 0;
-    schemes.forEach(scheme => { // सर्व योजना स्तंभांवर फिरा
-      if (parseFloat(block[scheme]) === 1) { // जर मूल्य संख्यात्मक '1' असेल तर मोजा
-        oneCount++;
-      }
-    });
-    return { _block: block._block, val: oneCount }; // 'val' आता '1' ची संख्या दर्शवते
-  });
-  kpiData.sort((a,b)=>b.val-a.val); // '1' च्या संख्येनुसार उतरत्या क्रमाने क्रमवारी लावा
-  kpiData.forEach((d,i)=>d.rank=i+1); // रँक नियुक्त करा
-
-  // KPI डिस्प्लेसाठी, निवडलेली पहिली योजना किंवा उपलब्ध पहिली योजना वापरा.
-  // परंतु मुख्य रँकिंग लॉजिक आता '1' च्या संख्येवर अवलंबून आहे.
+  collectSelections();
+  const schemesArr = selectedSchemes.size ? Array.from(selectedSchemes) : schemes.slice();
+  const blocksArr = selectedBlocks.size ? Array.from(selectedBlocks).map(b=>rawData.find(r=>r._block===b)).filter(Boolean) : rawData.slice();
+  // For KPIs, use first scheme selected else first available
   const kpiScheme = schemesArr.length ? schemesArr[0] : (schemes[0]||"");
-
+  const kpiData = blocksArr.map(r=>({_block:r._block, val:kpiScheme?(parseFloat(r[kpiScheme])||0):0}));
+  kpiData.sort((a,b)=>b.val-a.val); kpiData.forEach((d,i)=>d.rank=i+1);
   return { blocksArr, kpiData, schemesArr, kpiScheme };
 }
-
-// KPI कार्ड रेंडर करण्यासाठी फंक्शन
+// KPI rendering
 function renderKPI(data) {
-  if(!data || data.kpiData.length === 0) { document.getElementById('kpiCol').innerHTML = ""; return; }
+  if(!data) { document.getElementById('kpiCol').innerHTML = ""; return; }
   let out = "";
   if(data.kpiData[0]) out += `
     <div class="kpi-card top selected" onclick="selfAssessment('${data.kpiData[0]._block}')">
       <span class="chip">🏆 Top</span>${data.kpiData[0]._block}<div>${data.kpiData[0].val}</div>
     </div>`;
   if(data.kpiData.length>2){
-    const midIndex = Math.floor(data.kpiData.length/2);
-    const mid = data.kpiData[midIndex];
+    const mid = data.kpiData[Math.floor(data.kpiData.length/2)];
     out += `<div class="kpi-card mid selected" onclick="selfAssessment('${mid._block}')">
       <span class="chip">⚖️ मध्यम</span>${mid._block}<div>${mid.val}</div></div>`;
   }
@@ -357,8 +228,7 @@ function renderKPI(data) {
   }
   document.getElementById('kpiCol').innerHTML = out;
 }
-
-// तालुक्याच्या स्वयं-मूल्यांकनासाठी पॉपअप
+// Self-assessment popup for a taluka
 window.selfAssessment = function(talukaName) {
   if(!talukaName) return;
   const assessments = schemes.map(scheme => {
@@ -377,182 +247,104 @@ window.selfAssessment = function(talukaName) {
     "\n\n🚨 लक्ष द्याव्यात अशा (Bottom 5):\n"+bottom5.map(a=>`${a.scheme}: ${a.rank} (${a.score})`).join('\n')
   );
 };
-
-// बार चार्ट रेंडर करण्यासाठी फंक्शन
+// Charts
 function renderBar(data) {
   const ctx=document.getElementById('barChart').getContext('2d');
-  barChart?.destroy(); // जुना चार्ट नष्ट करा
+  barChart?.destroy();
   barChart=new Chart(ctx, {
     type:'bar',
     data: {
-      labels: data.kpiData.map(d=>d._block), // तालुक्यांची नावे लेबल्स म्हणून
+      labels: data.kpiData.map(d=>d._block),
       datasets: [{
-        label: '1 ची संख्या', // लेबल '1' च्या संख्येसाठी अद्यतनित केले
-        data: data.kpiData.map(d=>d.val), // '1' ची संख्या डेटा म्हणून
+        label: data.kpiScheme,
+        data: data.kpiData.map(d=>d.val),
         backgroundColor:'#6366f1', borderRadius:4
       }]
     },
     options:{
-      indexAxis:'y', // y-अक्षावर बार दर्शवा
-      plugins:{ 
-        legend:{display:false}, // लेजेंड दाखवू नका
-        datalabels:{anchor:'end',align:'right',formatter:v=>v} // डेटा लेबलसाठी सेटिंग्ज
-      },
-      responsive:true, // प्रतिसाद देणारा चार्ट
-      maintainAspectRatio: false, // हे चार्टला त्याच्या कंटेनरमध्ये अधिक चांगल्या प्रकारे बसण्यास मदत करते
-      scales: {
-        x: {
-          beginAtZero: true,
-          ticks: {
-            precision: 0 // संख्यांसाठी पूर्णांक मूल्ये सुनिश्चित करा
-          }
-        }
-      }
+      indexAxis:'y',
+      plugins:{ legend:{display:false}, datalabels:{anchor:'end',align:'right',formatter:v=>v}},
+      responsive:true
     },
-    plugins:[ChartDataLabels] // डेटा लेबल्स प्लगइन वापरा
+    plugins:[ChartDataLabels]
   });
 }
-
-// डोनट चार्ट रेंडर करण्यासाठी फंक्शन
 function renderDonut(data) {
   const ctx=document.getElementById('donutChart').getContext('2d');
-  donutChart?.destroy(); // जुना चार्ट नष्ट करा
+  donutChart?.destroy();
   donutChart=new Chart(ctx, {
     type:'doughnut',
     data:{
-      labels: data.kpiData.map(d=>d._block), // तालुक्यांची नावे लेबल्स म्हणून
+      labels: data.kpiData.map(d=>d._block),
       datasets:[{
-        data: data.kpiData.map(d=>d.val), // '1' ची संख्या डेटा म्हणून
+        data: data.kpiData.map(d=>d.val),
         backgroundColor:['#4f46e5','#10b981','#f59e0b','#ef4444','#3b82f6','#818cf8','#f472b6','#2dd4bf','#facc15','#eab308','#c026d3']
       }]
     },
-    options:{ 
-      responsive:true, // प्रतिसाद देणारा चार्ट
-      maintainAspectRatio: false, // हे चार्टला त्याच्या कंटेनरमध्ये अधिक चांगल्या प्रकारे बसण्यास मदत करते
-      plugins:{ 
-        legend:{
-          position:'right', // लेजेंड उजवीकडे दाखवा
-          align: 'center', // लेजेंड मध्यभागी अलाइन करा
-          labels: {
-            boxWidth: 20, // लेजेंड बॉक्सची रुंदी
-            padding: 10 // लेबल्समधील पॅडिंग
-          }
-        }, 
-        datalabels:{
-          formatter: (value, ctx) => { // डेटा लेबलसाठी फॉरमॅटर
-            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-            const percentage = total > 0 ? ((value / total) * 100).toFixed(0) + '%' : '';
-            return ctx.chart.data.labels[ctx.dataIndex] + '\n' + percentage; // तालुका नाव आणि टक्केवारी दाखवा
-          },
-          color: '#fff', // मजकूर रंग पांढरा
-          textShadowBlur: 4, // मजकूर सावली
-          textShadowColor: 'rgba(0, 0, 0, 0.6)', // मजकूर सावलीचा रंग
-          display: true // डेटा लेबल्स दाखवा
-        }
-      }
-    },
-    plugins:[ChartDataLabels] // डेटा लेबल्स प्लगइन वापरा
+    options:{ plugins:{ legend:{position:'bottom'}, datalabels:{anchor:'end',align:'end',formatter:v=>v}}, responsive:true },
+    plugins:[ChartDataLabels]
   });
 }
-
-// टेबल रेंडर करण्यासाठी फंक्शन
 function renderTable(data) {
-  const th = `<th>रँक</th>` + headers.map(h => `<th>${h}</th>`).join(''); // टेबल हेडर तयार करा
+  const th = `<th>रँक</th>` + headers.map(h => `<th>${h}</th>`).join('');
   document.getElementById('tableHeader').innerHTML = th;
-  const n = data.kpiData.length;
-  
-  // मध्यभागी 5 पंक्ती शोधण्यासाठी (व्हिज्युअल ग्रुपिंगसाठी)
-  const middleStartIndex = Math.max(0, Math.floor(n / 2) - 2);
-  const middleEndIndex = Math.min(n - 1, middleStartIndex + 4);
-
+  const n = data.kpiData.length, midStart = Math.floor((n - 5) / 2);
   const rows = data.kpiData.map((r,i) => {
     const classes = [
-      i < 5 ? 'top5' : '', // टॉप 5 पंक्तींसाठी क्लास
-      i >= n - 5 ? 'bot5' : '', // बॉटम 5 पंक्तींसाठी क्लास
-      // मध्यभागी असलेल्या पंक्तींसाठी क्लास (टॉप/बॉटम 5 मध्ये नसलेल्या)
-      (i >= middleStartIndex && i <= middleEndIndex && i >= 5 && i < n - 5) ? 'mid5' : '', 
-      selectedBlocks.has(r._block) ? 'selected-block' : '' // निवडलेल्या ब्लॉकसाठी क्लास
+      i < 5 ? 'top5' : '',
+      i >= n - 5 ? 'bot5' : '',
+      i >= midStart && i < midStart + 5 ? 'mid5' : '',
+      selectedBlocks.has(r._block) ? 'selected-block' : ''
     ].filter(Boolean).join(' ');
-    
-    // सर्व स्तंभ प्रदर्शित करण्यासाठी मूळ rawData एंट्री शोधा
-    const originalDataRow = rawData.find(x => x._block === r._block);
     return `
       <tr class="${classes}">
-        <td>${r.rank}</td>${headers.map(h => `<td>${originalDataRow[h] || ''}</td>`).join('')}
+        <td>${r.rank}</td>${headers.map(h => `<td>${rawData.find(x => x._block === r._block)[h] || ''}</td>`).join('')}
       </tr>`;
   }).join('');
   document.getElementById('tableBody').innerHTML = rows;
 }
-
-// डीफॉल्टनुसार सर्व डेटा दाखवण्यासाठी फंक्शन (जेव्हा कोणतीही निवड नसते)
+// Landing: Show all data as default if no selection
 function showAllDefault() {
-  selectedSchemes.clear(); schemes.forEach(s=>selectedSchemes.add(s)); // सर्व योजना निवडा
-  selectedBlocks.clear(); blocks.forEach(b=>selectedBlocks.add(b._block)); // सर्व तालुके निवडा
-  // 'सर्व योजना' पर्याय निवडलेला दिसण्यासाठी
-  const allSchemesOption = document.querySelector('#schemeSelect option[value="__all__"]');
-  if (allSchemesOption) {
-    allSchemesOption.selected = true;
-    // इतर सर्व पर्याय देखील निवडलेले दिसण्यासाठी
-    Array.from(document.getElementById('schemeSelect').options).forEach(opt => {
-      if (opt.value !== '__all__') opt.selected = true;
-    });
-  }
-  document.querySelectorAll('#talukaChips .dept-chip').forEach(span=>span.classList.remove('selected')); // सुरुवातीला सर्व चिप्स अनसेलेक्ट करा
-  updateAll(); // डॅशबोर्ड अद्यतनित करा
+  selectedSchemes.clear(); schemes.forEach(s=>selectedSchemes.add(s));
+  selectedBlocks.clear(); blocks.forEach(b=>selectedBlocks.add(b._block));
+  document.getElementById('schemeSelect').selectedIndex=-1;
+  document.querySelectorAll('#talukaChips .dept-chip').forEach(span=>span.classList.remove('selected'));
+  updateAll();
 }
-
-// डॅशबोर्ड साफ करण्यासाठी फंक्शन
 function clearDashboard() {
   document.getElementById('kpiCol').innerHTML="";
   document.getElementById('tableBody').innerHTML="";
   document.getElementById('tableHeader').innerHTML="";
-  barChart?.destroy(); donutChart?.destroy(); // चार्ट नष्ट करा
+  barChart?.destroy(); donutChart?.destroy();
 }
-
-// सर्व घटक अद्यतनित करण्यासाठी फंक्शन
 function updateAll() {
-  const data = compute(); // डेटाची गणना करा
-  if(!data || data.blocksArr.length === 0) { // फिल्टरिंगनंतर डेटा नसल्यास
-    clearDashboard();
-    alert("निवडलेल्या निकषांनुसार कोणताही डेटा उपलब्ध नाही.");
-    return;
-  }
-  renderKPI(data); // KPI रेंडर करा
-  renderBar(data); // बार चार्ट रेंडर करा
-  renderDonut(data); // डोनट चार्ट रेंडर करा
-  renderTable(data); // टेबल रेंडर करा
+  const data = compute();
+  if(!data) return alert("कृपया कमीत कमी एक योजना आणि एक तालुका निवडा किंवा 'सर्व योजना' निवडा.");
+  renderKPI(data);
+  renderBar(data);
+  renderDonut(data);
+  renderTable(data);
 }
-
-// डेटा CSV म्हणून डाउनलोड करण्यासाठी फंक्शन
 function downloadCSV() {
-  const data = compute(); // डेटाची गणना करा
-  if(!data || data.blocksArr.length === 0) {
-    alert("CSV निर्यात करण्यासाठी कोणताही डेटा उपलब्ध नाही.");
-    return;
-  }
-  let csv = 'रँक,' + headers.join(',') + '\n' + data.kpiData.map(r => {
-    const originalDataRow = rawData.find(x => x._block === r._block);
-    return `${r.rank},` + headers.map(h => `"${originalDataRow[h] || ''}"`).join(',');
-  }).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); // मराठी वर्णनांसाठी utf-8 एन्कोडिंग
+  const data = compute();
+  if(!data) return;
+  let csv = 'रँक,' + headers.join(',') + '\n' + data.kpiData.map(r => `${r.rank},` + headers.map(h => `"${rawData.find(x => x._block === r._block)[h] || ''}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = 'taluka-data.csv'; a.click();
   URL.revokeObjectURL(url);
 }
-
-// सुरुवातीला ॲप लोड झाल्यावर चालणारे फंक्शन
 (async () => {
   try {
-    const vals = await fetchSheet(); // स्प्रेडशीट डेटा आणा
-    parse(vals); // डेटा पार्स करा
-    renderControls(); // नियंत्रण घटक रेंडर करा
-    showAllDefault(); // डीफॉल्टनुसार सर्व डेटा दाखवा
+    const vals = await fetchSheet();
+    parse(vals);
+    renderControls();
+    showAllDefault();
   } catch (e) {
-    alert("डेटा लोडमध्ये अडचण: " + e.message + "\nकृपया तुमच्या API की आणि स्प्रेडशीट रेंजची खात्री करा.");
+    alert("डेटा लोडमध्ये अडचण: " + e.message);
   }
 })();
 </script>
-
-
-</body></html>
+</body>
+</html>
