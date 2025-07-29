@@ -173,7 +173,7 @@
         <td>9</td><td>चोपडा</td><td>7</td><td>2</td><td>10</td><td>8</td><td>1</td><td>2</td><td>4</td><td>1</td><td>1</td><td>1</td><td>5</td><td>3</td><td>11</td><td>11</td><td>1</td><td>7</td><td>7</td><td>11</td><td>1</td><td>1</td><td>14</td><td>7</td><td>8</td><td>10</td><td>12</td><td>1</td><td>6</td><td>1</td><td>8</td><td>13</td><td>8</td><td>3</td><td>1</td>
       </tr>
       <tr class="mid5">
-        <td>10</td><td>भडगाव</td><td>6</td><td>3</td><td>13</td><td>12</td><td>1</td><td>6</td><td>10</td><td>1</td><td>1</td><td>12</td><td>12</td><td>11</td><td>5</td><td>5</td><td>8</td><td>11</td><td>10</td><td>3</td><td>1</td><td>1</td><td>9</td><td>5</td><td>3</td><td>8</td><td>11</td><td>1</td><td>11</td><td>1</td><td>5</td><td>9</td><td>15</td>
+        <td>10</td><td>भडगाव</td><td>6</td><td>3</td><td>13</td><td>12</td><td>1</td><td>6</td><td>10</td><td>1</td><td>1</td><td>12</td><td>12</td><td>11</td><td>5</td><td>5</td><td>8</td><td>11</td><td>10</td><td>3</td><td>1</td><td>1</td><td>9</td><td>5</td><td>3</td><td>8</td><td>11</td><td>1</td><td>11</td><td>1</td><td>5</td><td>9</td><td>15</td><td></td>
       </tr>
       <tr class="bot5">
         <td>11</td><td>अमळनेर</td><td>5</td><td>5</td><td>7</td><td>14</td><td>1</td><td>4</td><td>13</td><td>1</td><td>1</td><td>5</td><td>6</td><td>8</td><td>13</td><td>12</td><td>1</td><td>9</td><td>11</td><td>5</td><td>1</td><td>1</td><td>3</td><td>11</td><td>13</td><td>11</td><td>1</td><td>1</td><td>14</td><td>14</td><td>5</td><td>1</td><td>11</td><td>5</td><td>7</td>
@@ -317,7 +317,7 @@ function compute() {
   const schemesArr = selectedSchemes.size ? Array.from(selectedSchemes) : schemes.slice(); // निवडलेल्या योजना, नसल्यास सर्व
   const blocksArr = selectedBlocks.size ? Array.from(selectedBlocks).map(b=>rawData.find(r=>r._block===b)).filter(Boolean) : rawData.slice(); // निवडलेले तालुके, नसल्यास सर्व
 
-  // प्रत्येक तालुक्यासाठी '1' च्या मूल्यांची संख्या मोजा आणि रँकिंगसाठी डेटा तयार करा
+  // प्रत्येक तालुक्यासाठी '1' च्या मूल्यांची संख्या मोजा आणि रँkingसाठी डेटा तयार करा
   const kpiData = blocksArr.map(block => {
     let oneCount = 0;
     schemes.forEach(scheme => { // सर्व योजना स्तंभांवर फिरा
