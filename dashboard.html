@@ -35,7 +35,7 @@
       color:#262626; border-color:#f59e0b; transform:scale(1.08); z-index:2;
     }
     /* चार्ट कंटेनरसाठी स्टाइलिंग */
-    .chart-container { height: 180px; min-height: 110px; } /* चार्टची मूळ उंची */
+    .chart-container { height: 180px; min-height: 110px; }
     .dashboard-3col .chart-container { background:#fff; border-radius:10px; padding:.25rem;}
     /* फॉर्म लेबल आणि बटणांसाठी स्टाइलिंग */
     .form-label { font-weight: 600;}
@@ -324,7 +324,6 @@ function renderBar(data) {
         datalabels:{anchor:'end',align:'right',formatter:v=>v} // डेटा लेबलसाठी सेटिंग्ज
       },
       responsive:true, // प्रतिसाद देणारा चार्ट
-      maintainAspectRatio: false, // कंटेनरची पूर्ण रुंदी वापरण्यासाठी
       scales: {
         x: {
           beginAtZero: true,
@@ -356,8 +355,7 @@ function renderDonut(data) {
         legend:{position:'bottom'}, // लेजेंड खाली दाखवा
         datalabels:{anchor:'end',align:'end',formatter:v=>v} // डेटा लेबलसाठी सेटिंग्ज
       }, 
-      responsive:true, // प्रतिसाद देणारा चार्ट
-      maintainAspectRatio: false // कंटेनरची पूर्ण रुंदी वापरण्यासाठी
+      responsive:true // प्रतिसाद देणारा चार्ट
     },
     plugins:[ChartDataLabels] // डेटा लेबल्स प्लगइन वापरा
   });
