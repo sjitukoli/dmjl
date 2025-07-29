@@ -1,122 +1,122 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-  <meta charset="UTF-8">
-  <title>तालुका योजना तुलनात्मक डॅशबोर्ड – जळगाव जिल्हा</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <!-- Font (Devanagari & Icons) -->
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
-  <!-- Chart.js & DataLabels -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-  <style>
-    body { font-family: 'Noto Sans Devanagari', sans-serif; background: #f7fafc; color: #23263a; }
-    .glass { background: #fff; border-radius: 14px; box-shadow: 0 2px 10px #bac2f2bb; margin-bottom: 1.2rem; padding:1.1rem; }
-    .dashboard-3col { display: flex; flex-wrap: wrap; gap: 1.1rem; }
-    .dashboard-3col > div { background: #f4f6fa; border-radius: 10px; padding: 0.7rem; flex: 1 1 30%; min-width: 300px; }
-    .kpi-card { border-radius: 10px; text-align: center; padding: .55em .6em .4em .6em; font-size:0.99em; font-weight: 700; margin:.15em 0; box-shadow:0 2px 6px #dbeafe20;}
-    .kpi-card span.chip { font-size:1em; display:block; font-weight:600;}
-    .kpi-card.top  { background:linear-gradient(90deg,#bbf7d0 70%,#6ee7b7);}
-    .kpi-card.mid  { background:linear-gradient(90deg,#fde68a,#fef9c3);}
-    .kpi-card.bot  { background:linear-gradient(90deg,#fecaca,#f87171);}
-    .kpi-card.selected { border: 2px solid #6366f1; box-shadow:0 3px 20px #a5b4fc33;}
-    .dept-chip {
-      display:inline-block; padding:7px 14px; border-radius:25px; font-size:.99em; background:#e0e7ff; margin:2px 6px 4px 0; color:#2d3d80;
-      font-weight:600; box-shadow:0 2px 8px #5661b422;transition:transform .18s,background .15s;
-      cursor:pointer; border:2.2px solid transparent;
-    }
-    .dept-chip:hover, .dept-chip.selected {
-      background:linear-gradient(91deg,#facc15 25%,#fbbf24 100%);
-      color:#262626; border-color:#f59e0b; transform:scale(1.08); z-index:2;
-    }
-    .chart-container { height: 150px; min-height: 110px; }
-    .dashboard-3col .chart-container { background:#fff; border-radius:10px; padding:.25rem;}
-    .form-label { font-weight: 600;}
-    .btn-export { margin-left:0.5rem;}
-    .table thead th {
-      background: #6366f1; color: #fff; border: 1px solid #6366f1; text-align: center;vertical-align: middle; font-size:1.01em;padding:.48em;}
-    .table tbody td { border: 1px solid #e6e6ed; vertical-align: middle; padding: .37rem .2rem; text-align:center; font-size:.95em;}
-    .table tbody tr.selected-block td { background: #c7d2fe!important; font-weight:700; color:#1816a0;}
-    .table tbody tr.top5  td { background: #bbf7d0 !important;}
-    .table tbody tr.mid5  td { background: #fde68a !important;}
-    .table tbody tr.bot5  td { background: #ffdada !important;}
-    @media (max-width: 950px) {.dashboard-3col{flex-direction:column;gap:.8rem;}
-      .dashboard-3col>div{min-width:0;}
-    }
-    .info-badge {background: #f1f5fa;color: #344e74;font-size:.97em; padding:7px 12px; border-radius:8px;margin-bottom:1rem; border-left:4px solid #6366f1;}
-    .nav-pills .nav-link { font-weight:600; }
-    .nav-pills .nav-link.active { background: #6366f1; }
-  </style>
+  <meta charset="UTF-8">
+  <title>तालुका योजना तुलनात्मक डॅशबोर्ड – जळगाव जिल्हा</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <style>
+    body { font-family: 'Noto Sans Devanagari', sans-serif; background: #f7fafc; color: #23263a; }
+    .glass { background: #fff; border-radius: 14px; box-shadow: 0 2px 10px #bac2f2bb; margin-bottom: 1.2rem; padding:1.1rem; }
+    .dashboard-3col { display: flex; flex-wrap: wrap; gap: 1.1rem; }
+    .dashboard-3col > div { background: #f4f6fa; border-radius: 10px; padding: 0.7rem; flex: 1 1 30%; }
+    .kpi-card { border-radius: 10px; text-align: center; padding: .55em .6em .4em .6em; font-size:0.99em; font-weight: 700; margin:.15em 0; box-shadow:0 2px 6px #dbeafe20;}
+    .kpi-card span.chip { font-size:1em; display:block; font-weight:600;}
+    .kpi-card.top  { background:linear-gradient(90deg,#bbf7d0 70%,#6ee7b7);}
+    .kpi-card.mid  { background:linear-gradient(90deg,#fde68a,#fef9c3);}
+    .kpi-card.bot  { background:linear-gradient(90deg,#fecaca,#f87171);}
+    .kpi-card.selected { border: 2px solid #6366f1; box-shadow:0 3px 20px #a5b4fc33;}
+    .dept-chip {
+      display:inline-block; padding:7px 14px; border-radius:25px; font-size:.99em; background:#e0e7ff; margin:2px 6px 4px 0; color:#2d3d80;
+      font-weight:600; box-shadow:0 2px 8px #5661b422;transition:transform .18s,background .15s;
+      cursor:pointer; border:2.2px solid transparent;
+    }
+    .dept-chip:hover, .dept-chip.selected {
+      background:linear-gradient(91deg,#facc15 25%,#fbbf24 100%);
+      color:#262626; border-color:#f59e0b; transform:scale(1.08); z-index:2;
+    }
+    /* Chart specific adjustments */
+    .chart-container { height: 250px; /* Increased height for better visibility */ min-height: 150px; }
+    .dashboard-3col .chart-container { background:#fff; border-radius:10px; padding:.25rem; /* Reduced padding */ }
+    .form-label { font-weight: 600;}
+    .btn-export { margin-left:0.5rem;}
+    .table thead th {
+      background: #6366f1; color: #fff; border: 1px solid #6366f1; text-align: center;vertical-align: middle; font-size:1.01em;padding:.48em;}
+    .table tbody td { border: 1px solid #e6e6ed; vertical-align: middle; padding: .37rem .2rem; text-align:center; font-size:.95em;}
+    .table tbody tr.selected-block td { background: #c7d2fe!important; font-weight:700; color:#1816a0;}
+    .table tbody tr.top5  td { background: #bbf7d0 !important;}
+    .table tbody tr.mid5  td { background: #feeaa4 !important;}
+    .table tbody tr.bot5  td { background: #ffdada !important;}
+    @media (max-width: 950px) {.dashboard-3col{flex-direction:column;gap:.8rem;}
+      .dashboard-3col>div{min-width:0;}
+    }
+    .info-badge {background: #f1f5fa;color: #344e74;font-size:.97em; padding:7px 12px; border-radius:8px;margin-bottom:1rem; border-left:4px solid #6366f1;}
+    .nav-pills .nav-link { font-weight:600; }
+    .nav-pills .nav-link.active { background: #6366f1; }
+  </style>
 </head>
 <body>
 <div class="container-fluid pb-3">
-  <h2 class="text-center mb-2">📊 तालुका योजना तुलनात्मक डॅशबोर्ड<br>
-    <small class="text-muted" style="font-size:1em;">(जळगाव जिल्हा)</small>
-  </h2>
-  <div class="glass mb-3">
-    <div class="row g-2 align-items-center">
-      <div class="col-md-6 col-lg-5">
-        <label class="form-label">योजना निवडा (Multiple):</label>
-        <select id="schemeSelect" multiple class="form-select form-select-sm" size="7"></select>
-      </div>
-      <div class="col-md-6 col-lg-5">
-        <label class="form-label">तालुका निवडा:</label>
-        <div id="talukaChips" class="mb-2"></div>
-      </div>
-      <div class="col-md-12 col-lg-2 text-end mt-2 mt-lg-0">
-        <button id="resetBtn" class="btn btn-outline-danger btn-sm">Reset</button>
-        <button id="submitBtn" class="btn btn-primary btn-sm ms-2">Submit</button>
-      </div>
-    </div>
-    <div class="row mt-1">
-      <div class="col-12">
-        <div class="info-badge">
-          <i class="fa fa-info-circle me-1"></i> 
-          <b>सूचना:</b> "सर्व योजना" निवडण्यासाठी पहिला पर्याय निवडा. तालुका निवडा, <b>Submit</b> वर क्लिक करा. प्रत्येक तालुक्यासाठी KPI वर क्लिक केल्यास त्या तालुक्याचा scheme-wise self-assessment रिपोर्ट दिसेल.
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="glass">
-    <div class="dashboard-3col">
-      <div>
-        <div id="kpiCol"></div>
-      </div>
-      <div>
-        <div class="text-primary mb-2" style="font-weight:700;font-size:.98em;">Bar Chart</div>
-        <div id="barArea" class="chart-container"><canvas id="barChart"></canvas></div>
-        <button id="downloadBarBtn" class="btn btn-success btn-sm btn-export mt-1">⬇️ Bar Chart</button>
-      </div>
-      <div>
-        <div class="text-primary mb-2" style="font-weight:700;font-size:.98em;">Donut Chart</div>
-        <div id="donutArea" class="chart-container"><canvas id="donutChart"></canvas></div>
-        <button id="downloadDonutBtn" class="btn btn-warning btn-sm btn-export mt-1">⬇️ Donut Chart</button>
-      </div>
-    </div>
-  </div>
-  <div class="glass mb-3">
-    <h5 class="mb-2 text-primary" style="font-size:1.08em;">
-      <i class="fa fa-table me-2"></i>तालुक्यांची पूर्ण माहिती व रँकिंग
-      <button id="downloadCsvBtn" class="btn btn-secondary btn-xs btn-export float-end">📊 CSV</button>
-    </h5>
-    <div class="table-responsive">
-      <table class="table table-bordered mb-0" id="dataTable">
-        <thead><tr id="tableHeader"></tr></thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-  </div>
+  <h2 class="text-center mb-2">📊 तालुका योजना तुलनात्मक डॅशबोर्ड<br>
+    <small class="text-muted" style="font-size:1em;">(जळगाव जिल्हा)</small>
+  </h2>
+  <div class="glass mb-3">
+    <div class="row g-2 align-items-center">
+      <div class="col-md-6 col-lg-5">
+        <label class="form-label">योजना निवडा (Multiple):</label>
+        <select id="schemeSelect" multiple class="form-select form-select-sm" size="7"></select>
+      </div>
+      <div class="col-md-6 col-lg-5">
+        <label class="form-label">तालुका निवडा:</label>
+        <div id="talukaChips" class="mb-2"></div>
+      </div>
+      <div class="col-md-12 col-lg-2 text-end mt-2 mt-lg-0">
+        <button id="resetBtn" class="btn btn-outline-danger btn-sm">Reset</button>
+        <button id="submitBtn" class="btn btn-primary btn-sm ms-2">Submit</button>
+      </div>
+    </div>
+    <div class="row mt-1">
+      <div class="col-12">
+        <div class="info-badge">
+          <i class="fa fa-info-circle me-1"></i> 
+          <b>सूचना:</b> "सर्व योजना" निवडण्यासाठी पहिला पर्याय निवडा. तालुका निवडा, <b>Submit</b> वर क्लिक करा. प्रत्येक तालुक्यासाठी KPI वर क्लिक केल्यास त्या तालुक्याचा scheme-wise self-assessment रिपोर्ट दिसेल.
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="glass">
+    <div class="dashboard-3col">
+      <div>
+        <div id="kpiCol"></div>
+      </div>
+      <div>
+        <div class="text-primary mb-2" style="font-weight:700;font-size:.98em;">Bar Chart</div>
+        <div id="barArea" class="chart-container"><canvas id="barChart"></canvas></div>
+        <button id="downloadBarBtn" class="btn btn-success btn-sm btn-export mt-1">⬇️ Bar Chart</button>
+      </div>
+      <div>
+        <div class="text-primary mb-2" style="font-weight:700;font-size:.98em;">Donut Chart</div>
+        <div id="donutArea" class="chart-container"><canvas id="donutChart"></canvas></div>
+        <button id="downloadDonutBtn" class="btn btn-warning btn-sm btn-export mt-1">⬇️ Donut Chart</button>
+      </div>
+    </div>
+  </div>
+  <div class="glass mb-3">
+    <h5 class="mb-2 text-primary" style="font-size:1.08em;">
+      <i class="fa fa-table me-2"></i>तालुक्यांची पूर्ण माहिती व रँकिंग
+      <button id="downloadCsvBtn" class="btn btn-secondary btn-xs btn-export float-end">📊 CSV</button>
+    </h5>
+    <div class="table-responsive">
+      <table class="table table-bordered mb-0" id="dataTable">
+        <thead><tr id="tableHeader"></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script>
 const CONFIG = {
-  apiKey: "AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU",
-  spreadsheetId: "1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE",
-  range: "Rank!B5:AJ20"
+  apiKey: "AIzaSyDhCjnUv7x5yj9cXKV52Qv8CrYwUhBIWuU",
+  spreadsheetId: "1y_EVqNg-reS3xV-Kn6cmTou7u_6kuyqykNdgdzXEMkE",
+  range: "Rank!B5:AJ20"
 };
 let rawData=[], headers=[], blocks=[], schemes=[];
 let barChart, donutChart;
@@ -124,157 +124,297 @@ const selectedBlocks = new Set(), selectedSchemes = new Set();
 
 // Data fetch and initialization
 async function fetchSheet() {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${encodeURIComponent(CONFIG.range)}?majorDimension=ROWS&valueRenderOption=UNFORMATTED_VALUE&key=${CONFIG.apiKey}`;
-  const res = await fetch(url);
-  if (!res.ok) throw Error(res.statusText);
-  return (await res.json()).values;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.spreadsheetId}/values/${encodeURIComponent(CONFIG.range)}?majorDimension=ROWS&valueRenderOption=UNFORMATTED_VALUE&key=${CONFIG.apiKey}`;
+  const res = await fetch(url);
+  if (!res.ok) throw Error(res.statusText);
+  return (await res.json()).values;
 }
 function parse(values) {
-  headers = values[0];
-  const idxBlock = headers.findIndex(h=>/तालुका/i.test(h));
-  blocks = values.slice(1).map(r => {
-    const obj = {};
-    headers.forEach((h,i)=> obj[h] = r[i]);
-    obj._block = r[idxBlock];
-    return obj;
-  });
-  schemes = headers.filter((_,i) => i !== idxBlock);
-  rawData = blocks;
+  headers = values[0];
+  const idxBlock=headers.findIndex(h=>/तालुका/i.test(h));
+  blocks = values.slice(1).map(r => {const obj={}; headers.forEach((h,i)=>obj[h]=r[i]); obj._block=r[idxBlock]; return obj;});
+  schemes = headers.filter((_,i) => i!==idxBlock); // All columns except the 'Taluka' one are schemes
+  rawData = blocks;
 }
 function renderControls() {
-  const schemeSel = document.getElementById('schemeSelect');
-  schemeSel.innerHTML = `<option value="__all__" style="font-weight:bold;">सर्व योजना</option>` 
-        + schemes.map(s=>`<option value="${s}">${s}</option>`).join('');
-  schemeSel.addEventListener('change', ()=>{
-    const val = Array.from(schemeSel.selectedOptions).map(o=>o.value);
-    if(val.includes('__all__')) {
-      for (let option of schemeSel.options) if(option.value!=="__all__") option.selected=true;
-    }
-    const allActual = Array.from(schemeSel.options).filter(o=>o.value!=="__all__"&&o.selected);
-    schemeSel.querySelector('option[value="__all__"]').selected = (allActual.length===schemes.length);
-  });
-  const talukaDiv = document.getElementById('talukaChips');
-  talukaDiv.innerHTML = blocks.map(b=>`<span class="dept-chip" data-block="${b._block}">${b._block}</span>`).join('');
-  talukaDiv.querySelectorAll('.dept-chip').forEach(span=>{
-    span.onclick = ()=>{
-      const name = span.getAttribute('data-block');
-      if(selectedBlocks.has(name)) { selectedBlocks.delete(name); span.classList.remove('selected');}
-      else { selectedBlocks.add(name); span.classList.add('selected');}
-    };
-  });
-  document.getElementById('resetBtn').onclick = ()=>{
-    selectedBlocks.clear(); selectedSchemes.clear();
-    talukaDiv.querySelectorAll('.dept-chip').forEach(span=>span.classList.remove('selected'));
-    schemeSel.selectedIndex = -1;
-    clearDashboard(); showAllDefault();
-  };
-  document.getElementById('submitBtn').onclick = updateAll;
-  document.getElementById('downloadBarBtn').onclick = ()=> barChart && downloadChart(barChart,"bar-chart.png");
-  document.getElementById('downloadDonutBtn').onclick = ()=> donutChart && downloadChart(donutChart,"donut-chart.png");
-  document.getElementById('downloadCsvBtn').onclick = downloadCSV;
+  const schemeSel=document.getElementById('schemeSelect');
+  schemeSel.innerHTML = `<option value="__all__" style="font-weight:bold;">सर्व योजना</option>` 
+        + schemes.map(s=>`<option value="${s}">${s}</option>`).join('');
+  schemeSel.addEventListener('change',()=>{
+    const val = Array.from(schemeSel.selectedOptions).map(o=>o.value);
+    const allSelected = val.includes('__all__');
+    if(allSelected) {
+      for (let option of schemeSel.options) if (option.value !== '__all__') option.selected=true;
+    }
+    // Uncheck __all__ if not all schemes is selected
+    const allActual = Array.from(schemeSel.options).filter(o=>o.value!=="__all__" && o.selected);
+    if(allActual.length===schemes.length)
+      schemeSel.querySelector('option[value="__all__"]').selected=true;
+    else
+      schemeSel.querySelector('option[value="__all__"]').selected=false;
+  });
+  // Department/Taluka chips (not selected by default)
+  const talukaDiv=document.getElementById('talukaChips');
+  talukaDiv.innerHTML=blocks.map(b=>`
+    <span class="dept-chip" tabindex="0" data-block="${b._block}">${b._block}</span>
+  `).join('');
+  talukaDiv.querySelectorAll('.dept-chip').forEach(span=>{
+    span.onclick=()=>{
+      const name=span.getAttribute('data-block');
+      if(selectedBlocks.has(name)) { selectedBlocks.delete(name); span.classList.remove('selected');}
+      else {selectedBlocks.add(name); span.classList.add('selected');}
+    };
+  });
+  document.getElementById('resetBtn').onclick = () => {
+    selectedBlocks.clear(); selectedSchemes.clear();
+    talukaDiv.querySelectorAll('.dept-chip').forEach(span=>span.classList.remove('selected'));
+    schemeSel.selectedIndex=-1;
+    clearDashboard();
+    showAllDefault();
+  };
+  document.getElementById('submitBtn').onclick = updateAll;
+  document.getElementById('downloadBarBtn').onclick=()=>barChart && downloadChart(barChart,"bar-chart.png");
+  document.getElementById('downloadDonutBtn').onclick=()=>donutChart && downloadChart(donutChart,"donut-chart.png");
+  document.getElementById('downloadCsvBtn').onclick = downloadCSV;
 }
-function downloadChart(chart, filename){
-  const a = document.createElement('a');
-  a.href = chart.toBase64Image(); a.download = filename; a.click();
+// Chart/Export helpers
+function downloadChart(chart,filename){
+  const a=document.createElement('a');
+  a.href=chart.toBase64Image(); a.download=filename; a.click();
 }
-
-// compute based on first scheme value
+function collectSelections() {
+  // block chips
+  selectedBlocks.clear();
+  document.querySelectorAll('#talukaChips .dept-chip.selected').forEach(el=>selectedBlocks.add(el.getAttribute('data-block')));
+  // multi select schemes
+  selectedSchemes.clear();
+  Array.from(document.getElementById('schemeSelect').selectedOptions).forEach(opt => {
+    if(opt.value === "__all__") {
+      schemes.forEach(s=>selectedSchemes.add(s));
+    } else {
+      selectedSchemes.add(opt.value);
+    }
+  });
+}
+// Main compute: treat empty as all
 function compute() {
-  selectedBlocks.clear();
-  document.querySelectorAll('#talukaChips .dept-chip.selected').forEach(el=> selectedBlocks.add(el.getAttribute('data-block')));
-  selectedSchemes.clear();
-  Array.from(document.getElementById('schemeSelect').selectedOptions).forEach(opt=>{
-    if(opt.value==="__all__") schemes.forEach(s=> selectedSchemes.add(s));
-    else selectedSchemes.add(opt.value);
-  });
+  collectSelections();
+  const schemesArr = selectedSchemes.size ? Array.from(selectedSchemes) : schemes.slice();
+  const blocksArr = selectedBlocks.size ? Array.from(selectedBlocks).map(b=>rawData.find(r=>r._block===b)).filter(Boolean) : rawData.slice();
 
-  const schemesArr = selectedSchemes.size ? Array.from(selectedSchemes) : schemes.slice();
-  const blocksArr = selectedBlocks.size 
-    ? Array.from(selectedBlocks).map(b=> rawData.find(r=>r._block===b)).filter(Boolean)
-    : rawData.slice();
+  // Calculate '1' count for each block and prepare data for ranking
+  const kpiData = blocksArr.map(block => {
+    let oneCount = 0;
+    schemes.forEach(scheme => { // Iterate over all schemes (columns)
+      if (parseFloat(block[scheme]) === 1) { // Check if the value is numerically 1
+        oneCount++;
+      }
+    });
+    return { _block: block._block, val: oneCount }; // 'val' now represents the count of '1's
+  });
+  kpiData.sort((a,b)=>b.val-a.val); // Sort by count of '1's descending
+  kpiData.forEach((d,i)=>d.rank=i+1); // Assign ranks
 
-  const firstScheme = schemesArr[0] || schemes[0];
-  const ranked = blocksArr.map(r=>({
-    _block: r._block,
-    firstVal: parseFloat(r[firstScheme])||0,
-    rowData: r
-  }));
-  ranked.sort((a,b)=> b.firstVal - a.firstVal);
-  ranked.forEach((item, idx)=> item.rank = idx+1);
-  return { ranked, headers, firstScheme };
+  // For KPI display, we'll still use the scheme that might be implicitly selected or the first one.
+  // However, the primary ranking logic now depends on '1' counts.
+  const kpiScheme = schemesArr.length ? schemesArr[0] : (schemes[0]||"");
+
+  return { blocksArr, kpiData, schemesArr, kpiScheme };
 }
-
-// CSV डाउनलोडसाठी फंक्शन
-function downloadCSV() {
-  const data = compute();
-  if (!data) return;
-  let csv = 'रँक,' + headers.join(',') + '\n' +
-    data.ranked.map(r =>
-      `${r.rank},` +
-      headers.map(h => `"${r.rowData[h] || ''}"`).join(',')
-    ).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'taluka-data.csv';
-  a.click();
-  URL.revokeObjectURL(url);
+// KPI rendering
+function renderKPI(data) {
+  if(!data || data.kpiData.length === 0) { document.getElementById('kpiCol').innerHTML = ""; return; }
+  let out = "";
+  if(data.kpiData[0]) out += `
+    <div class="kpi-card top selected" onclick="selfAssessment('${data.kpiData[0]._block}')">
+      <span class="chip">🏆 Top</span>${data.kpiData[0]._block}<div>${data.kpiData[0].val}</div>
+    </div>`;
+  if(data.kpiData.length>2){
+    const midIndex = Math.floor(data.kpiData.length/2);
+    const mid = data.kpiData[midIndex];
+    out += `<div class="kpi-card mid selected" onclick="selfAssessment('${mid._block}')">
+      <span class="chip">⚖️ मध्यम</span>${mid._block}<div>${mid.val}</div></div>`;
+  }
+  if(data.kpiData.at(-1)){
+    out += `<div class="kpi-card bot selected" onclick="selfAssessment('${data.kpiData.at(-1)._block}')">
+      <span class="chip">🚨 तळ</span>${data.kpiData.at(-1)._block}<div>${data.kpiData.at(-1).val}</div></div>`;
+  }
+  document.getElementById('kpiCol').innerHTML = out;
 }
-
-// render table with new ranking
+// Self-assessment popup for a taluka
+window.selfAssessment = function(talukaName) {
+  if(!talukaName) return;
+  const assessments = schemes.map(scheme => {
+    const ranks = rawData.map(r => ({
+      taluka: r._block, val: parseFloat(r[scheme]) || 0
+    })).sort((a,b) => b.val - a.val);
+    const rankObj = ranks.find(x => x.taluka === talukaName);
+    return { scheme, rank: rankObj ? ranks.indexOf(rankObj) + 1 : null, score: rankObj ? rankObj.val : 0 };
+  });
+  assessments.sort((a,b) => a.rank-b.rank);
+  const n = rawData.length;
+  const top5 = assessments.filter(a=>a.rank && a.rank<=5);
+  const bottom5 = assessments.filter(a=>a.rank && a.rank>=(n-4));
+  alert("तालुका: "+talukaName+
+    "\n\n🏆 उत्तम योजना (Top 5):\n"+top5.map(a=>`${a.scheme}: ${a.rank} (${a.score})`).join('\n')+
+    "\n\n🚨 लक्ष द्याव्यात अशा (Bottom 5):\n"+bottom5.map(a=>`${a.scheme}: ${a.rank} (${a.score})`).join('\n')
+  );
+};
+// Charts
+function renderBar(data) {
+  const ctx=document.getElementById('barChart').getContext('2d');
+  barChart?.destroy();
+  barChart=new Chart(ctx, {
+    type:'bar',
+    data: {
+      labels: data.kpiData.map(d=>d._block),
+      datasets: [{
+        label: 'Count of "1"s', // Updated label to reflect the new metric
+        data: data.kpiData.map(d=>d.val),
+        backgroundColor:'#6366f1', borderRadius:4
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      plugins:{
+        legend:{display:false},
+        datalabels:{
+          anchor:'end',
+          align:'right',
+          formatter:v=>v,
+          color: '#333' // Added color for datalabels
+        }
+      },
+      responsive:true,
+      maintainAspectRatio: false, // Allows chart to take up full container
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: {
+            precision: 0 // Ensure whole numbers for counts
+          }
+        }
+      }
+    },
+    plugins:[ChartDataLabels]
+  });
+}
+function renderDonut(data) {
+  const ctx=document.getElementById('donutChart').getContext('2d');
+  donutChart?.destroy();
+  donutChart=new Chart(ctx, {
+    type:'doughnut',
+    data:{
+      labels: data.kpiData.map(d=>d._block),
+      datasets:[{
+        data: data.kpiData.map(d=>d.val),
+        backgroundColor:['#4f46e5','#10b981','#f59e0b','#ef4444','#3b82f6','#818cf8','#f472b6','#2dd4bf','#facc15','#eab308','#c026d3']
+      }]
+    },
+    options:{
+      plugins:{
+        legend:{position:'bottom'},
+        datalabels:{
+          anchor:'end',
+          align:'end',
+          formatter:v=>v,
+          color: '#333' // Added color for datalabels
+        }
+      },
+      responsive:true,
+      maintainAspectRatio: false // Allows chart to take up full container
+    },
+    plugins:[ChartDataLabels]
+  });
+}
 function renderTable(data) {
-  const th = `<th>रँक</th>` + data.headers.map(h=>`<th>${h}</th>`).join('');
-  document.getElementById('tableHeader').innerHTML = th;
+  const th = `<th>रँक</th>` + headers.map(h => `<th>${h}</th>`).join('');
+  document.getElementById('tableHeader').innerHTML = th;
+  const n = data.kpiData.length;
+  
+  // Find the middle 5 based on the sorted kpiData for visual grouping.
+  // This logic might need refinement if 'middle' has a specific definition.
+  // For now, it will be the 5 rows around the mathematical middle index.
+  const middleStartIndex = Math.max(0, Math.floor(n / 2) - 2); // Start 2 before middle
+  const middleEndIndex = Math.min(n - 1, middleStartIndex + 4); // End 2 after middle
 
-  const rowsHtml = data.ranked.map(item=>{
-    let rowClass = '';
-    if(item.rank===1)      rowClass='top5';
-    else if(item.rank===2) rowClass='mid5';
-    else if(item.rank===data.ranked.length) rowClass='bot5';
-
-    const cells = `<td>${item.rank}</td>` +
-      data.headers.map(h=>`<td>${item.rowData[h]||''}</td>`).join('');
-    return `<tr class="${rowClass}">${cells}</tr>`;
-  }).join('');
-
-  document.getElementById('tableBody').innerHTML = rowsHtml;
+  const rows = data.kpiData.map((r,i) => {
+    const classes = [
+      i < 5 ? 'top5' : '', // Top 5
+      i >= n - 5 ? 'bot5' : '', // Bottom 5
+      // Check if the current index is within the calculated middle range (and not already in top/bottom 5)
+      (i >= middleStartIndex && i <= middleEndIndex && i >= 5 && i < n - 5) ? 'mid5' : '', 
+      selectedBlocks.has(r._block) ? 'selected-block' : ''
+    ].filter(Boolean).join(' ');
+    
+    // Find the original rawData entry to display all columns
+    const originalDataRow = rawData.find(x => x._block === r._block);
+    return `
+      <tr class="${classes}">
+        <td>${r.rank}</td>${headers.map(h => `<td>${originalDataRow[h] || ''}</td>`).join('')}
+      </tr>`;
+  }).join('');
+  document.getElementById('tableBody').innerHTML = rows;
 }
-
-// existing renderKPI, renderBar, renderDonut unchanged…
-
-function updateAll() {
-  const data = compute();
-  renderKPI({ kpiData: [], kpiScheme: data.firstScheme });
-  renderBar({ kpiData: data.ranked.map(r=>({ _block:r._block, val:r.firstVal })), kpiScheme: data.firstScheme });
-  renderDonut({ kpiData: data.ranked.map(r=>({ _block:r._block, val:r.firstVal })), kpiScheme: data.firstScheme });
-  renderTable(data);
-}
-
+// Landing: Show all data as default if no selection
 function showAllDefault() {
-  selectedSchemes.clear(); schemes.forEach(s=>selectedSchemes.add(s));
-  selectedBlocks.clear(); blocks.forEach(b=>selectedBlocks.add(b._block));
-  document.getElementById('schemeSelect').selectedIndex = -1;
-  document.querySelectorAll('#talukaChips .dept-chip').forEach(span=>span.classList.remove('selected'));
-  updateAll();
+  selectedSchemes.clear(); schemes.forEach(s=>selectedSchemes.add(s));
+  selectedBlocks.clear(); blocks.forEach(b=>selectedBlocks.add(b._block));
+  // Manually select the "All Schemes" option if it exists
+  const allSchemesOption = document.querySelector('#schemeSelect option[value="__all__"]');
+  if (allSchemesOption) {
+    allSchemesOption.selected = true;
+    // Also select all other options to reflect "All Schemes" visually
+    Array.from(document.getElementById('schemeSelect').options).forEach(opt => {
+      if (opt.value !== '__all__') opt.selected = true;
+    });
+  }
+  document.querySelectorAll('#talukaChips .dept-chip').forEach(span=>span.classList.remove('selected')); // Deselect all chips initially
+  updateAll();
 }
-
 function clearDashboard() {
-  document.getElementById('kpiCol').innerHTML = "";
-  document.getElementById('tableBody').innerHTML = "";
-  document.getElementById('tableHeader').innerHTML = "";
-  barChart?.destroy(); donutChart?.destroy();
+  document.getElementById('kpiCol').innerHTML="";
+  document.getElementById('tableBody').innerHTML="";
+  document.getElementById('tableHeader').innerHTML="";
+  barChart?.destroy(); donutChart?.destroy();
 }
-
-(async()=>{
-  try {
-    const vals = await fetchSheet();
-    parse(vals);
-    renderControls();
-    showAllDefault();
-  } catch(e) {
-    alert("डेटा लोडमध्ये अडचण: " + e.message);
-  }
+function updateAll() {
+  const data = compute();
+  if(!data || data.blocksArr.length === 0) { // Check if there's any data after filtering
+    clearDashboard();
+    alert("निवडलेल्या निकषांनुसार कोणताही डेटा उपलब्ध नाही.");
+    return;
+  }
+  renderKPI(data);
+  renderBar(data);
+  renderDonut(data);
+  renderTable(data);
+}
+function downloadCSV() {
+  const data = compute();
+  if(!data || data.blocksArr.length === 0) {
+    alert("CSV निर्यात करण्यासाठी कोणताही डेटा उपलब्ध नाही.");
+    return;
+  }
+  let csv = 'रँक,' + headers.join(',') + '\n' + data.kpiData.map(r => {
+    const originalDataRow = rawData.find(x => x._block === r._block);
+    return `${r.rank},` + headers.map(h => `"${originalDataRow[h] || ''}"`).join(',');
+  }).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); // Added charset for proper Marathi display
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'taluka-data.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+(async () => {
+  try {
+    const vals = await fetchSheet();
+    parse(vals);
+    renderControls();
+    showAllDefault();
+  } catch (e) {
+    alert("डेटा लोडमध्ये अडचण: " + e.message + "\nकृपया तुमच्या API की आणि स्प्रेडशीट रेंजची खात्री करा.");
+  }
 })();
 </script>
 </body>
